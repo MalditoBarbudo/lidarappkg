@@ -7,10 +7,12 @@ library(tidyverse)
 library(leaflet)
 
 # read data
-# regions_polygons <- sf::read_sf('../../01_nfi_app/NFIappkg/data-raw/shapefiles/bm5mv20sh0tpc1_20180101_0.shp') %>%
-#   rmapshaper::ms_simplify(0.01) %>%
-#   # sf::st_transform('+proj=longlat +datum=WGS84') %>%
-#   dplyr::select(admin_region = NOMCOMAR, geometry)
+regions_polygons <- sf::read_sf('../../01_nfi_app/NFIappkg/data-raw/shapefiles/bm5mv20sh0tpc1_20180101_0.shp') %>%
+  rmapshaper::ms_simplify(0.01) %>%
+  # sf::st_transform('+proj=longlat +datum=WGS84') %>%
+  dplyr::select(admin_region = NOMCOMAR, geometry) %>%
+  dplyr::filter(admin_region == 'Alt Camp') %>%
+  sf::as_Spatial()
 #
 #
 # basal_area_stars <- stars::read_stars(
@@ -95,7 +97,7 @@ lidar_stack <- raster::stack(
 palette <- colorNumeric(
   viridis::viridis(100),
   # raster::values(basal_area_raster),
-  raster::values(rec_raster),
+  raster::values(lidar_stack$DBH),
   na.color = 'transparent'
 )
 
@@ -103,21 +105,16 @@ leaflet() %>%
   leaflet::setView(0.74, 41.70, zoom = 8) %>%
   leaflet::addProviderTiles(leaflet::providers$Esri.WorldShadedRelief, group = 'Relief') %>%
   leaflet::addProviderTiles(leaflet::providers$Esri.WorldImagery, group = 'Imaginery') %>%
-  # addRasterImage(basal_area_raster, project = FALSE, colors = palette, opacity = 0.8, group = 'basal_area') %>%
-  # addRasterImage(dbh_raster, project = FALSE, colors = palette, opacity = 0.8, group = 'dbh') %>%
-  # addRasterImage(hm_raster, project = FALSE, colors = palette, opacity = 0.8, group = 'hm') %>%
-  # addRasterImage(leaf_biomass_raster, project = FALSE, colors = palette, opacity = 0.8, group = 'leaf_biomass') %>%
-  addRasterImage(rec_raster, project = FALSE, colors = palette, opacity = 0.8, group = 'rec') %>%
-  # addRasterImage(total_aerial_biomass_raster, project = FALSE, colors = palette, opacity = 0.8, group = 'total_aerial_biomass') %>%
-  # addRasterImage(total_aerial_carbon_raster, project = FALSE, colors = palette, opacity = 0.8, group = 'total_aerial_carbon') %>%
-  # addRasterImage(vae_raster, project = FALSE, colors = palette, opacity = 0.8, group = 'vae') %>%
+  addRasterImage(lidar_stack$DBH, project = FALSE, colors = palette, opacity = 0.8, group = 'lidar') %>%
   leaflet::addLayersControl(
     baseGroups = c('Relief', 'Imaginery'),
-    overlayGroups = c('basal_area', 'dbh', 'hm', 'leaf_biomass', 'rec',
-                      'total_aerial_biomass', 'total_aerial_carbon', 'vae'),
+    overlayGroups = c('lidar'),
     options = leaflet::layersControlOptions(collapsed = TRUE)
   ) %>%
-  addLegend(pal = palette, values = raster::values(rec_raster))
+  addLegend(pal = palette, values = raster::values(lidar_stack$DBH))
+
+
+## TODO check velox, but mind about memory
 
 
 
