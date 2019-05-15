@@ -22,61 +22,74 @@ library(leaflet)
 #
 # plot(basal_area_stars_leaflet)
 
-basal_area_raster <- raster::raster(
-  'data-raw/AB.tif'
-) %>%
-  raster::aggregate(fact = 100) %>%
-  projectRasterForLeaflet('bilinear') %>%
-  raster::writeRaster('data-raw/AB_aggregated100.grd')
+# basal_area_raster <- raster::raster(
+#   'data-raw/AB.tif'
+# ) %>%
+#   raster::aggregate(fact = 100) %>%
+#   projectRasterForLeaflet('bilinear') %>%
+#   raster::writeRaster('data-raw/AB_aggregated100.grd')
+basal_area_raster <- raster::raster('data-raw/AB_aggregated100.grd')
 
-total_aerial_biomass_raster <- raster::raster(
-  'data-raw/BAT.tif'
-) %>%
-  raster::aggregate(fact = 100) %>%
-  projectRasterForLeaflet('bilinear') %>%
-  raster::writeRaster('data-raw/BAT_aggregated100.grd')
+# total_aerial_biomass_raster <- raster::raster(
+#   'data-raw/BAT.tif'
+# ) %>%
+#   raster::aggregate(fact = 100) %>%
+#   projectRasterForLeaflet('bilinear') %>%
+#   raster::writeRaster('data-raw/BAT_aggregated100.grd')
+total_aerial_biomass_raster <- raster::raster('data-raw/BAT_aggregated100.grd')
 
-leaf_biomass_raster <- raster::raster(
-  'data-raw/BF.tif'
-) %>%
-  raster::aggregate(fact = 100) %>%
-  projectRasterForLeaflet('bilinear') %>%
-  raster::writeRaster('data-raw/BF_aggregated100.grd')
+# leaf_biomass_raster <- raster::raster(
+#   'data-raw/BF.tif'
+# ) %>%
+#   raster::aggregate(fact = 100) %>%
+#   projectRasterForLeaflet('bilinear') %>%
+#   raster::writeRaster('data-raw/BF_aggregated100.grd')
+leaf_biomass_raster <- raster::raster('data-raw/BF_aggregated100.grd')
 
-total_aerial_carbon_raster <- raster::raster(
-  'data-raw/CAT.tif'
-) %>%
-  raster::aggregate(fact = 100) %>%
-  projectRasterForLeaflet('bilinear') %>%
-  raster::writeRaster('data-raw/CAT_aggregated100.grd')
+# total_aerial_carbon_raster <- raster::raster(
+#   'data-raw/CAT.tif'
+# ) %>%
+#   raster::aggregate(fact = 100) %>%
+#   projectRasterForLeaflet('bilinear') %>%
+#   raster::writeRaster('data-raw/CAT_aggregated100.grd')
+total_aerial_carbon_raster <- raster::raster('data-raw/CAT_aggregated100.grd')
 
-dbh_raster <- raster::raster(
-  'data-raw/DBH.tif'
-) %>%
-  raster::aggregate(fact = 100) %>%
-  projectRasterForLeaflet('bilinear') %>%
-  raster::writeRaster('data-raw/DBH_aggregated100.grd')
+# dbh_raster <- raster::raster(
+#   'data-raw/DBH.tif'
+# ) %>%
+#   raster::aggregate(fact = 100) %>%
+#   projectRasterForLeaflet('bilinear') %>%
+#   raster::writeRaster('data-raw/DBH_aggregated100.grd')
+dbh_raster <- raster::raster('data-raw/DBH_aggregated100.grd')
 
-hm_raster <- raster::raster(
-  'data-raw/HM.tif'
-) %>%
-  raster::aggregate(fact = 100) %>%
-  projectRasterForLeaflet('bilinear') %>%
-  raster::writeRaster('data-raw/HM_aggregated100.grd')
+# hm_raster <- raster::raster(
+#   'data-raw/HM.tif'
+# ) %>%
+#   raster::aggregate(fact = 100) %>%
+#   projectRasterForLeaflet('bilinear') %>%
+#   raster::writeRaster('data-raw/HM_aggregated100.grd')
+hm_raster <- raster::raster('data-raw/HM_aggregated100.grd')
 
-rec_raster <- raster::raster(
-  'data-raw/REC.tif'
-) %>%
-  raster::aggregate(fact = 100) %>%
-  projectRasterForLeaflet('bilinear') %>%
-  raster::writeRaster('data-raw/REC_aggregated100.grd')
+# rec_raster <- raster::raster(
+#   'data-raw/REC.tif'
+# ) %>%
+#   raster::aggregate(fact = 100) %>%
+#   projectRasterForLeaflet('bilinear') %>%
+#   raster::writeRaster('data-raw/REC_aggregated100.grd')
+rec_raster <- raster::raster('data-raw/REC_aggregated100.grd')
 
-vae_raster <- raster::raster(
-  'data-raw/VAE.tif'
-) %>%
-  raster::aggregate(fact = 100) %>%
-  projectRasterForLeaflet('bilinear') %>%
-  raster::writeRaster('data-raw/VAE_aggregated100.grd')
+# vae_raster <- raster::raster(
+#   'data-raw/VAE.tif'
+# ) %>%
+#   raster::aggregate(fact = 100) %>%
+#   projectRasterForLeaflet('bilinear') %>%
+#   raster::writeRaster('data-raw/VAE_aggregated100.grd')
+vae_raster <- raster::raster('data-raw/VAE_aggregated100.grd')
+
+lidar_stack <- raster::stack(
+  basal_area_raster, dbh_raster, hm_raster, leaf_biomass_raster, rec_raster,
+  total_aerial_biomass_raster, total_aerial_carbon_raster, vae_raster
+)
 
 # leaflet tests
 palette <- colorNumeric(
