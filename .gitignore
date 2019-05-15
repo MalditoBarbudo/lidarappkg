@@ -1,0 +1,8 @@
+.Rproj.user
+data-raw/*.tif
+data-raw/*.hdr
+data-raw/*.TFW
+data-raw/*.xml
+data-raw/*.grd
+data-raw/*.gri
+data-raw/*.ovr
