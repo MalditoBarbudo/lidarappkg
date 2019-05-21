@@ -9,3 +9,7 @@ Encoding: UTF-8
 LazyData: true
 URL: https://github.com/MalditoBarbudo/lidarappkg
 BugReports: https://github.com/MalditoBarbudo/lidarappkg/issues
+Imports: 
+    sf,
+    glue,
+    purrr

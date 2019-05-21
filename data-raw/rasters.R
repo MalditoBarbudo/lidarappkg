@@ -2,7 +2,7 @@
 
 # libraries
 library(raster)
-# library(stars)
+library(stars)
 library(tidyverse)
 library(leaflet)
 
@@ -11,18 +11,8 @@ regions_polygons <- sf::read_sf('../../01_nfi_app/NFIappkg/data-raw/shapefiles/b
   rmapshaper::ms_simplify(0.01) %>%
   # sf::st_transform('+proj=longlat +datum=WGS84') %>%
   dplyr::select(admin_region = NOMCOMAR, geometry) %>%
-  dplyr::filter(admin_region == 'Alt Camp') %>%
-  sf::as_Spatial()
-#
-#
-# basal_area_stars <- stars::read_stars(
-#   'data-raw/AB.tif', proxy = TRUE
-# ) %>%
-#   aggregate(regions_polygons)
-#
-#
-#
-# plot(basal_area_stars_leaflet)
+  dplyr::filter(admin_region %in% c('Alt Camp', 'Anoia')) #%>%
+  # sf::as_Spatial()
 
 # basal_area_raster <- raster::raster(
 #   'data-raw/AB.tif'
@@ -114,18 +104,28 @@ leaflet() %>%
   addLegend(pal = palette, values = raster::values(lidar_stack$DBH))
 
 
+## TODO check stars for calculating
+lidar_stars <- stars::read_stars(
+  list.files('data-raw', '.tif$', full.names = TRUE)[-6], proxy = TRUE
+)
+
+lidar_stars %>%
+  merge() %>%
+  magrittr::extract(regions_polygons) %>%
+  # plot(reset = FALSE)
+  stars::st_apply(3, mean, na.rm = TRUE) %>%
+  stars::st_as_stars() -> foo
+
+ggplot() +
+  geom_stars(data = foo) +
+  coord_equal() +
+  scale_fill_viridis_c(na.value = 'transparent') +
+  theme_void()
+
 ## TODO check velox, but mind about memory
 
 
-
-
-
-
-
-
-
-# ggplot() +
-#   geom_stars(data = basal_area_raster)
-
-
-# usethis::use_data("rasters")
+usethis::use_data(
+  lidar_stack,
+  overwrite = TRUE
+)
