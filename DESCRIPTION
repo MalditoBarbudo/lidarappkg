@@ -12,4 +12,7 @@ BugReports: https://github.com/MalditoBarbudo/lidarappkg/issues
 Imports: 
     sf,
     glue,
-    purrr
+    purrr,
+    shiny,
+    shinyjs,
+    shinyWidgets
