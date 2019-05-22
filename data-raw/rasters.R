@@ -77,24 +77,24 @@ lidar_stack <- raster::stack(
 )
 
 # leaflet tests ####
-palette <- colorNumeric(
-  viridis::viridis(100),
-  # raster::values(basal_area_raster),
-  raster::values(lidar_stack$DBH),
-  na.color = 'transparent'
-)
-
-leaflet() %>%
-  leaflet::setView(0.74, 41.70, zoom = 8) %>%
-  leaflet::addProviderTiles(leaflet::providers$Esri.WorldShadedRelief, group = 'Relief') %>%
-  leaflet::addProviderTiles(leaflet::providers$Esri.WorldImagery, group = 'Imaginery') %>%
-  addRasterImage(lidar_stack$DBH, project = FALSE, colors = palette, opacity = 0.8, group = 'lidar') %>%
-  leaflet::addLayersControl(
-    baseGroups = c('Relief', 'Imaginery'),
-    overlayGroups = c('lidar'),
-    options = leaflet::layersControlOptions(collapsed = TRUE)
-  ) %>%
-  addLegend(pal = palette, values = raster::values(lidar_stack$DBH))
+# palette <- colorNumeric(
+#   viridis::viridis(100),
+#   # raster::values(basal_area_raster),
+#   raster::values(lidar_stack$DBH),
+#   na.color = 'transparent'
+# )
+#
+# leaflet() %>%
+#   leaflet::setView(0.74, 41.70, zoom = 8) %>%
+#   leaflet::addProviderTiles(leaflet::providers$Esri.WorldShadedRelief, group = 'Relief') %>%
+#   leaflet::addProviderTiles(leaflet::providers$Esri.WorldImagery, group = 'Imaginery') %>%
+#   addRasterImage(lidar_stack$DBH, project = FALSE, colors = palette, opacity = 0.8, group = 'lidar') %>%
+#   leaflet::addLayersControl(
+#     baseGroups = c('Relief', 'Imaginery'),
+#     overlayGroups = c('lidar'),
+#     options = leaflet::layersControlOptions(collapsed = TRUE)
+#   ) %>%
+#   addLegend(pal = palette, values = raster::values(lidar_stack$DBH))
 
 # db writing ####
 # conn
@@ -109,7 +109,7 @@ rpostgis::pgWriteRast(
 )
 
 # lidar stack tests ####
-dbh <- rpostgis::pgGetRast(conn, 'lidar_stack', bands = 2)
+# dbh <- rpostgis::pgGetRast(conn, 'lidar_stack', bands = 2)
 
 # disconnect the db ####
 RPostgreSQL::dbDisconnect(conn)

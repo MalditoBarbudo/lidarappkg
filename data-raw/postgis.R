@@ -15,17 +15,17 @@ conn <- RPostgreSQL::dbConnect(
 
 ## tables creation ####
 # Read the rasters, write the tables and get the raster list for tests
-# list.files('data-raw', '.tif$', full.names = TRUE) %>%
-#   purrr::map(raster::raster) %>%
-#   magrittr::set_names(value = list.files('data-raw', '.tif$')) %>%
-#   purrr::iwalk(
-#     ~ rpostgis::pgWriteRast(
-#       conn,
-#       name = c('public', tolower(stringr::str_remove(.y, '\\.tif'))),
-#       raster = .x,
-#       blocks = 50, overwrite = TRUE
-#     )
-#   ) -> lidar_rasters
+list.files('data-raw', '.tif$', full.names = TRUE) %>%
+  purrr::map(raster::raster) %>%
+  magrittr::set_names(value = list.files('data-raw', '.tif$')) %>%
+  purrr::iwalk(
+    ~ rpostgis::pgWriteRast(
+      conn,
+      name = c('public', tolower(stringr::str_remove(.y, '\\.tif'))),
+      raster = .x,
+      blocks = 50, overwrite = TRUE
+    )
+  ) -> lidar_rasters
 
 ## pre-calculated data for known polygons ####
 

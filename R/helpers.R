@@ -52,3 +52,17 @@ municipalities_poly <- function(lidar_db) {
 veguerias_poly <- function(lidar_db) {
   sf::st_read(lidar_db, 'lidar_veguerias')
 }
+
+
+#' file_poly
+#'
+#' return the data calculated on-the-fly for the file loaded
+#'
+file_poly <- function(lidar_db, file, poly_id) {
+
+  # check if there is file
+  if (is.null(file)) {return()}
+
+  sf::st_read(file) %>%
+    lidar_clip(lidar_db = lidar_db, poly_id = poly_id)
+}

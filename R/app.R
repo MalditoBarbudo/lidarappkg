@@ -179,7 +179,7 @@ lidar_app <- function(
         'Municipalities' = municipalities_poly(lidar_db),
         'Veguerias' = veguerias_poly(lidar_db),
         'Drawed polygon' = drawed_poly(lidar_db),
-        'File upload' = file_poly(lidar_db)
+        'File upload' = file_poly(lidar_db, input$user_file_sel, input$poly_id_var)
       )
       return(data_res)
     })
@@ -314,7 +314,6 @@ lidar_app <- function(
       }
     )
 
-    # download handler
     # download handlers
     output$download_data_with_options <- shiny::downloadHandler(
       filename = function() {
@@ -376,6 +375,38 @@ lidar_app <- function(
         }
       }
     )
+
+    ## file upload observer ####
+    shiny::observe({
+      poly_type <- input$poly_type_sel
+      if (poly_type == 'File upload') {
+        shiny::showModal(
+          ui = shiny::modalDialog(
+            shiny::tagList(
+
+              shiny::fluidRow(
+                shiny::column(
+                  12,
+                  shiny::fileInput(
+                    'user_file_sel', 'Upload a file',
+                    accept = c('zip', 'gpkg', 'csv'),
+                    buttonLabel = 'Browse...',
+                    placeholder = 'No file selected'
+                  ),
+                  shiny::varSelectInput(
+                    'poly_id_var', 'Select the polygon id variable',
+                    data_res()
+                  )
+                )
+              )
+            ),
+            easyClose = TRUE
+          )
+        )
+      }
+    })
+
+
   } # end of server function
 
   # Run the application
