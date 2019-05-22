@@ -321,7 +321,11 @@ lidar_app <- function(
         if (input$data_format == 'shp') {
           'lidar_data.zip'
         } else {
-          glue::glue("lidar_data.{input$data_format}")
+          if (input$data_format == 'wkt') {
+            'lidar_data.csv'
+          } else {
+            'lidar_data.gpkg'
+          }
         }
       },
       content = function(file) {
