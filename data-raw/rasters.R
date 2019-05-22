@@ -1,12 +1,12 @@
 ## code to prepare `rasters` for visualization
 
-# libraries
+# libraries ####
 library(raster)
 library(stars)
 library(tidyverse)
 library(leaflet)
 
-# aggregated raster creation
+# aggregated raster creation ####
 # basal_area_raster <- raster::raster(
 #   'data-raw/AB.tif'
 # ) %>%
@@ -96,7 +96,7 @@ leaflet() %>%
   ) %>%
   addLegend(pal = palette, values = raster::values(lidar_stack$DBH))
 
-# usethis::use_data and/or db writing
+# db writing ####
 # conn
 conn <- RPostgreSQL::dbConnect(
   'PostgreSQL', host = 'localhost', dbname = 'lidargis', user = 'ifn',
@@ -108,7 +108,10 @@ rpostgis::pgWriteRast(
   conn, 'lidar_stack', lidar_stack, overwrite = TRUE
 )
 
-# disconnect the db
+# lidar stack tests ####
+dbh <- rpostgis::pgGetRast(conn, 'lidar_stack', bands = 2)
+
+# disconnect the db ####
 RPostgreSQL::dbDisconnect(conn)
 
 
