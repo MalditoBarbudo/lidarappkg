@@ -34,7 +34,8 @@ sf::read_sf(
   '../../01_nfi_app/NFIappkg/data-raw/shapefiles/bm5mv20sh0tpc1_20180101_0.shp'
 ) %>%
   dplyr::select(poly_id = NOMCOMAR, geometry) %>%
-  lidar_clip(lidar_db = conn, poly_id = 'poly_id') -> lidar_comarcas
+  lidar_clip(lidar_db = conn, poly_id = 'poly_id') %>%
+  rmapshaper::ms_simplify(0.01) -> lidar_comarcas
 sf::st_write(lidar_comarcas, conn, overwrite = TRUE)
 # municipios
 sf::read_sf(

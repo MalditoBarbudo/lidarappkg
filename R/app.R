@@ -198,7 +198,11 @@ lidar_app <- function(
 
     output$raster_map <- leaflet::renderLeaflet({
 
-      # browser()
+      # shiny::validate(
+      #   shiny::need(data_res(), 'No data'),
+      #   shiny::need(input$poly_type_sel, 'No polygon type selected'),
+      #   shiny::need(input$lidar_val_sel, 'No lidar variable selected')
+      # )
 
       lidar_band <- switch(
         input$lidar_var_sel,
@@ -217,25 +221,134 @@ lidar_app <- function(
       pool::poolReturn(temp_postgresql_conn)
       # rm(temp_postgresql_conn)
 
-      palette <- colorNumeric(
+      palette <- leaflet::colorNumeric(
         viridis::magma(100),
         # raster::values(basal_area_raster),
         raster::values(lidar_raster),
         na.color = 'transparent'
       )
 
+      poly_type <- input$poly_type_sel
+      var_column <- glue::glue('mean_{tolower(input$lidar_var_sel)}')
+      user_poly <- data_res() %>%
+        sf::st_transform('+proj=longlat +datum=WGS84') %>%
+        dplyr::select(poly_id, !! rlang::sym(var_column))
+
       leaflet::leaflet() %>%
         leaflet::setView(1, 41.70, zoom = 8) %>%
         leaflet::addProviderTiles(leaflet::providers$Esri.WorldShadedRelief, group = 'Relief') %>%
         leaflet::addProviderTiles(leaflet::providers$Esri.WorldImagery, group = 'Imaginery') %>%
-        addRasterImage(lidar_raster, project = FALSE, colors = palette, opacity = 0.8, group = 'lidar') %>%
         leaflet::addLayersControl(
           baseGroups = c('Relief', 'Imaginery'),
-          overlayGroups = c('lidar'),
+          overlayGroups = c('lidar', 'poly'),
           options = leaflet::layersControlOptions(collapsed = TRUE)
         ) %>%
-        addLegend(pal = palette, values = raster::values(lidar_raster))
+        leaflet::clearGroup('raster') %>%
+        leaflet::clearGroup('poly') %>%
+        leaflet::addRasterImage(
+          lidar_raster, project = FALSE, colors = palette, opacity = 1, group = 'lidar'
+        ) %>%
+        leaflet::addPolygons(
+          data = user_poly, group = 'poly',
+          label = ~poly_id,
+          weight = 1, smoothFactor = 1,
+          opacity = 1.0, fill = TRUE,
+          color = '#6C7A89FF', fillColor = palette(user_poly[[var_column]]),
+          fillOpacity = 0.7,
+          highlightOptions = leaflet::highlightOptions(
+            color = "#CF000F", weight = 2,
+            bringToFront = FALSE
+          )
+        ) %>%
+        leaflet::addLegend(
+          pal = palette, values = raster::values(lidar_raster),
+          title = input$lidar_var_sel, position = 'bottomright'
+        )
     })
+
+    # output$raster_map <- leaflet::renderLeaflet({
+    #
+    #   # browser()
+    #
+    #   lidar_band <- switch(
+    #     input$lidar_var_sel,
+    #     'AB' = 1,
+    #     'BAT' = 6,
+    #     'BF' = 4,
+    #     'CAT' = 7,
+    #     'DBH' = 2,
+    #     'HM' = 3,
+    #     'REC' = 5,
+    #     'VAE' = 8
+    #   )
+    #
+    #   temp_postgresql_conn <- pool::poolCheckout(lidar_db)
+    #   lidar_raster <- rpostgis::pgGetRast(temp_postgresql_conn, 'lidar_stack', bands = lidar_band)
+    #   pool::poolReturn(temp_postgresql_conn)
+    #   # rm(temp_postgresql_conn)
+    #
+    #   palette <- leaflet::colorNumeric(
+    #     viridis::magma(100),
+    #     # raster::values(basal_area_raster),
+    #     raster::values(lidar_raster),
+    #     na.color = 'transparent'
+    #   )
+    #
+    #   leaflet::leaflet() %>%
+    #     leaflet::setView(1, 41.70, zoom = 8) %>%
+    #     leaflet::addProviderTiles(leaflet::providers$Esri.WorldShadedRelief, group = 'Relief') %>%
+    #     leaflet::addProviderTiles(leaflet::providers$Esri.WorldImagery, group = 'Imaginery') %>%
+    #     leaflet::addRasterImage(lidar_raster, project = FALSE, colors = palette, opacity = 1, group = 'lidar') %>%
+    #     leaflet::addLayersControl(
+    #       baseGroups = c('Relief', 'Imaginery'),
+    #       overlayGroups = c('lidar', 'poly'),
+    #       options = leaflet::layersControlOptions(collapsed = TRUE)
+    #     ) %>%
+    #     leaflet::addLegend(
+    #       pal = palette, values = raster::values(lidar_raster), title = 'Raster legend'
+    #     )
+    # })
+    #
+    #
+    # observer to update the polygons
+    # shiny::observe({
+    #
+    #
+    #   shiny::validate(
+    #     shiny::need(input$poly_type_sel, 'No polygon type selected')
+    #   )
+    #
+    #   # browser()
+    #   poly_type <- input$poly_type_sel
+    #   var_column <- glue::glue('mean_{tolower(input$lidar_var_sel)}')
+    #   user_poly <- data_res() %>%
+    #     sf::st_transform('+proj=longlat +datum=WGS84') %>%
+    #     dplyr::select(poly_id, !! rlang::sym(var_column))
+    #   palette_polys <- leaflet::colorNumeric(
+    #     viridis::magma(100),
+    #     raster::values(lidar_raster), na.color = 'transparent'
+    #   )
+    #
+    #   leaflet::leafletProxy('raster_map') %>%
+    #     leaflet::clearGroup(group = 'poly') %>%
+    #     leaflet::clearGroup(group = 'raster') %>%
+    #     leaflet::addPolygons(
+    #       data = user_poly, group = 'poly',
+    #       label = ~poly_id,
+    #       weight = 1, smoothFactor = 1,
+    #       opacity = 1.0, fill = TRUE,
+    #       color = '#6C7A89FF', fillColor = palette_polys(user_poly[[var_column]]),
+    #       fillOpacity = 0.3,
+    #       highlightOptions = leaflet::highlightOptions(
+    #         color = "#CF000F", weight = 2,
+    #         bringToFront = FALSE
+    #       )
+    #     ) %>%
+    #     leaflet::addLegend(
+    #       position = 'bottomright', pal = palette_polys, values = user_poly[[var_column]],
+    #       title = var_column, group = 'poly'
+    #     )
+    # })
 
 
   } # end of server function

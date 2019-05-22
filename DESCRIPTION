@@ -20,3 +20,4 @@ Imports:
     viridis,
     leaflet,
     rpostgis
+RoxygenNote: 6.1.1
