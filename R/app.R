@@ -9,9 +9,13 @@ lidar_app <- function(
 ) {
 
   ### DB access ################################################################
-  lidar_db <- RPostgreSQL::dbConnect(
-    'PostgreSQL', host = host, dbname = dbname, user = user,
-    password = password, port = port
+  lidar_db <- pool::dbPool(
+    RPostgreSQL::PostgreSQL(),
+    user = user,
+    password = password,
+    dbname = dbname,
+    host = host,
+    port = port
   )
 
   ### Variables names inter ####################################################
@@ -142,9 +146,11 @@ lidar_app <- function(
             ),
 
             # res output
+            shiny::h4('Results'),
             shiny::tableOutput('poly_res_table'),
 
             # download buttons
+            shiny::h4('Download'),
             shinyWidgets::actionBttn(
               'download_trigger_btn', 'Download', icon = shiny::icon('download'),
               color = 'success', size = 'sm'
@@ -153,10 +159,10 @@ lidar_app <- function(
           mainPanel = shiny::mainPanel(
             width = 8,
             # map module
-            shiny::div(
-              class = 'mapouter',
-              leaflet::leafletOutput('raster_map', height = '100%')
-            )
+            # shiny::div(
+            #   class = 'mapouter',
+              leaflet::leafletOutput('raster_map', height = 600)
+            # )
           )
         ) # end of sidebar layout
       ) # end of fluidPage
@@ -164,28 +170,71 @@ lidar_app <- function(
 
     # proper server ####
 
-    # poly_reactive
-    poly_to_sf <- shiny::reactive({
+    # data res reactive
+    data_res <- shiny::reactive({
 
-      poly_sel <- switch (input$poly_type_sel,
-        'Catalonia' = catalonia_poly(),
-        'Provinces' = provinces_poly(),
-        'Counties' = counties_poly(),
-        'Municipalities' = municipalities_poly(),
-        'Veguerias' = veguerias_poly(),
-        'Drawed polygon' = drawed_poly(),
-        'File upload' = file_poly()
+      data_res <- switch(input$poly_type_sel,
+        'Catalonia' = catalonia_poly(lidar_db),
+        'Provinces' = provinces_poly(lidar_db),
+        'Counties' = counties_poly(lidar_db),
+        'Municipalities' = municipalities_poly(lidar_db),
+        'Veguerias' = veguerias_poly(lidar_db),
+        'Drawed polygon' = drawed_poly(lidar_db),
+        'File upload' = file_poly(lidar_db)
       )
-
+      return(data_res)
     })
 
 
     output$poly_res_table <- shiny::renderTable({
 
-      lidar_var <- input$lidar_var_sel
+      lidar_var <- tolower(input$lidar_var_sel)
+      var_column <- glue::glue("mean_{lidar_var}")
 
+      data_res() %>%
+        dplyr::as_tibble() %>%
+        dplyr::select(poly_id, !! rlang::sym(var_column))
+    })
 
+    output$raster_map <- leaflet::renderLeaflet({
 
+      # browser()
+
+      lidar_band <- switch(
+        input$lidar_var_sel,
+        'AB' = 1,
+        'BAT' = 6,
+        'BF' = 4,
+        'CAT' = 7,
+        'DBH' = 2,
+        'HM' = 3,
+        'REC' = 5,
+        'VAE' = 8
+      )
+
+      temp_postgresql_conn <- pool::poolCheckout(lidar_db)
+      lidar_raster <- rpostgis::pgGetRast(temp_postgresql_conn, 'lidar_stack', bands = lidar_band)
+      pool::poolReturn(temp_postgresql_conn)
+      # rm(temp_postgresql_conn)
+
+      palette <- colorNumeric(
+        viridis::magma(100),
+        # raster::values(basal_area_raster),
+        raster::values(lidar_raster),
+        na.color = 'transparent'
+      )
+
+      leaflet::leaflet() %>%
+        leaflet::setView(1, 41.70, zoom = 8) %>%
+        leaflet::addProviderTiles(leaflet::providers$Esri.WorldShadedRelief, group = 'Relief') %>%
+        leaflet::addProviderTiles(leaflet::providers$Esri.WorldImagery, group = 'Imaginery') %>%
+        addRasterImage(lidar_raster, project = FALSE, colors = palette, opacity = 0.8, group = 'lidar') %>%
+        leaflet::addLayersControl(
+          baseGroups = c('Relief', 'Imaginery'),
+          overlayGroups = c('lidar'),
+          options = leaflet::layersControlOptions(collapsed = TRUE)
+        ) %>%
+        addLegend(pal = palette, values = raster::values(lidar_raster))
     })
 
 
@@ -197,7 +246,9 @@ lidar_app <- function(
     onStart = function() {
 
       ## on stop routine to cloose the db pool
-      RPostgreSQL::dbDisconnect(lidar_db)
+      shiny::onStop(function() {
+        pool::poolClose(lidar_db)
+      })
     }
   )
 

@@ -15,4 +15,8 @@ Imports:
     purrr,
     shiny,
     shinyjs,
-    shinyWidgets
+    shinyWidgets,
+    dplyr,
+    viridis,
+    leaflet,
+    rpostgis
