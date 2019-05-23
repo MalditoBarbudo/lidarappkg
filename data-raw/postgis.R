@@ -15,17 +15,17 @@ conn <- RPostgreSQL::dbConnect(
 
 ## tables creation ####
 # Read the rasters, write the tables and get the raster list for tests
-list.files('data-raw', '.tif$', full.names = TRUE) %>%
-  purrr::map(raster::raster) %>%
-  magrittr::set_names(value = list.files('data-raw', '.tif$')) %>%
-  purrr::iwalk(
-    ~ rpostgis::pgWriteRast(
-      conn,
-      name = c('public', tolower(stringr::str_remove(.y, '\\.tif'))),
-      raster = .x,
-      blocks = 50, overwrite = TRUE
-    )
-  ) -> lidar_rasters
+# list.files('data-raw', '.tif$', full.names = TRUE) %>%
+#   purrr::map(raster::raster) %>%
+#   magrittr::set_names(value = list.files('data-raw', '.tif$')) %>%
+#   purrr::iwalk(
+#     ~ rpostgis::pgWriteRast(
+#       conn,
+#       name = c('public', tolower(stringr::str_remove(.y, '\\.tif'))),
+#       raster = .x,
+#       blocks = 50, overwrite = TRUE
+#     )
+#   ) -> lidar_rasters
 
 ## pre-calculated data for known polygons ####
 
@@ -42,28 +42,32 @@ sf::read_sf(
   '../../01_nfi_app/NFIappkg/data-raw/shapefiles/bm5mv20sh0tpm1_20180101_0.shp'
 ) %>%
   dplyr::select(poly_id = NOMMUNI, geometry) %>%
-  lidar_clip(lidar_db = conn, poly_id = 'poly_id') -> lidar_municipios
+  lidar_clip(lidar_db = conn, poly_id = 'poly_id') %>%
+  rmapshaper::ms_simplify(0.01) -> lidar_municipios
 sf::st_write(lidar_municipios, conn, overwrite = TRUE)
 # provincias
 sf::read_sf(
   '../../01_nfi_app/NFIappkg/data-raw/shapefiles/bm5mv20sh0tpp1_20180101_0.shp'
 ) %>%
   dplyr::select(poly_id = NOMPROV, geometry) %>%
-  lidar_clip(lidar_db = conn, poly_id = 'poly_id') -> lidar_provincias
+  lidar_clip(lidar_db = conn, poly_id = 'poly_id') %>%
+  rmapshaper::ms_simplify(0.01) -> lidar_provincias
 sf::st_write(lidar_provincias, conn, overwrite = TRUE)
 # veguerias
 sf::read_sf(
   '../../01_nfi_app/NFIappkg/data-raw/shapefiles/bm5mv20sh0tpv1_20180101_0.shp'
 ) %>%
   dplyr::select(poly_id = NOMVEGUE, geometry) %>%
-  lidar_clip(lidar_db = conn, poly_id = 'poly_id') -> lidar_veguerias
+  lidar_clip(lidar_db = conn, poly_id = 'poly_id') %>%
+  rmapshaper::ms_simplify(0.01) -> lidar_veguerias
 sf::st_write(lidar_veguerias, conn, overwrite = TRUE)
 # cataluña
 sf::read_sf(
   '../../01_nfi_app/NFIappkg/data-raw/shapefiles/catalunya.shp'
 ) %>%
   dplyr::select(poly_id = NOM_CA, geometry) %>%
-  lidar_clip(lidar_db = conn, poly_id = 'poly_id') -> lidar_catalunya
+  lidar_clip(lidar_db = conn, poly_id = 'poly_id') %>%
+  rmapshaper::ms_simplify(0.01) -> lidar_catalunya
 sf::st_write(lidar_catalunya, conn, overwrite = TRUE)
 
 
