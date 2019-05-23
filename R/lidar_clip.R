@@ -6,6 +6,7 @@
 #' @param vars character vector with the lidar variables to summarise
 #' @param lidar_db dbi connection
 #' @param poly_id sf column name containing the polygon identificator, as character
+#' @param safe logical indicating if memory and time safeguards are active
 #' @param ... not implemented
 #'
 #' @return a sf data frame with the variables mean (each var a column) for each polygon
@@ -14,6 +15,7 @@
 #' @export
 lidar_clip <- function(
   sf, vars = c('AB', 'BAT', 'BF', 'CAT', 'DBH', 'HM', 'REC', 'VAE'), lidar_db, poly_id,
+  safe = TRUE,
   ...
 ) {
 
@@ -26,10 +28,30 @@ lidar_clip <- function(
     stop('one or more vars provided are not allowed. See help ?lidar_clip for more detail')
   }
 
-  # first step, write the temp sf table
+  # first step, load the temp sf table
   user_polygons <- sf %>%
     sf::st_transform(crs = 3043) %>%
-    sf::st_set_crs(3043)
+    sf::st_set_crs(3043) %>% {
+      temp_data <- .
+      if ('geom' %in% names(temp_data)) {
+        temp_data <- dplyr::rename(temp_data, geometry = geom)
+      }
+      temp_data
+    }
+
+  ## Important checks for area, number of features... ####
+  if (isTRUE(safe)) {
+    # area check
+    if (sf::st_area(user_polygons) %>% sum() %>% as.numeric() > 200000000) {
+      stop('Polygon area (or polygons sum of areas) are above the maximum value (200 km2)')
+    }
+    # feature number
+    if (sf::st_geometry(user_polygons) %>% length() > 10) {
+      stop('Number of features (polygons) is above the maximum value (10 polygons)')
+    }
+  }
+
+  # second step, write the temp table to the db, only after the checks are done
   sf::st_write(user_polygons, lidar_db, overwrite = TRUE)
 
   # build the query/queries with glue to be able to insert the poly id column and

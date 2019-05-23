@@ -145,6 +145,28 @@ lidar_app <- function(
               selected = 'Provinces'
             ),
 
+            # hidden file selector div
+            shinyjs::hidden(
+              shiny::div(
+                id = 'tururu',
+                shiny::fluidRow(
+                  shiny::column(
+                    12,
+                    shiny::fileInput(
+                      'user_file_sel', 'Upload a file',
+                      accept = c('zip', 'gpkg', 'csv'),
+                      buttonLabel = 'Browse...',
+                      placeholder = 'No file selected'
+                    )#,
+                    # shiny::selectInput(
+                    #   'poly_id_var', 'Select the polygon id variable',
+                    #   names(data_res())
+                    # )
+                  )
+                )
+              )
+            ),
+
             # res output
             shiny::h4('Results'),
             shiny::tableOutput('poly_res_table'),
@@ -187,6 +209,10 @@ lidar_app <- function(
     # table output ####
     output$poly_res_table <- shiny::renderTable({
 
+      shiny::validate(
+        shiny::need(data_res(), 'No data yet')
+      )
+
       lidar_var <- tolower(input$lidar_var_sel)
       var_column <- glue::glue("mean_{lidar_var}")
 
@@ -198,11 +224,11 @@ lidar_app <- function(
     ## map output ####
     output$raster_map <- leaflet::renderLeaflet({
 
-      # shiny::validate(
-      #   shiny::need(data_res(), 'No data'),
-      #   shiny::need(input$poly_type_sel, 'No polygon type selected'),
-      #   shiny::need(input$lidar_val_sel, 'No lidar variable selected')
-      # )
+      shiny::validate(
+        shiny::need(data_res(), 'No data')
+        # shiny::need(input$poly_type_sel, 'No polygon type selected'),
+        # shiny::need(input$lidar_val_sel, 'No lidar variable selected')
+      )
 
       # band to get from db stack
       lidar_band <- switch(
@@ -377,35 +403,17 @@ lidar_app <- function(
     )
 
     ## file upload observer ####
-    shiny::observe({
-      poly_type <- input$poly_type_sel
-      if (poly_type == 'File upload') {
-        shiny::showModal(
-          ui = shiny::modalDialog(
-            shiny::tagList(
-
-              shiny::fluidRow(
-                shiny::column(
-                  12,
-                  shiny::fileInput(
-                    'user_file_sel', 'Upload a file',
-                    accept = c('zip', 'gpkg', 'csv'),
-                    buttonLabel = 'Browse...',
-                    placeholder = 'No file selected'
-                  ),
-                  shiny::varSelectInput(
-                    'poly_id_var', 'Select the polygon id variable',
-                    data_res()
-                  )
-                )
-              )
-            ),
-            easyClose = TRUE
-          )
-        )
+    shiny::observeEvent(
+      eventExpr = input$poly_type_sel,
+      handlerExpr = {
+        poly_type <- input$poly_type_sel
+        if (poly_type == 'File upload') {
+          shinyjs::show('tururu')
+        } else {
+          shinyjs::hide('tururu')
+        }
       }
-    })
-
+    )
 
   } # end of server function
 

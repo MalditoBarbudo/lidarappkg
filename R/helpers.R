@@ -60,9 +60,10 @@ veguerias_poly <- function(lidar_db) {
 #'
 file_poly <- function(lidar_db, file, poly_id) {
 
-  # check if there is file
-  if (is.null(file)) {return()}
+  shiny::validate(
+    shiny::need(file, 'no file selected')
+  )
 
-  sf::st_read(file) %>%
-    lidar_clip(lidar_db = lidar_db, poly_id = poly_id)
+  res <- sf::st_read(file$datapath, as_tibble = TRUE) %>%
+    lidar_clip(lidar_db = lidar_db, poly_id = names(.)[1])
 }

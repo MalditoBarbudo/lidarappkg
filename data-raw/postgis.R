@@ -34,7 +34,7 @@ sf::read_sf(
   '../../01_nfi_app/NFIappkg/data-raw/shapefiles/bm5mv20sh0tpc1_20180101_0.shp'
 ) %>%
   dplyr::select(poly_id = NOMCOMAR, geometry) %>%
-  lidar_clip(lidar_db = conn, poly_id = 'poly_id') %>%
+  lidar_clip(lidar_db = conn, poly_id = 'poly_id', safe = FALSE) %>%
   rmapshaper::ms_simplify(0.01) -> lidar_comarcas
 sf::st_write(lidar_comarcas, conn, overwrite = TRUE)
 # municipios
@@ -42,7 +42,7 @@ sf::read_sf(
   '../../01_nfi_app/NFIappkg/data-raw/shapefiles/bm5mv20sh0tpm1_20180101_0.shp'
 ) %>%
   dplyr::select(poly_id = NOMMUNI, geometry) %>%
-  lidar_clip(lidar_db = conn, poly_id = 'poly_id') %>%
+  lidar_clip(lidar_db = conn, poly_id = 'poly_id', safe = FALSE) %>%
   rmapshaper::ms_simplify(0.01) -> lidar_municipios
 sf::st_write(lidar_municipios, conn, overwrite = TRUE)
 # provincias
@@ -50,7 +50,7 @@ sf::read_sf(
   '../../01_nfi_app/NFIappkg/data-raw/shapefiles/bm5mv20sh0tpp1_20180101_0.shp'
 ) %>%
   dplyr::select(poly_id = NOMPROV, geometry) %>%
-  lidar_clip(lidar_db = conn, poly_id = 'poly_id') %>%
+  lidar_clip(lidar_db = conn, poly_id = 'poly_id', safe = FALSE) %>%
   rmapshaper::ms_simplify(0.01) -> lidar_provincias
 sf::st_write(lidar_provincias, conn, overwrite = TRUE)
 # veguerias
@@ -58,7 +58,7 @@ sf::read_sf(
   '../../01_nfi_app/NFIappkg/data-raw/shapefiles/bm5mv20sh0tpv1_20180101_0.shp'
 ) %>%
   dplyr::select(poly_id = NOMVEGUE, geometry) %>%
-  lidar_clip(lidar_db = conn, poly_id = 'poly_id') %>%
+  lidar_clip(lidar_db = conn, poly_id = 'poly_id', safe = FALSE) %>%
   rmapshaper::ms_simplify(0.01) -> lidar_veguerias
 sf::st_write(lidar_veguerias, conn, overwrite = TRUE)
 # cataluña
@@ -66,7 +66,7 @@ sf::read_sf(
   '../../01_nfi_app/NFIappkg/data-raw/shapefiles/catalunya.shp'
 ) %>%
   dplyr::select(poly_id = NOM_CA, geometry) %>%
-  lidar_clip(lidar_db = conn, poly_id = 'poly_id') %>%
+  lidar_clip(lidar_db = conn, poly_id = 'poly_id', safe = FALSE) %>%
   rmapshaper::ms_simplify(0.01) -> lidar_catalunya
 sf::st_write(lidar_catalunya, conn, overwrite = TRUE)
 
