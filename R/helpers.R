@@ -64,6 +64,29 @@ file_poly <- function(lidar_db, file, poly_id) {
     shiny::need(file, 'no file selected')
   )
 
-  res <- sf::st_read(file$datapath, as_tibble = TRUE) %>%
+  sf::st_read(file$datapath, as_tibble = TRUE) %>%
     lidar_clip(lidar_db = lidar_db, poly_id = names(.)[1])
 }
+
+
+#' drawed_poly
+#'
+#' return the data calculated on-the-fly for the drawed poly from leaflet
+drawed_poly <- function(lidar_db, custom_polygon) {
+
+  shiny::validate(
+    shiny::need(custom_polygon, 'no custom polygon drawed')
+  )
+
+  custom_polygon[['features']][[1]][['geometry']][['coordinates']] %>%
+    purrr::flatten() %>%
+    purrr::modify_depth(1, purrr::set_names, nm = c('long', 'lat')) %>%
+    dplyr::bind_rows() %>%
+    {list(as.matrix(.))} %>%
+    sf::st_polygon() %>%
+    sf::st_sfc() %>%
+    sf::st_sf(crs = "+proj=longlat +datum=WGS84") %>%
+    dplyr::mutate(poly_id = 'custom_polygon') %>%
+    lidar_clip(lidar_db = lidar_db, poly_id = 'poly_id')
+}
+

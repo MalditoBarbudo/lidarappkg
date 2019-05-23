@@ -19,5 +19,6 @@ Imports:
     dplyr,
     viridis,
     leaflet,
-    rpostgis
+    rpostgis,
+    leaflet.extras
 RoxygenNote: 6.1.1

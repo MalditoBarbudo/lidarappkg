@@ -42,12 +42,18 @@ lidar_clip <- function(
   ## Important checks for area, number of features... ####
   if (isTRUE(safe)) {
     # area check
-    if (sf::st_area(user_polygons) %>% sum() %>% as.numeric() > 200000000) {
-      stop('Polygon area (or polygons sum of areas) are above the maximum value (200 km2)')
+    user_area <- sf::st_area(user_polygons) %>% sum() %>% as.numeric()
+    if (user_area > 500000000) {
+      stop(glue::glue(
+        'Polygon area (or polygons sum of areas) are above the maximum value ({user_area} > 500 km2)'
+      ))
     }
     # feature number
-    if (sf::st_geometry(user_polygons) %>% length() > 10) {
-      stop('Number of features (polygons) is above the maximum value (10 polygons)')
+    user_features <- sf::st_geometry(user_polygons) %>% length()
+    if (user_features > 10) {
+      stop(glue::glue(
+        'Number of features (polygons) is above the maximum value ({user_features} > 10 polygons)'
+      ))
     }
   }
 

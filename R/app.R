@@ -200,7 +200,7 @@ lidar_app <- function(
         'Counties' = counties_poly(lidar_db),
         'Municipalities' = municipalities_poly(lidar_db),
         'Veguerias' = veguerias_poly(lidar_db),
-        'Drawed polygon' = drawed_poly(lidar_db),
+        'Drawed polygon' = drawed_poly(lidar_db, input$raster_map_draw_all_features),
         'File upload' = file_poly(lidar_db, input$user_file_sel, input$poly_id_var)
       )
       return(data_res)
@@ -293,6 +293,20 @@ lidar_app <- function(
         leaflet::addLegend(
           pal = palette, values = raster::values(lidar_raster),
           title = input$lidar_var_sel, position = 'bottomright'
+        ) %>%
+        # leaflet.extras plugins
+        leaflet.extras::addDrawToolbar(
+          targetGroup = 'poly',
+          position = 'topleft',
+          polylineOptions = FALSE, circleOptions = FALSE, rectangleOptions = FALSE,
+          markerOptions = FALSE, circleMarkerOptions = FALSE,
+          polygonOptions = leaflet.extras::drawPolygonOptions(
+            shapeOptions = leaflet.extras::drawShapeOptions()
+          ),
+          editOptions = leaflet.extras::editToolbarOptions(
+            edit = TRUE, remove = TRUE
+          ),
+          singleFeature = TRUE
         )
     })
 
@@ -414,6 +428,8 @@ lidar_app <- function(
         }
       }
     )
+
+    ## drawed poly observer ####
 
   } # end of server function
 
