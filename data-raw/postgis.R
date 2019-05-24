@@ -37,14 +37,6 @@ sf::read_sf(
   lidar_clip(lidar_db = conn, poly_id = 'poly_id', safe = FALSE) %>%
   rmapshaper::ms_simplify(0.01) -> lidar_comarcas
 sf::st_write(lidar_comarcas, conn, overwrite = TRUE)
-# municipios
-sf::read_sf(
-  '../../01_nfi_app/NFIappkg/data-raw/shapefiles/bm5mv20sh0tpm1_20180101_0.shp'
-) %>%
-  dplyr::select(poly_id = NOMMUNI, geometry) %>%
-  lidar_clip(lidar_db = conn, poly_id = 'poly_id', safe = FALSE) %>%
-  rmapshaper::ms_simplify(0.01) -> lidar_municipios
-sf::st_write(lidar_municipios, conn, overwrite = TRUE)
 # provincias
 sf::read_sf(
   '../../01_nfi_app/NFIappkg/data-raw/shapefiles/bm5mv20sh0tpp1_20180101_0.shp'
@@ -53,6 +45,32 @@ sf::read_sf(
   lidar_clip(lidar_db = conn, poly_id = 'poly_id', safe = FALSE) %>%
   rmapshaper::ms_simplify(0.01) -> lidar_provincias
 sf::st_write(lidar_provincias, conn, overwrite = TRUE)
+# municipios
+admin_thes <- sf::read_sf('../../01_nfi_app/NFIappkg/data-raw/shapefiles/bm5mv20sh0tpm1_20180101_0.shp') %>%
+  dplyr::as_tibble() %>%
+  dplyr::select(-geometry) %>%
+  dplyr::left_join(
+    sf::read_sf('../../01_nfi_app/NFIappkg/data-raw/shapefiles/bm5mv20sh0tpp1_20180101_0.shp') %>%
+      dplyr::as_tibble() %>%
+      dplyr::select(NOMPROV, CODIPROV)
+  ) %>%
+  dplyr::left_join(
+    sf::read_sf('../../01_nfi_app/NFIappkg/data-raw/shapefiles/bm5mv20sh0tpc1_20180101_0.shp') %>%
+      dplyr::as_tibble() %>%
+      dplyr::select(NOMCOMAR, CODICOMAR)
+  ) %>%
+  dplyr::select(
+    poly_id = NOMMUNI, comarca = NOMCOMAR, provincia = NOMPROV
+  )
+sf::read_sf(
+  '../../01_nfi_app/NFIappkg/data-raw/shapefiles/bm5mv20sh0tpm1_20180101_0.shp'
+) %>%
+  dplyr::select(poly_id = NOMMUNI, geometry) %>%
+  lidar_clip(lidar_db = conn, poly_id = 'poly_id', safe = FALSE) %>%
+  rmapshaper::ms_simplify(0.01) %>%
+  dplyr::left_join(admin_thes, by = 'poly_id') %>%
+  dplyr::select(poly_id, comarca, provincia, everything()) -> lidar_municipios
+sf::st_write(lidar_municipios, conn, overwrite = TRUE)
 # veguerias
 sf::read_sf(
   '../../01_nfi_app/NFIappkg/data-raw/shapefiles/bm5mv20sh0tpv1_20180101_0.shp'
@@ -69,8 +87,6 @@ sf::read_sf(
   lidar_clip(lidar_db = conn, poly_id = 'poly_id', safe = FALSE) %>%
   rmapshaper::ms_simplify(0.01) -> lidar_catalunya
 sf::st_write(lidar_catalunya, conn, overwrite = TRUE)
-
-
 
 ## Tests ####
 # regions_polygons <- sf::read_sf('../../01_nfi_app/NFIappkg/data-raw/shapefiles/bm5mv20sh0tpc1_20180101_0.shp') %>%
