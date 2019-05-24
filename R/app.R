@@ -179,12 +179,10 @@ lidar_app <- function(
           ),
           mainPanel = shiny::mainPanel(
             width = 8,
-            # map module
-            # shiny::div(
-            #   class = 'mapouter',
             leaflet::leafletOutput('raster_map', height = 600) %>%
-              shinyWidgets::addSpinner(spin = 'cube', color = '#26a65b')
-            # )
+              shinyWidgets::addSpinner(spin = 'cube', color = '#26a65b'),
+            shiny::p('Raster for visualization has a cell size of 400x400 meters.',
+                     'Raster for calculations has a cell size of 20x20 meters.')
           )
         ) # end of sidebar layout
       ) # end of fluidPage
