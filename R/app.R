@@ -182,7 +182,8 @@ lidar_app <- function(
             # map module
             # shiny::div(
             #   class = 'mapouter',
-              leaflet::leafletOutput('raster_map', height = 600)
+            leaflet::leafletOutput('raster_map', height = 600) %>%
+              shinyWidgets::addSpinner(spin = 'cube-grid', color = '#26a65b')
             # )
           )
         ) # end of sidebar layout
@@ -266,12 +267,18 @@ lidar_app <- function(
       # proper map
       leaflet::leaflet() %>%
         leaflet::setView(1, 41.70, zoom = 8) %>%
-        leaflet::addProviderTiles(leaflet::providers$Esri.WorldShadedRelief, group = 'Relief') %>%
-        leaflet::addProviderTiles(leaflet::providers$Esri.WorldImagery, group = 'Imaginery') %>%
+        leaflet::addProviderTiles(
+          leaflet::providers$Esri.WorldShadedRelief, group = 'Relief'
+        ) %>%
+        leaflet::addProviderTiles(
+          leaflet::providers$Esri.WorldImagery, group = 'Imaginery'
+        ) %>%
+        leaflet::addMapPane('polys', zIndex = 410) %>%
+        leaflet::addMapPane('rasters', zIndex = 420) %>%
         leaflet::addLayersControl(
           baseGroups = c('Relief', 'Imaginery'),
           overlayGroups = c('lidar', 'poly'),
-          options = leaflet::layersControlOptions(collapsed = TRUE)
+          options = leaflet::layersControlOptions(collapsed = TRUE, autoZIndex = FALSE)
         ) %>%
         leaflet::clearGroup('raster') %>%
         leaflet::clearGroup('poly') %>%
@@ -288,11 +295,15 @@ lidar_app <- function(
           highlightOptions = leaflet::highlightOptions(
             color = "#CF000F", weight = 2,
             bringToFront = FALSE
+          ),
+          options = leaflet::pathOptions(
+            pane = 'polys'
           )
         ) %>%
         leaflet::addLegend(
           pal = palette, values = raster::values(lidar_raster),
-          title = input$lidar_var_sel, position = 'bottomright'
+          title = input$lidar_var_sel, position = 'bottomright',
+          opacity = 1
         ) %>%
         # leaflet.extras plugins
         leaflet.extras::addDrawToolbar(

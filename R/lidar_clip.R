@@ -82,7 +82,7 @@ lidar_clip <- function(
       ~ sf::st_read(lidar_db, query = .x) %>% dplyr::as_tibble()
     ) %>%
     purrr::reduce(dplyr::left_join, by = c('poly_id')) %>%
-    dplyr::select(poly_id, starts_with('mean_'), geometry = geometry.x) %>%
+    dplyr::select(poly_id, dplyr::starts_with('mean_'), geometry = geometry.x) %>%
     sf::st_as_sf()
 
   return(res)
