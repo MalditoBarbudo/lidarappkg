@@ -181,7 +181,7 @@ lidar_app <- function(
             width = 8,
             leaflet::leafletOutput('raster_map', height = 600) %>%
               shinyWidgets::addSpinner(spin = 'cube', color = '#26a65b'),
-            shiny::p('Raster for visualization has a cell size of 400x400 meters.',
+            shiny::p('Raster for visualization has a cell size of 100x100 meters.',
                      'Raster for calculations has a cell size of 20x20 meters.')
           )
         ) # end of sidebar layout
@@ -276,8 +276,9 @@ lidar_app <- function(
         leaflet::addLayersControl(
           baseGroups = c('Relief', 'Imaginery'),
           overlayGroups = c('lidar', 'poly'),
-          options = leaflet::layersControlOptions(collapsed = TRUE, autoZIndex = FALSE)
+          options = leaflet::layersControlOptions(collapsed = FALSE, autoZIndex = FALSE)
         ) %>%
+        leaflet::hideGroup('poly') %>%
         leaflet::clearGroup('raster') %>%
         leaflet::clearGroup('poly') %>%
         leaflet::addRasterImage(
