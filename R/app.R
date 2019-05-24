@@ -217,7 +217,10 @@ lidar_app <- function(
 
       data_res() %>%
         dplyr::as_tibble() %>%
-        dplyr::select(poly_id, !! rlang::sym(var_column))
+        dplyr::select(
+          dplyr::one_of(c('poly_id', 'comarca', 'provincia', var_column))
+        )
+        # dplyr::select(poly_id, !! rlang::sym(var_column))
     })
 
     ## map output ####
