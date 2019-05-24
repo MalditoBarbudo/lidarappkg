@@ -64,8 +64,29 @@ file_poly <- function(lidar_db, file, poly_id) {
     shiny::need(file, 'no file selected')
   )
 
-  sf::st_read(file$datapath, as_tibble = TRUE) %>%
-    lidar_clip(lidar_db = lidar_db, poly_id = names(.)[1])
+  # browser()
+
+  # check for input file format
+
+  ## csv (wkt) not working as it does not store the crs
+  # if (stringr::str_detect(file$type, 'csv')) {
+  #   sf::st_read(file$datapath, as_tibble = TRUE) %>%
+  #     lidar_clip(lidar_db = lidar_db, poly_id = names(.)[1])
+  # }
+  if (stringr::str_detect(file$type, 'zip')) {
+    tmp_folder <- tempdir()
+    utils::unzip(file$datapath, exdir = tmp_folder)
+
+    sf::st_read(
+      list.files(tmp_folder, '.shp', recursive = TRUE, full.names = TRUE),
+      as_tibble = TRUE
+    ) %>%
+      lidar_clip(lidar_db = lidar_db, poly_id = names(.)[1])
+  } else {
+    # gpkg
+    sf::st_read(file$datapath, as_tibble = TRUE) %>%
+      lidar_clip(lidar_db = lidar_db, poly_id = names(.)[1])
+  }
 }
 
 

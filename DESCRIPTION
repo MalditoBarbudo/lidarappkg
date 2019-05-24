@@ -20,5 +20,6 @@ Imports:
     viridis,
     leaflet,
     rpostgis,
-    leaflet.extras
+    leaflet.extras,
+    pool
 RoxygenNote: 6.1.1

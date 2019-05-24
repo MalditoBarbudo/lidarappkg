@@ -148,13 +148,13 @@ lidar_app <- function(
             # hidden file selector div
             shinyjs::hidden(
               shiny::div(
-                id = 'tururu',
+                id = 'file_sel_div',
                 shiny::fluidRow(
                   shiny::column(
                     12,
                     shiny::fileInput(
                       'user_file_sel', 'Upload a file',
-                      accept = c('zip', 'gpkg', 'csv'),
+                      accept = c('zip', 'gpkg'),
                       buttonLabel = 'Browse...',
                       placeholder = 'No file selected'
                     )#,
@@ -183,7 +183,7 @@ lidar_app <- function(
             # shiny::div(
             #   class = 'mapouter',
             leaflet::leafletOutput('raster_map', height = 600) %>%
-              shinyWidgets::addSpinner(spin = 'cube-grid', color = '#26a65b')
+              shinyWidgets::addSpinner(spin = 'cube', color = '#26a65b')
             # )
           )
         ) # end of sidebar layout
@@ -335,12 +335,19 @@ lidar_app <- function(
                 shiny::column(
                   12,
                   # format options
-                  shiny::radioButtons(
+                  shiny::selectInput(
                     'data_format', 'Data format',
-                    # text_translate('data_format', lang(), texts_thes),
-                    choices = c('shp', 'wkt', 'gpkg'),
+                    choices = list('GIS' = c('shp', 'wkt', 'gpkg'),
+                                   'TABLE' = c('csv', 'xlsx')),
                     selected = 'gpkg'
                   ),
+                  # shiny::radioButtons(
+                  #   'data_format', 'Data format',
+                  #   # text_translate('data_format', lang(), texts_thes),
+                  #   choices = list('GIS' = c('shp', 'wkt', 'gpkg'),
+                  #                  'TABLE' = c('csv', 'xlsx')),
+                  #   selected = 'gpkg'
+                  # ),
                   # length options
                   shiny::radioButtons(
                     'data_length', 'All data?',
@@ -368,15 +375,17 @@ lidar_app <- function(
     # download handlers
     output$download_data_with_options <- shiny::downloadHandler(
       filename = function() {
-        if (input$data_format == 'shp') {
-          'lidar_data.zip'
-        } else {
-          if (input$data_format == 'wkt') {
-            'lidar_data.csv'
-          } else {
-            'lidar_data.gpkg'
-          }
-        }
+
+        file_name <- switch(
+          input$data_format,
+          'shp' = 'lidar_data.zip',
+          'wkt' = 'lidar_data.csv',
+          'gpkg' = 'lidar_data.gpkg',
+          'csv' = 'lidar_data.csv',
+          'xlsx' = 'lidar_data.xlsx'
+        )
+
+        return(file_name)
       },
       content = function(file) {
 
@@ -421,6 +430,20 @@ lidar_app <- function(
               sf::st_write(
                 result_data, file, delete_dsn = TRUE
               )
+            } else {
+              # csv text (no geometry)
+              if (input$data_format == 'csv') {
+                result_data %>%
+                  dplyr::as_tibble() %>%
+                  dplyr::select(-geometry) %>%
+                  readr::write_csv(file)
+              } else {
+                # xlsx (no geometry)
+                result_data %>%
+                  dplyr::as_tibble() %>%
+                  dplyr::select(-geometry) %>%
+                  writexl::write_xlsx(file)
+              }
             }
           }
         }
@@ -433,9 +456,9 @@ lidar_app <- function(
       handlerExpr = {
         poly_type <- input$poly_type_sel
         if (poly_type == 'File upload') {
-          shinyjs::show('tururu')
+          shinyjs::show('file_sel_div')
         } else {
-          shinyjs::hide('tururu')
+          shinyjs::hide('file_sel_div')
         }
       }
     )
