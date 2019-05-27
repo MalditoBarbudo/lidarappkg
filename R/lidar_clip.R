@@ -39,7 +39,8 @@ lidar_clip <- function(
       temp_data
     } %>%
     # convert to binary
-    sf::st_as_text(EWKT = TRUE)
+    {sf::st_as_text(.$geometry, EWKT = TRUE)} %>%
+    {stringr::str_c(., collapse = ', ')}
 
   ## Important checks for area, number of features... ####
   if (isTRUE(safe)) {
