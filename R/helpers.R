@@ -111,3 +111,28 @@ drawed_poly <- function(lidar_db, custom_polygon) {
     lidar_clip(lidar_db = lidar_db, poly_id = 'poly_id')
 }
 
+#' translate app function
+#'
+#' translate the app based on the lang selected
+translate_app <- function(id, lang) {
+
+  app_translations
+
+  id %>%
+    purrr::map_chr(
+      ~ app_translations %>%
+        dplyr::filter(text_id == .x) %>% {
+          data_filtered <- .
+          if (nrow(data_filtered) < 1) {
+            .x
+          } else {
+            dplyr::pull(data_filtered, !! rlang::sym(glue::glue("translation_{lang}")))
+          }
+        }
+    )
+
+  # dplyr::tbl(db, 'app_translations_APP') %>%
+  #   dplyr::filter(text_id %in% id) %>%
+  #   dplyr::arrange(text_id) %>%
+  #   dplyr::pull(!! rlang::sym(glue::glue("translation_{lang}")))
+}

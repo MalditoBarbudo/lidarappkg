@@ -60,7 +60,7 @@ admin_thes <- sf::read_sf('../../01_nfi_app/NFIappkg/data-raw/shapefiles/bm5mv20
       dplyr::select(NOMCOMAR, CODICOMAR)
   ) %>%
   dplyr::select(
-    poly_id = NOMMUNI, comarca = NOMCOMAR, provincia = NOMPROV
+    poly_id = NOMMUNI, Counties = NOMCOMAR, Provinces = NOMPROV
   )
 sf::read_sf(
   '../../01_nfi_app/NFIappkg/data-raw/shapefiles/bm5mv20sh0tpm1_20180101_0.shp'
@@ -69,7 +69,7 @@ sf::read_sf(
   lidar_clip(lidar_db = conn, poly_id = 'poly_id', safe = FALSE) %>%
   rmapshaper::ms_simplify(0.01) %>%
   dplyr::left_join(admin_thes, by = 'poly_id') %>%
-  dplyr::select(poly_id, comarca, provincia, everything()) -> lidar_municipios
+  dplyr::select(poly_id, Counties, Provinces, everything()) -> lidar_municipios
 sf::st_write(lidar_municipios, conn, overwrite = TRUE)
 # veguerias
 # sf::read_sf(

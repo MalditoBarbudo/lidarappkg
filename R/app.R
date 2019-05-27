@@ -126,22 +126,23 @@ lidar_app <- function(
           sidebarPanel = shiny::sidebarPanel(
             width = 4,
             # title
-            shiny::h4('Controls'),
+            shiny::h4(translate_app('sidebar_h4_title', lang_declared)),
 
             # var input
             shiny::selectInput(
-              'lidar_var_sel', 'Select the variable to visualize',
-              choices = c('AB', 'BAT', 'BF', 'CAT', 'DBH', 'HM', 'REC', 'VAE'),
+              'lidar_var_sel', translate_app('lidar_val_sel_label', lang_declared),
+              choices = c('AB', 'BAT', 'BF', 'CAT', 'DBH', 'HM', 'REC', 'VAE') %>%
+                magrittr::set_names(translate_app(., lang_declared)),
               selected = 'AB'
             ),
 
             # poly input
             shiny::selectInput(
-              'poly_type_sel', 'Select the thing',
+              'poly_type_sel', translate_app('poly_type_sel_label', lang_declared),
               choices = c(
                 'Catalonia', 'Provinces', 'Counties', 'Municipalities', 'Veguerias',
                 'Drawed polygon', 'File upload'
-              ),
+              ) %>% magrittr::set_names(translate_app(., lang_declared)),
               selected = 'Provinces'
             ),
 
@@ -153,10 +154,11 @@ lidar_app <- function(
                   shiny::column(
                     12,
                     shiny::fileInput(
-                      'user_file_sel', 'Upload a file',
+                      'user_file_sel',
+                      translate_app('user_file_sel_label', lang_declared),
                       accept = c('zip', 'gpkg'),
-                      buttonLabel = 'Browse...',
-                      placeholder = 'No file selected'
+                      buttonLabel = translate_app('user_file_sel_button_label', lang_declared),
+                      placeholder = translate_app('user_file_sel_placeholder', lang_declared)
                     )#,
                     # shiny::selectInput(
                     #   'poly_id_var', 'Select the polygon id variable',
@@ -168,21 +170,24 @@ lidar_app <- function(
             ),
 
             # res output
-            shiny::h4('Results'),
+            shiny::h4(translate_app('sidebar_h4_results', lang_declared)),
             shiny::tableOutput('poly_res_table'),
 
             # download buttons
-            shiny::h4('Download'),
+            shiny::h4(translate_app('sidebar_h4_download', lang_declared)),
             shiny::actionButton(
-              'download_trigger_btn', 'Download', icon = shiny::icon('download')
+              'download_trigger_btn', translate_app('sidebar_h4_download', lang_declared),
+              icon = shiny::icon('download')
             )
           ),
           mainPanel = shiny::mainPanel(
             width = 8,
             leaflet::leafletOutput('raster_map', height = 600) %>%
               shinyWidgets::addSpinner(spin = 'cube', color = '#26a65b'),
-            shiny::p('Raster for visualization has a cell size of 100x100 meters.',
-                     'Raster for calculations has a cell size of 20x20 meters.')
+            shiny::p(
+              translate_app('main_panel_raster_siz_1', lang_declared),
+              translate_app('main_panel_raster_siz_2', lang_declared)
+            )
           )
         ) # end of sidebar layout
       ) # end of fluidPage
@@ -214,11 +219,15 @@ lidar_app <- function(
 
       lidar_var <- tolower(input$lidar_var_sel)
       var_column <- glue::glue("mean_{lidar_var}")
+      lang_declared <- lang()
 
       data_res() %>%
         dplyr::as_tibble() %>%
         dplyr::select(
           dplyr::one_of(c('poly_id', 'comarca', 'provincia', var_column))
+        ) %>%
+        magrittr::set_names(
+          translate_app(names(.), lang_declared)
         )
         # dplyr::select(poly_id, !! rlang::sym(var_column))
     })
@@ -231,6 +240,8 @@ lidar_app <- function(
         # shiny::need(input$poly_type_sel, 'No polygon type selected'),
         # shiny::need(input$lidar_val_sel, 'No lidar variable selected')
       )
+
+      lang_declared <- lang()
 
       # band to get from db stack
       lidar_band <- switch(
@@ -269,26 +280,35 @@ lidar_app <- function(
       leaflet::leaflet() %>%
         leaflet::setView(1, 41.70, zoom = 8) %>%
         leaflet::addProviderTiles(
-          leaflet::providers$Esri.WorldShadedRelief, group = 'Relief'
+          leaflet::providers$Esri.WorldShadedRelief,
+          group = 'Relief' %>% translate_app(lang_declared),
+          options = leaflet::providerTileOptions(
+            # zIndex = -1
+          )
         ) %>%
         leaflet::addProviderTiles(
-          leaflet::providers$Esri.WorldImagery, group = 'Imaginery'
+          leaflet::providers$Esri.WorldImagery,
+          group = 'Imaginery' %>% translate_app(lang_declared),
+          options = leaflet::providerTileOptions(
+            # zIndex = -1
+          )
         ) %>%
         leaflet::addMapPane('polys', zIndex = 410) %>%
         leaflet::addMapPane('rasters', zIndex = 420) %>%
         leaflet::addLayersControl(
-          baseGroups = c('Relief', 'Imaginery'),
-          overlayGroups = c('lidar', 'poly'),
+          baseGroups = c('Relief', 'Imaginery') %>% translate_app(lang_declared),
+          overlayGroups = c('lidar', 'poly') %>% translate_app(lang_declared),
           options = leaflet::layersControlOptions(collapsed = FALSE, autoZIndex = FALSE)
         ) %>%
-        leaflet::hideGroup('poly') %>%
-        leaflet::clearGroup('raster') %>%
+        leaflet::hideGroup('poly' %>% translate_app(lang_declared)) %>%
+        leaflet::removeImage('raster') %>%
         leaflet::clearGroup('poly') %>%
         leaflet::addRasterImage(
-          lidar_raster, project = FALSE, colors = palette, opacity = 1, group = 'lidar'
+          lidar_raster, project = FALSE, colors = palette, opacity = 1,
+          group = 'lidar' %>% translate_app(lang_declared), layerId = 'raster'
         ) %>%
         leaflet::addPolygons(
-          data = user_poly, group = 'poly',
+          data = user_poly, group = 'poly' %>% translate_app(lang_declared),
           label = ~poly_id,
           weight = 1, smoothFactor = 1,
           opacity = 1.0, fill = TRUE,
@@ -304,12 +324,12 @@ lidar_app <- function(
         ) %>%
         leaflet::addLegend(
           pal = palette, values = raster::values(lidar_raster),
-          title = input$lidar_var_sel, position = 'bottomright',
+          title = input$lidar_var_sel %>% translate_app(lang_declared), position = 'bottomright',
           opacity = 1
         ) %>%
         # leaflet.extras plugins
         leaflet.extras::addDrawToolbar(
-          targetGroup = 'poly',
+          targetGroup = 'poly' %>% translate_app(lang_declared),
           position = 'topleft',
           polylineOptions = FALSE, circleOptions = FALSE, rectangleOptions = FALSE,
           markerOptions = FALSE, circleMarkerOptions = FALSE,
@@ -329,6 +349,8 @@ lidar_app <- function(
       eventExpr = input$download_trigger_btn,
       handlerExpr = {
 
+        lang_declared = lang()
+
         shiny::showModal(
           ui = shiny::modalDialog(
             shiny::tagList(
@@ -338,9 +360,13 @@ lidar_app <- function(
                   12,
                   # format options
                   shiny::selectInput(
-                    'data_format', 'Data format',
-                    choices = list('GIS' = c('shp', 'wkt', 'gpkg'),
-                                   'TABLE' = c('csv', 'xlsx')),
+                    'data_format', translate_app('data_format_label', lang_declared),
+                    choices = list(
+                      'GIS' = c('shp', 'wkt', 'gpkg') %>%
+                        magrittr::set_names(translate_app(., lang_declared)),
+                      'TABLE' = c('csv', 'xlsx') %>%
+                        magrittr::set_names(translate_app(., lang_declared))
+                    ) %>% magrittr::set_names(translate_app(names(.), lang_declared)),
                     selected = 'gpkg'
                   ),
                   # shiny::radioButtons(
@@ -352,9 +378,10 @@ lidar_app <- function(
                   # ),
                   # length options
                   shiny::radioButtons(
-                    'data_length', 'All data?',
+                    'data_length', translate_app('data_length_label', lang_declared),
                     # text_translate('data_length', lang(), texts_thes),
-                    choices = c('visible', 'all_columns'),
+                    choices = c('visible', 'all_columns') %>%
+                      magrittr::set_names(translate_app(., lang_declared)),
                     selected = 'visible', width = '100%'
                   )
                 )
@@ -362,10 +389,10 @@ lidar_app <- function(
             ),
             easyClose = TRUE,
             footer = shiny::tagList(
-              shiny::modalButton('Dismiss'),
+              shiny::modalButton(translate_app('modal_dismiss_label', lang_declared)),
               shiny::downloadButton(
                 'download_data_with_options',
-                label = 'Download',
+                label = translate_app('sidebar_h4_download', lang_declared),
                 class = 'btn-success'
               )
             )
