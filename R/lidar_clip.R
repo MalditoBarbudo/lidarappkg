@@ -39,7 +39,7 @@ lidar_clip <- function(
       temp_data
     } %>%
     # convert to binary
-    sf::st_as_binary(EWKB = TRUE)
+    sf::st_as_text(EWKT = TRUE)
 
   ## Important checks for area, number of features... ####
   if (isTRUE(safe)) {
@@ -66,7 +66,7 @@ lidar_clip <- function(
   # the variable rasters
   lidar_query <- glue::glue(
   "WITH
-     feat AS (SELECT {poly_id} As poly_id, geometry FROM ST_GeomFromWKB({user_polygons}) AS b),
+     feat AS (SELECT {poly_id} As poly_id, geometry FROM ST_GeomFromText({user_polygons}, 3043) AS b),
      b_stats AS (SELECT poly_id, geometry, (stats).* FROM (
        SELECT poly_id, geometry, ST_SummaryStats(ST_Clip(rast,1,geometry, true)) As stats
          FROM public.{tolower(vars)}
