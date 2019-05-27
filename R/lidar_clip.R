@@ -37,7 +37,9 @@ lidar_clip <- function(
         temp_data <- dplyr::rename(temp_data, geometry = geom)
       }
       temp_data
-    }
+    } %>%
+    # convert to binary
+    sf::st_as_binary(EWKB = TRUE)
 
   ## Important checks for area, number of features... ####
   if (isTRUE(safe)) {
@@ -58,13 +60,13 @@ lidar_clip <- function(
   }
 
   # second step, write the temp table to the db, only after the checks are done
-  sf::st_write(user_polygons, lidar_db, overwrite = TRUE)
+  # sf::st_write(user_polygons, lidar_db, overwrite = TRUE)
 
   # build the query/queries with glue to be able to insert the poly id column and
   # the variable rasters
   lidar_query <- glue::glue(
   "WITH
-     feat AS (SELECT {poly_id} As poly_id, geometry FROM user_polygons AS b),
+     feat AS (SELECT {poly_id} As poly_id, geometry FROM ST_GeomFromWKB({user_polygons}) AS b),
      b_stats AS (SELECT poly_id, geometry, (stats).* FROM (
        SELECT poly_id, geometry, ST_SummaryStats(ST_Clip(rast,1,geometry, true)) As stats
          FROM public.{tolower(vars)}
