@@ -3,7 +3,6 @@
 #' lidar_clip clips polygons on to the lidar variables rasters to get the mean value
 #'
 #' @param sf sf object with the polygons to clip
-#' @param vars character vector with the lidar variables to summarise
 #' @param lidar_db dbi connection
 #' @param poly_id sf column name containing the polygon identificator, as character
 #' @param safe logical indicating if memory and time safeguards are active
@@ -14,7 +13,7 @@
 #'
 #' @export
 lidar_clip <- function(
-  sf, vars = c('AB', 'BAT', 'BF', 'CAT', 'DBH', 'HM', 'REC', 'VAE'), lidar_db, poly_id,
+  sf, lidar_db, poly_id,
   safe = TRUE,
   ...
 ) {
@@ -23,10 +22,8 @@ lidar_clip <- function(
   if (!inherits(sf, 'sf')) {
     stop('sf is not and sf object')
   }
-  # check if vars
-  if (!all(vars %in% c('AB', 'BAT', 'BF', 'CAT', 'DBH', 'HM', 'REC', 'VAE'))) {
-    stop('one or more vars provided are not allowed. See help ?lidar_clip for more detail')
-  }
+  # vars
+  vars <- c('AB', 'BAT', 'BF', 'CAT', 'DBH', 'HM', 'REC', 'VAE')
 
   # first step, load the temp sf table
   user_polygons <- sf %>%
