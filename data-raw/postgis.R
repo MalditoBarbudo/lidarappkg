@@ -27,13 +27,13 @@ list.files('data-raw', '.tif$', full.names = TRUE) %>%
     )
   ) -> lidar_rasters
 # Indexes
-c('ab', 'bat', 'bf', 'cat', 'dbh', 'hm', 'rec', 'vae') %>%
-  purrr::walk(
-    ~dbExecute(
-      conn,
-      glue::glue("CREATE INDEX {.x}_rast_st_convexhull_idx ON {.x} USING gist( ST_ConvexHull(rast) );")
-    )
-  )
+# c('ab', 'bat', 'bf', 'cat', 'dbh', 'hm', 'rec', 'vae') %>%
+#   purrr::walk(
+#     ~dbExecute(
+#       conn,
+#       glue::glue("CREATE INDEX {.x}_rast_st_convexhull_idx ON {.x} USING gist( ST_ConvexHull(rast) );")
+#     )
+#   )
 
 ## pre-calculated data for known polygons ####
 
