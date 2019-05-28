@@ -37,10 +37,7 @@ lidar_clip <- function(
         temp_data <- dplyr::rename(temp_data, geometry = geom)
       }
       temp_data
-    } %>%
-    # convert to binary
-    {sf::st_as_text(.$geometry, EWKT = TRUE)} %>%
-    {stringr::str_c(., collapse = ', ')}
+    }
 
   ## Important checks for area, number of features... ####
   if (isTRUE(safe)) {
@@ -60,14 +57,21 @@ lidar_clip <- function(
     }
   }
 
+  # converting user_polygons to text for query
+  # user_polygons_wkt <- user_polygons %>%
+  #   # convert to binary
+  #   {sf::st_as_text(.$geometry, EWKT = TRUE)} %>%
+  #   stringr::str_c(collapse = ', ')
+
   # second step, write the temp table to the db, only after the checks are done
-  # sf::st_write(user_polygons, lidar_db, overwrite = TRUE)
+  random_name <- glue::glue("user_polygons_{sample(100, 1)}_{sample(letters, 1)}")
+  sf::dbWriteTable(lidar_db, name = random_name, value = user_polygons, overwrite = FALSE)
 
   # build the query/queries with glue to be able to insert the poly id column and
   # the variable rasters
   lidar_query <- glue::glue(
   "WITH
-     feat AS (SELECT {poly_id} As poly_id, geometry FROM ST_GeomFromText({user_polygons}, 3043) AS b),
+     feat AS (SELECT {poly_id} As poly_id, geometry FROM {random_name} AS b),
      b_stats AS (SELECT poly_id, geometry, (stats).* FROM (
        SELECT poly_id, geometry, ST_SummaryStats(ST_Clip(rast,1,geometry, true)) As stats
          FROM public.{tolower(vars)}
@@ -87,6 +91,9 @@ lidar_clip <- function(
     purrr::reduce(dplyr::left_join, by = c('poly_id')) %>%
     dplyr::select(poly_id, dplyr::starts_with('mean_'), geometry = geometry.x) %>%
     sf::st_as_sf()
+
+  # remove the temp table
+  pool::dbRemoveTable(lidar_db, random_name)
 
   return(res)
 }
