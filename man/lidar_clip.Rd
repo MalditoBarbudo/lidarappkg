@@ -4,13 +4,10 @@
 \alias{lidar_clip}
 \title{Clip and summarise polygons}
 \usage{
-lidar_clip(sf, vars = c("AB", "BAT", "BF", "CAT", "DBH", "HM", "REC",
-  "VAE"), lidar_db, poly_id, safe = TRUE, ...)
+lidar_clip(sf, lidar_db, poly_id, safe = TRUE, ...)
 }
 \arguments{
 \item{sf}{sf object with the polygons to clip}
-
-\item{vars}{character vector with the lidar variables to summarise}
 
 \item{lidar_db}{dbi connection}
 

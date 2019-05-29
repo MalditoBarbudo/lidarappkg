@@ -23,6 +23,11 @@ div.table_container {
   margin-bottom: 0px;
 }
 
+/* we need to change the leaflet layer control z-index */
+.navbar-static-top {
+  z-index: 2000 !important;
+}
+
 .navbar-form > .form-group {
   position: fixed;
   right: 25px;
