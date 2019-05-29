@@ -74,17 +74,17 @@ lidar_app <- function(
       shiny::tabPanel(
         title = 'Explore',
         ########################################################### debug ####
-        shiny::absolutePanel(
-          id = 'debug', class = 'panel panel-default', fixed = TRUE,
-          draggable = TRUE, width = 640, height = 'auto',
-          # top = 100, left = 100, rigth = 'auto', bottom = 'auto',
-          # top = 'auto', left = 'auto', right = 100, bottom = 100,
-          top = 60, left = 'auto', right = 50, bottom = 'auto',
-
-          shiny::textOutput('debug1'),
-          shiny::textOutput('debug2'),
-          shiny::textOutput('debug3')
-        ),
+        # shiny::absolutePanel(
+        #   id = 'debug', class = 'panel panel-default', fixed = TRUE,
+        #   draggable = TRUE, width = 640, height = 'auto',
+        #   # top = 100, left = 100, rigth = 'auto', bottom = 'auto',
+        #   # top = 'auto', left = 'auto', right = 100, bottom = 100,
+        #   top = 60, left = 'auto', right = 50, bottom = 'auto',
+        #
+        #   shiny::textOutput('debug1'),
+        #   shiny::textOutput('debug2'),
+        #   shiny::textOutput('debug3')
+        # ),
         ####################################################### end debug ####
 
         # we need an UI beacuse we need to translate based on the lang input from the
@@ -98,9 +98,9 @@ lidar_app <- function(
   ## SERVER ####
   server <- function(input, output, session) {
     ## debug #####
-    output$debug1 <- shiny::renderPrint({
-      input$raster_map_shape_click
-    })
+    # output$debug1 <- shiny::renderPrint({
+    #   input$raster_map_shape_click
+    # })
     # output$debug2 <- shiny::renderPrint({
     #   map_reactives$map_click
     # })
@@ -222,6 +222,16 @@ lidar_app <- function(
       lidar_var <- tolower(input$lidar_var_sel)
       var_column <- glue::glue("mean_{lidar_var}")
       lang_declared <- lang()
+      # table_page <- selected_row()$page
+      selected <- selected_row()$row
+      if (input$poly_type_sel %in% c('Counties', 'Municipalities')) {
+        displayStart <- selected - 1
+      } else {
+        displayStart <- 0
+      }
+
+
+      # browser()
 
       data_res() %>%
         dplyr::as_tibble() %>%
@@ -233,34 +243,53 @@ lidar_app <- function(
         ) %>%
         DT::datatable(
           class = 'compact hover nowrap row-border order-column',
-          selection = 'single',
-          extensions = 'Scroller',
+          selection = list(
+            mode = 'single', selected = selected, target = 'row'
+          ),
+          # extensions = 'Scroller',
           options = list(
-            dom = 'tr',
-            # pageLength = 10,
+            dom = 'trp',
+            displayStart = displayStart,
+            pageLength = 10
             # lengthMenu = c(10, 25, 50),
-            deferRender = TRUE,
-            scrollY = '250px', scroller = TRUE
+            # deferRender = FALSE,
+            # scrollY = '250px'
           )
         )
     })
 
     # observer to select the row of clicked polygon
-    table_proxy <- DT::dataTableProxy('poly_res_table')
-    shiny::observeEvent(
-      eventExpr = input$raster_map_click,
-      handlerExpr = {
+    selected_row <- shiny::reactive({
 
-        clicked <- input$raster_map_shape_click
-        table_proxy %>% DT::selectRows(
-          data_res() %>%
-            dplyr::mutate(no = dplyr::row_number()) %>%
-            dplyr::filter(poly_id == clicked$id) %>%
-            dplyr::pull(no)
-        )
+      clicked <- input$raster_map_shape_click
+      poly_sel <- input$poly_type_sel
 
+      # browser()
+      if (!is.null(clicked)) {
+        row_index <- data_res() %>%
+          dplyr::mutate(no = dplyr::row_number()) %>%
+          dplyr::filter(poly_id == clicked$id) %>%
+          dplyr::pull(no)
+
+        if (length(row_index) < 1) {
+          row_index <- 0
+        }
+      } else {
+        row_index <- 0
       }
-    )
+      return(list(row = row_index))
+    })
+
+    # table_proxy <- DT::dataTableProxy('poly_res_table')
+    # shiny::observeEvent(
+    #   eventExpr = input$raster_map_click,
+    #   handlerExpr = {
+    #
+    #     clicked <- input$raster_map_shape_click
+    #     table_proxy %>%
+    #       DT::sele
+    #   }
+    # )
 
     ## map output ####
     output$raster_map <- leaflet::renderLeaflet({
