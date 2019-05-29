@@ -14,7 +14,7 @@ tibble::tribble(
   "main_panel_raster_siz_1", "Ràster per a la visualització té una mida de cel·la de 100x100 metres.", "Raster for visualization has a cell size of 100x100 meters.", "El ráster para la visualización tiene un tamaño de celda de 100x100 metros.",
   "main_panel_raster_siz_2", "Ràster per als càlculs té una mida de cel·la de 20x20 metres.", "Raster for calculations has a cell size of 20x20 meters.", "El ráster para los cálculos tiene un tamaño de celda de 20x20 metros.",
   "data_format_label", "Format de dades", "Data format", "Formato de los datos",
-  "data_length_label", "¿Tots les variables?", "All the variables?", "¿Todas las variables?",
+  "data_length_label", "¿Totes les variables?", "All the variables?", "¿Todas las variables?",
   "modal_dismiss_label", "Cancel·lar", "Dismiss", "Cancelar",
   # lidar_val_sel choices
   'AB', "Àrea Basal (AB)", "Basal Area (AB)", "Área Basal (AB)",
@@ -42,15 +42,15 @@ tibble::tribble(
   'csv', 'CSV', 'CSV', 'CSV',
   'xlsx', 'Excel', 'Excel', 'Excel',
   # data length choices
-  'all_columns', 'Totas les variables', 'All the variables', 'Todas las variables',
+  'all_columns', 'Totes les variables', 'All the variables', 'Todas las variables',
   'visible', 'Només la variable selecionada', 'Only the selected variable', 'Sólo la variable seleccionada',
   # map translations
   'Relief', 'Relleu', 'Relief', 'Relieve',
   'Imaginery', 'Satèl·lit', 'Imaginery', 'Satélite',
-  'poly', 'Polìgons', 'Polygons', 'Polígonos',
+  'poly', 'Polígons', 'Polygons', 'Polígonos',
   'lidar', 'LiDAR', 'LiDAR', 'LiDAR',
   # table names
-  'poly_id', 'Polìgon', 'Polygon', 'Polígono',
+  'poly_id', 'Polígon', 'Polygon', 'Polígono',
   'mean_ab', "Àrea Basal Mitjana (AB)", "Mean Basal Area (AB)", "Área Basal Media (AB)",
   'mean_bat',  "Biomassa Aèria Total Mitjana (BAT)", "Mean Total Aerial Biomass (BAT)", "Biomasa Aérea Total Media (BAT)",
   'mean_bf', "Biomassa de fulles Mitjana (BH)", "Mean Leaf Biomass (BH)", "Biomasa de Hojas Media (BH)",
