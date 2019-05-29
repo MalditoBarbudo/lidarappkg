@@ -42,3 +42,7 @@ div.table_container {
 .flag-image {
   border-radius: 50%;
 }
+
+.shiny-output-error-drawed_polygon_warn {
+  color: red;
+}

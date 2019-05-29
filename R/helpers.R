@@ -96,7 +96,10 @@ file_poly <- function(lidar_db, file, poly_id) {
 drawed_poly <- function(lidar_db, custom_polygon) {
 
   shiny::validate(
-    shiny::need(custom_polygon, 'no custom polygon drawed')
+    shiny::need(
+      custom_polygon,
+      'No custom polygon drawed. Please go back and draw a polygon before selecting "Drawed polygon" from the menu'
+    ), errorClass = 'drawed_polygon_warn'
   )
 
   custom_polygon[['features']][[1]][['geometry']][['coordinates']] %>%

@@ -42,7 +42,7 @@ lidar_clip <- function(
     user_area <- sf::st_area(user_polygons) %>% sum() %>% as.numeric()
     if (user_area > 500000000) {
       stop(glue::glue(
-        'Polygon area (or polygons sum of areas) are above the maximum value ({user_area} > 500 km2)'
+        'Polygon area (or polygons sum of areas) are above the maximum value ({round(user_area/1000000, 1)} > 500 km2)'
       ))
     }
     # feature number
