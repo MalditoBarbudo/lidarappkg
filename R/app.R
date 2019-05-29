@@ -99,7 +99,7 @@ lidar_app <- function(
   server <- function(input, output, session) {
     ## debug #####
     # output$debug1 <- shiny::renderPrint({
-    #   data_reactives$diameter_classes
+    #   input$raster_map_center
     # })
     # output$debug2 <- shiny::renderPrint({
     #   map_reactives$map_click
@@ -278,7 +278,7 @@ lidar_app <- function(
 
       # proper map
       leaflet::leaflet() %>%
-        leaflet::setView(1, 41.70, zoom = 8) %>%
+        leaflet::setView(1.744, 41.726, zoom = 8) %>%
         leaflet::addProviderTiles(
           leaflet::providers$Esri.WorldShadedRelief,
           group = 'Relief' %>% translate_app(lang_declared),
