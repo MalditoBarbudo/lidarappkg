@@ -74,17 +74,17 @@ lidar_app <- function(
       shiny::tabPanel(
         title = 'Explore',
         ########################################################### debug ####
-        # shiny::absolutePanel(
-        #   id = 'debug', class = 'panel panel-default', fixed = TRUE,
-        #   draggable = TRUE, width = 640, height = 'auto',
-        #   # top = 100, left = 100, rigth = 'auto', bottom = 'auto',
-        #   # top = 'auto', left = 'auto', right = 100, bottom = 100,
-        #   top = 60, left = 'auto', right = 50, bottom = 'auto',
-        #
-        #   shiny::textOutput('debug1'),
-        #   shiny::textOutput('debug2'),
-        #   shiny::textOutput('debug3')
-        # ),
+        shiny::absolutePanel(
+          id = 'debug', class = 'panel panel-default', fixed = TRUE,
+          draggable = TRUE, width = 640, height = 'auto',
+          # top = 100, left = 100, rigth = 'auto', bottom = 'auto',
+          # top = 'auto', left = 'auto', right = 100, bottom = 100,
+          top = 60, left = 'auto', right = 50, bottom = 'auto',
+
+          shiny::textOutput('debug1'),
+          shiny::textOutput('debug2'),
+          shiny::textOutput('debug3')
+        ),
         ####################################################### end debug ####
 
         # we need an UI beacuse we need to translate based on the lang input from the
@@ -98,9 +98,9 @@ lidar_app <- function(
   ## SERVER ####
   server <- function(input, output, session) {
     ## debug #####
-    # output$debug1 <- shiny::renderPrint({
-    #   input$raster_map_center
-    # })
+    output$debug1 <- shiny::renderPrint({
+      input$raster_map_shape_click
+    })
     # output$debug2 <- shiny::renderPrint({
     #   map_reactives$map_click
     # })
@@ -171,7 +171,8 @@ lidar_app <- function(
 
             # res output
             shiny::h4(translate_app('sidebar_h4_results', lang_declared)),
-            shiny::tableOutput('poly_res_table'),
+            # shiny::tableOutput('poly_res_table'),
+            DT::DTOutput('poly_res_table'),
 
             # download buttons
             shiny::h4(translate_app('sidebar_h4_download', lang_declared)),
@@ -211,7 +212,8 @@ lidar_app <- function(
     })
 
     # table output ####
-    output$poly_res_table <- shiny::renderTable({
+    # output$poly_res_table <- shiny::renderTable({
+    output$poly_res_table <- DT::renderDT({
 
       shiny::validate(
         shiny::need(data_res(), 'No data yet')
@@ -228,9 +230,37 @@ lidar_app <- function(
         ) %>%
         magrittr::set_names(
           translate_app(names(.), lang_declared)
+        ) %>%
+        DT::datatable(
+          class = 'compact hover nowrap row-border order-column',
+          selection = 'single',
+          extensions = 'Scroller',
+          options = list(
+            dom = 'tr',
+            # pageLength = 10,
+            # lengthMenu = c(10, 25, 50),
+            deferRender = TRUE,
+            scrollY = '250px', scroller = TRUE
+          )
         )
-        # dplyr::select(poly_id, !! rlang::sym(var_column))
     })
+
+    # observer to select the row of clicked polygon
+    table_proxy <- DT::dataTableProxy('poly_res_table')
+    shiny::observeEvent(
+      eventExpr = input$raster_map_click,
+      handlerExpr = {
+
+        clicked <- input$raster_map_shape_click
+        table_proxy %>% DT::selectRows(
+          data_res() %>%
+            dplyr::mutate(no = dplyr::row_number()) %>%
+            dplyr::filter(poly_id == clicked$id) %>%
+            dplyr::pull(no)
+        )
+
+      }
+    )
 
     ## map output ####
     output$raster_map <- leaflet::renderLeaflet({
@@ -310,6 +340,7 @@ lidar_app <- function(
         leaflet::addPolygons(
           data = user_poly, group = 'poly' %>% translate_app(lang_declared),
           label = ~poly_id,
+          layerId = ~poly_id,
           weight = 1, smoothFactor = 1,
           opacity = 1.0, fill = TRUE,
           color = '#6C7A89FF', fillColor = palette(user_poly[[var_column]]),

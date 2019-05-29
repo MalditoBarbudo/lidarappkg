@@ -23,5 +23,6 @@ Imports:
     leaflet.extras,
     pool,
     readr,
-    writexl
+    writexl,
+    DT
 RoxygenNote: 6.1.1
