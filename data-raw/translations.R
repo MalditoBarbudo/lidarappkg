@@ -45,10 +45,10 @@ tibble::tribble(
   'all_columns', 'Totes les variables', 'All the variables', 'Todas las variables',
   'visible', 'Només la variable selecionada', 'Only the selected variable', 'Sólo la variable seleccionada',
   # map translations
-  'Relief', 'Relleu', 'Relief', 'Relieve',
-  'Imaginery', 'Satèl·lit', 'Imaginery', 'Satélite',
-  'poly', 'Polígons', 'Polygons', 'Polígonos',
-  'lidar', 'LiDAR', 'LiDAR', 'LiDAR',
+  'Relief', 'Relleu (base)', 'Relief (base)', 'Relieve (base)',
+  'Imaginery', 'Satèl·lit (base)', 'Imaginery (base)', 'Satélite (base)',
+  'poly', 'Polígons (capa)', 'Polygons (layer)', 'Polígonos (capa)',
+  'lidar', 'LiDAR (capa)', 'LiDAR (layer)', 'LiDAR (capa)',
   # table names
   'poly_id', 'Polígon', 'Polygon', 'Polígono',
   'mean_ab', "Àrea Basal Mitjana (AB)", "Mean Basal Area (AB)", "Área Basal Media (AB)",
