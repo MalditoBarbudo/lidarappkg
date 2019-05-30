@@ -74,17 +74,17 @@ lidar_app <- function(
       shiny::tabPanel(
         title = 'Explore',
         ########################################################### debug ####
-        # shiny::absolutePanel(
-        #   id = 'debug', class = 'panel panel-default', fixed = TRUE,
-        #   draggable = TRUE, width = 640, height = 'auto',
-        #   # top = 100, left = 100, rigth = 'auto', bottom = 'auto',
-        #   # top = 'auto', left = 'auto', right = 100, bottom = 100,
-        #   top = 60, left = 'auto', right = 50, bottom = 'auto',
-        #
-        #   shiny::textOutput('debug1'),
-        #   shiny::textOutput('debug2'),
-        #   shiny::textOutput('debug3')
-        # ),
+        shiny::absolutePanel(
+          id = 'debug', class = 'panel panel-default', fixed = TRUE,
+          draggable = TRUE, width = 640, height = 'auto',
+          # top = 100, left = 100, rigth = 'auto', bottom = 'auto',
+          # top = 'auto', left = 'auto', right = 100, bottom = 100,
+          top = 60, left = 'auto', right = 50, bottom = 'auto',
+
+          shiny::textOutput('debug1'),
+          shiny::textOutput('debug2'),
+          shiny::textOutput('debug3')
+        ),
         ####################################################### end debug ####
 
         # we need an UI beacuse we need to translate based on the lang input from the
@@ -98,12 +98,12 @@ lidar_app <- function(
   ## SERVER ####
   server <- function(input, output, session) {
     ## debug #####
-    # output$debug1 <- shiny::renderPrint({
-    #   input$raster_map_shape_click
-    # })
-    # output$debug2 <- shiny::renderPrint({
-    #   map_reactives$map_click
-    # })
+    output$debug1 <- shiny::renderPrint({
+      input$raster_map_shape_click
+    })
+    output$debug2 <- shiny::renderPrint({
+      input$raster_map_click
+    })
     # output$debug3 <- shiny::renderPrint({
     #   map_reactives$map_shape_click
     # })
@@ -359,7 +359,7 @@ lidar_app <- function(
           overlayGroups = c('lidar', 'poly') %>% translate_app(lang_declared),
           options = leaflet::layersControlOptions(collapsed = FALSE, autoZIndex = FALSE)
         ) %>%
-        leaflet::hideGroup('poly' %>% translate_app(lang_declared)) %>%
+        leaflet::hideGroup('lidar' %>% translate_app(lang_declared)) %>%
         leaflet::removeImage('raster') %>%
         leaflet::clearGroup('poly') %>%
         leaflet::addRasterImage(
