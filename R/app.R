@@ -209,8 +209,8 @@ lidar_app <- function(
         'Counties' = counties_poly(lidar_db),
         'Municipalities' = municipalities_poly(lidar_db),
         'Veguerias' = veguerias_poly(lidar_db),
-        'Drawed polygon' = drawed_poly(lidar_db, input$raster_map_draw_all_features),
-        'File upload' = file_poly(lidar_db, input$user_file_sel, input$poly_id_var)
+        'Drawed polygon' = drawed_poly(lidar_db, input$raster_map_draw_all_features, lang()),
+        'File upload' = file_poly(lidar_db, input$user_file_sel, input$poly_id_var, lang())
       )
       return(data_res)
     })
@@ -220,7 +220,7 @@ lidar_app <- function(
     output$poly_res_table <- DT::renderDT({
 
       shiny::validate(
-        shiny::need(data_res(), 'No data yet')
+        shiny::need(data_res(), translate_app('data_res_need', lang()))
       )
 
       lidar_var <- tolower(input$lidar_var_sel)
@@ -267,7 +267,7 @@ lidar_app <- function(
     output$raster_map <- leaflet::renderLeaflet({
 
       shiny::validate(
-        shiny::need(data_res(), 'No data')
+        shiny::need(data_res(), translate_app('data_res_need', lang()))
         # shiny::need(input$poly_type_sel, 'No polygon type selected'),
         # shiny::need(input$lidar_val_sel, 'No lidar variable selected')
       )
@@ -399,7 +399,7 @@ lidar_app <- function(
 
     click_raster_values <- shiny::reactive({
       shiny::validate(
-        shiny::need(input$raster_map_click, 'No map click')
+        shiny::need(input$raster_map_click, translate_app('map_click_need', lang()))
       )
       # map click
       map_click <- input$raster_map_click
@@ -458,15 +458,14 @@ lidar_app <- function(
         shiny::wellPanel(
           shiny::h4(
             glue::glue(
-              "{input$lidar_var_sel} at coordinates: {round(map_click$lng, 3)}, ",
-              "{round(map_click$lat, 3)}"
+              translate_app('sidebar_h4_coords', lang())
             )
           ),
           shiny::p(glue::glue(
-            "20x20m raster value: {round(click_raster_values()$raw, 3)}"
+            translate_app('sidebar_p_rawraster', lang())
           )),
           shiny::p(glue::glue(
-            "100x100m raster value: {round(click_raster_values()$agg, 3)}"
+            translate_app('sidebar_p_aggraster', lang())
           ))
         )
       )

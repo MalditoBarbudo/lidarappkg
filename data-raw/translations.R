@@ -31,7 +31,7 @@ tibble::tribble(
   'Counties', "Comarques", "Counties", "Comarcas",
   'Municipalities', "Municipis", "Municipalities", "Municipios",
   'Veguerias', "Vegueries", "Veguerias", "Veguerias",
-  'Drawed polygon', "Polígon dibuxat", "Drew polygon", "Polígono dibujado",
+  'Drawed polygon', "Polígon dibuxat", "Drawn polygon", "Polígono dibujado",
   'File upload', "Fitxer", "File upload", "Archivo",
   # data format options
   'GIS', 'SIG', 'GIS', 'SIG',
@@ -59,6 +59,15 @@ tibble::tribble(
   'mean_hm', "Altura Mitjana Mitjana (HM)", "Mean Height (HM)", "Altura Media (HM)",
   'mean_rec', "Recobriment Mitjan (REC)", "Mean Coating (REC)", "Recubrimiento Medio (REC)",
   'mean_vae', "Volum amb Escorça Mitjan (VOB)", "Mean Over Bark Volume(VOB)", "Volúmen con Corteza Medio (VOB)",
+  # validate
+  'data_res_need', 'Encara no hi ha dades', 'No data yet', 'Sin datos todavía',
+  'map_click_need', 'No hi ha cap clic del mapa', 'No map click', 'No ha habido click en el mapa',
+  'file_need', 'No s’ha seleccionat cap fitxer', 'No file selected', 'No se ha seleccionado ningún archivo',
+  'custom_poly_need', 'No s’ha dibuixat cap polígon. Torneu enrere i dibuixeu un polígon abans de seleccionar "Polígon dibuxat" al menú', 'No custom polygon drawed. Please go back and draw a polygon before selecting "Drawn polygon" from the menu', 'No hay ningún polígono dibujado. Vuelva atrás y dibuje un polígono antes de seleccionar "Polígono dibujado" en el menú',
+  # coordinates info
+  'sidebar_h4_coords', '{input$lidar_var_sel} a les coordenades: {round(map_click$lng, 3)}, {round(map_click$lat, 3)}', '{input$lidar_var_sel} at coordinates: {round(map_click$lng, 3)}, {round(map_click$lat, 3)}', '{input$lidar_var_sel} en las coordenadas: {round(map_click$lng, 3)}, {round(map_click$lat, 3)}',
+  'sidebar_p_rawraster', 'Valor per al ràster de 20x20m: {round(click_raster_values()$raw, 3)}', '20x20m raster value: {round(click_raster_values()$raw, 3)}', 'Valor para el ráster de 20x20m: {round(click_raster_values()$raw, 3)}',
+  'sidebar_p_aggraster', 'Valor per al ràster de 100x100: {round(click_raster_values()$agg, 3)}', '100x100 raster value: {round(click_raster_values()$agg, 3)}', 'Valor para el ráster de 100x100: {round(click_raster_values()$agg, 3)}',
 
   ## TODO continue translations thesaurus
 ) %>%

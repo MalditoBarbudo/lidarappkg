@@ -4,7 +4,7 @@
 \alias{file_poly}
 \title{file_poly}
 \usage{
-file_poly(lidar_db, file, poly_id)
+file_poly(lidar_db, file, poly_id, lang)
 }
 \description{
 return the data calculated on-the-fly for the file loaded

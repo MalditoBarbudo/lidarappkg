@@ -58,10 +58,10 @@ veguerias_poly <- function(lidar_db) {
 #'
 #' return the data calculated on-the-fly for the file loaded
 #'
-file_poly <- function(lidar_db, file, poly_id) {
+file_poly <- function(lidar_db, file, poly_id, lang) {
 
   shiny::validate(
-    shiny::need(file, 'no file selected')
+    shiny::need(file, translate_app('file_need', lang))
   )
 
   # browser()
@@ -93,12 +93,11 @@ file_poly <- function(lidar_db, file, poly_id) {
 #' drawed_poly
 #'
 #' return the data calculated on-the-fly for the drawed poly from leaflet
-drawed_poly <- function(lidar_db, custom_polygon) {
+drawed_poly <- function(lidar_db, custom_polygon, lang) {
 
   shiny::validate(
     shiny::need(
-      custom_polygon,
-      'No custom polygon drawed. Please go back and draw a polygon before selecting "Drawed polygon" from the menu'
+      custom_polygon, translate_app('custom_poly_need', lang)
     ), errorClass = 'drawed_polygon_warn'
   )
 
