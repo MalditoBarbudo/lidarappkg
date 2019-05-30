@@ -81,11 +81,11 @@ file_poly <- function(lidar_db, file, poly_id, lang) {
       list.files(tmp_folder, '.shp', recursive = TRUE, full.names = TRUE),
       as_tibble = TRUE
     ) %>%
-      lidar_clip(lidar_db = lidar_db, poly_id = names(.)[1])
+      lidar_clip(lidar_db = lidar_db, poly_id = names(.)[1], lang = lang)
   } else {
     # gpkg
     sf::st_read(file$datapath, as_tibble = TRUE) %>%
-      lidar_clip(lidar_db = lidar_db, poly_id = names(.)[1])
+      lidar_clip(lidar_db = lidar_db, poly_id = names(.)[1], lang = lang)
   }
 }
 
@@ -110,7 +110,7 @@ drawed_poly <- function(lidar_db, custom_polygon, lang) {
     sf::st_sfc() %>%
     sf::st_sf(crs = "+proj=longlat +datum=WGS84") %>%
     dplyr::mutate(poly_id = 'custom_polygon') %>%
-    lidar_clip(lidar_db = lidar_db, poly_id = 'poly_id')
+    lidar_clip(lidar_db = lidar_db, poly_id = 'poly_id', lang = lang)
 }
 
 #' translate app function

@@ -4,7 +4,7 @@
 \alias{lidar_clip}
 \title{Clip and summarise polygons}
 \usage{
-lidar_clip(sf, lidar_db, poly_id, safe = TRUE, ...)
+lidar_clip(sf, lidar_db, poly_id, lang, safe = TRUE, ...)
 }
 \arguments{
 \item{sf}{sf object with the polygons to clip}
@@ -12,6 +12,8 @@ lidar_clip(sf, lidar_db, poly_id, safe = TRUE, ...)
 \item{lidar_db}{dbi connection}
 
 \item{poly_id}{sf column name containing the polygon identificator, as character}
+
+\item{lang}{language for the errors}
 
 \item{safe}{logical indicating if memory and time safeguards are active}
 

@@ -6,6 +6,7 @@
 #' @param lidar_db dbi connection
 #' @param poly_id sf column name containing the polygon identificator, as character
 #' @param safe logical indicating if memory and time safeguards are active
+#' @param lang language for the errors
 #' @param ... not implemented
 #'
 #' @return a sf data frame with the variables mean (each var a column) for each polygon
@@ -13,7 +14,7 @@
 #'
 #' @export
 lidar_clip <- function(
-  sf, lidar_db, poly_id,
+  sf, lidar_db, poly_id, lang,
   safe = TRUE,
   ...
 ) {
@@ -42,14 +43,16 @@ lidar_clip <- function(
     user_area <- sf::st_area(user_polygons) %>% sum() %>% as.numeric()
     if (user_area > 500000000) {
       stop(glue::glue(
-        'Polygon area (or polygons sum of areas) are above the maximum value ({round(user_area/1000000, 1)} > 500 km2)'
+        translate_app('polygon_area_need', lang)
+        # 'Polygon area (or polygons sum of areas) are above the maximum value ({round(user_area/1000000, 1)} > 500 km2)'
       ))
     }
     # feature number
     user_features <- sf::st_geometry(user_polygons) %>% length()
     if (user_features > 10) {
       stop(glue::glue(
-        'Number of features (polygons) is above the maximum value ({user_features} > 10 polygons)'
+        translate_app('feature_number_need', lang)
+        # 'Number of features (polygons) is above the maximum value ({user_features} > 10 polygons)'
       ))
     }
   }
