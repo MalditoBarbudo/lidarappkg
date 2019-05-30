@@ -174,6 +174,10 @@ lidar_app <- function(
             # shiny::tableOutput('poly_res_table'),
             DT::DTOutput('poly_res_table'),
 
+            shinyjs::hidden(
+              shiny::uiOutput('click_info')
+            ),
+
             # download buttons
             shiny::h4(translate_app('sidebar_h4_download', lang_declared)),
             shiny::actionButton(
@@ -238,6 +242,7 @@ lidar_app <- function(
         dplyr::select(
           dplyr::one_of(c('poly_id', 'comarca', 'provincia', var_column))
         ) %>%
+        dplyr::mutate_if(is.numeric, ~round(., 3)) %>%
         magrittr::set_names(
           translate_app(names(.), lang_declared)
         ) %>%
@@ -392,10 +397,7 @@ lidar_app <- function(
       return(list(row = row_index))
     })
 
-    # observer to watch the click in map and generate a modal? to show rasters
-    # values of the clicked coordinates
-    shiny::observe({
-
+    click_raster_values <- shiny::reactive({
       shiny::validate(
         shiny::need(input$raster_map_click, 'No map click')
       )
@@ -438,26 +440,36 @@ lidar_app <- function(
       raster20x20_val <- pool::dbGetQuery(lidar_db, raster_query) %>% dplyr::pull(foo)
       raster100x100_val <- pool::dbGetQuery(lidar_db, raster_agg_query) %>% dplyr::pull(foo)
 
+      return(list(raw = raster20x20_val, agg = raster100x100_val))
+    })
 
-      shiny::showModal(
-        shiny::modalDialog(
-          shiny::tagList(
-            shiny::h4(glue::glue(
-              "20x20m raster value: {round(raster20x20_val, 3)}"
-            )),
-            shiny::h4(glue::glue(
-              "100x100m raster value: {round(raster100x100_val, 3)}"
-            ))
+    # observer to watch the click in map to show rasters
+    # values of the clicked coordinates
+    shiny::observeEvent(
+      eventExpr = input$raster_map_click,
+      handlerExpr = {
+        shinyjs::show('click_info')
+      }
+    )
+
+    output$click_info <- renderUI({
+      map_click <- input$raster_map_click
+      shiny::tagList(
+        shiny::wellPanel(
+          shiny::h4(
+            glue::glue(
+              "{input$lidar_var_sel} at coordinates: {round(map_click$lng, 3)}, ",
+              "{round(map_click$lat, 3)}"
+            )
           ),
-          title = glue::glue(
-            "{input$lidar_var_sel} at coordinates: {round(map_click$lng, 3)}, ",
-            "{round(map_click$lat, 3)}"
-          ),
-          easyClose = TRUE,
-          footer = NULL
+          shiny::p(glue::glue(
+            "20x20m raster value: {round(click_raster_values()$raw, 3)}"
+          )),
+          shiny::p(glue::glue(
+            "100x100m raster value: {round(click_raster_values()$agg, 3)}"
+          ))
         )
       )
-
     })
 
     ## download ####
