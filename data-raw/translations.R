@@ -69,7 +69,7 @@ tibble::tribble(
   # coordinates info
   'sidebar_h4_coords', '{input$lidar_var_sel} a les coordenades: {round(map_click$lng, 3)}, {round(map_click$lat, 3)}', '{input$lidar_var_sel} at coordinates: {round(map_click$lng, 3)}, {round(map_click$lat, 3)}', '{input$lidar_var_sel} en las coordenadas: {round(map_click$lng, 3)}, {round(map_click$lat, 3)}',
   'sidebar_p_rawraster', 'Valor per al ràster de 20x20m: {round(click_raster_values()$raw, 3)}', '20x20m raster value: {round(click_raster_values()$raw, 3)}', 'Valor para el ráster de 20x20m: {round(click_raster_values()$raw, 3)}',
-  'sidebar_p_aggraster', 'Valor per al ràster de 100x100: {round(click_raster_values()$agg, 3)}', '100x100 raster value: {round(click_raster_values()$agg, 3)}', 'Valor para el ráster de 100x100: {round(click_raster_values()$agg, 3)}',
+  'sidebar_p_aggraster', 'Valor per al ràster de 100x100m: {round(click_raster_values()$agg, 3)}', '100x100m raster value: {round(click_raster_values()$agg, 3)}', 'Valor para el ráster de 100x100m: {round(click_raster_values()$agg, 3)}',
 
   ## TODO continue translations thesaurus
 ) %>%
