@@ -74,17 +74,17 @@ lidar_app <- function(
       shiny::tabPanel(
         title = 'Explore',
         ########################################################### debug ####
-        shiny::absolutePanel(
-          id = 'debug', class = 'panel panel-default', fixed = TRUE,
-          draggable = TRUE, width = 640, height = 'auto',
-          # top = 100, left = 100, rigth = 'auto', bottom = 'auto',
-          # top = 'auto', left = 'auto', right = 100, bottom = 100,
-          top = 60, left = 'auto', right = 50, bottom = 'auto',
-
-          shiny::textOutput('debug1'),
-          shiny::textOutput('debug2'),
-          shiny::textOutput('debug3')
-        ),
+        # shiny::absolutePanel(
+        #   id = 'debug', class = 'panel panel-default', fixed = TRUE,
+        #   draggable = TRUE, width = 640, height = 'auto',
+        #   # top = 100, left = 100, rigth = 'auto', bottom = 'auto',
+        #   # top = 'auto', left = 'auto', right = 100, bottom = 100,
+        #   top = 60, left = 'auto', right = 50, bottom = 'auto',
+        #
+        #   shiny::textOutput('debug1'),
+        #   shiny::textOutput('debug2'),
+        #   shiny::textOutput('debug3')
+        # ),
         ####################################################### end debug ####
 
         # we need an UI beacuse we need to translate based on the lang input from the
@@ -98,12 +98,12 @@ lidar_app <- function(
   ## SERVER ####
   server <- function(input, output, session) {
     ## debug #####
-    output$debug1 <- shiny::renderPrint({
-      input$raster_map_shape_click
-    })
-    output$debug2 <- shiny::renderPrint({
-      input$raster_map_click
-    })
+    # output$debug1 <- shiny::renderPrint({
+    #   input$raster_map_shape_click
+    # })
+    # output$debug2 <- shiny::renderPrint({
+    #   input$raster_map_click
+    # })
     # output$debug3 <- shiny::renderPrint({
     #   map_reactives$map_shape_click
     # })
@@ -258,39 +258,6 @@ lidar_app <- function(
         )
     })
 
-    # observer to select the row of clicked polygon
-    selected_row <- shiny::reactive({
-
-      clicked <- input$raster_map_shape_click
-      poly_sel <- input$poly_type_sel
-
-      # browser()
-      if (!is.null(clicked)) {
-        row_index <- data_res() %>%
-          dplyr::mutate(no = dplyr::row_number()) %>%
-          dplyr::filter(poly_id == clicked$id) %>%
-          dplyr::pull(no)
-
-        if (length(row_index) < 1) {
-          row_index <- 0
-        }
-      } else {
-        row_index <- 0
-      }
-      return(list(row = row_index))
-    })
-
-    # table_proxy <- DT::dataTableProxy('poly_res_table')
-    # shiny::observeEvent(
-    #   eventExpr = input$raster_map_click,
-    #   handlerExpr = {
-    #
-    #     clicked <- input$raster_map_shape_click
-    #     table_proxy %>%
-    #       DT::sele
-    #   }
-    # )
-
     ## map output ####
     output$raster_map <- leaflet::renderLeaflet({
 
@@ -401,6 +368,96 @@ lidar_app <- function(
           ),
           singleFeature = TRUE
         )
+    })
+
+    ## map and table reactives and observers ####
+    # reactive to select the row of clicked polygon
+    selected_row <- shiny::reactive({
+
+      clicked <- input$raster_map_shape_click
+
+      # browser()
+      if (!is.null(clicked)) {
+        row_index <- data_res() %>%
+          dplyr::mutate(no = dplyr::row_number()) %>%
+          dplyr::filter(poly_id == clicked$id) %>%
+          dplyr::pull(no)
+
+        if (length(row_index) < 1) {
+          row_index <- 0
+        }
+      } else {
+        row_index <- 0
+      }
+      return(list(row = row_index))
+    })
+
+    # observer to watch the click in map and generate a modal? to show rasters
+    # values of the clicked coordinates
+    shiny::observe({
+
+      shiny::validate(
+        shiny::need(input$raster_map_click, 'No map click')
+      )
+      # map click
+      map_click <- input$raster_map_click
+      # var input
+      lidar_band <- switch(
+        input$lidar_var_sel,
+        'AB' = 1, 'BAT' = 6, 'BF' = 4, 'CAT' = 7,
+        'DBH' = 2, 'HM' = 3, 'REC' = 5, 'VAE' = 8
+      )
+
+      # browser()
+      # get the raster value
+      raster_query <- glue::glue(
+        "SELECT ST_Value(
+           rast,
+           ST_Transform(ST_SetSRID(ST_Makepoint({map_click$lng},{map_click$lat}),4326),3043)
+         ) As foo
+         FROM {tolower(input$lidar_var_sel)}
+         WHERE ST_Intersects(
+           rast,
+           ST_Transform(ST_SetSRID(ST_Makepoint({map_click$lng},{map_click$lat}),4326),3043)
+         );"
+      )
+      # query for 100x100
+      raster_agg_query <- glue::glue(
+        "SELECT ST_Value(
+           rast,
+           {lidar_band},
+           ST_Transform(ST_SetSRID(ST_Makepoint({map_click$lng},{map_click$lat}),4326),900913)
+         ) As foo
+         FROM lidar_stack
+         WHERE ST_Intersects(
+           rast,
+           ST_Transform(ST_SetSRID(ST_Makepoint({map_click$lng},{map_click$lat}),4326),900913)
+         );"
+      )
+
+      raster20x20_val <- pool::dbGetQuery(lidar_db, raster_query) %>% dplyr::pull(foo)
+      raster100x100_val <- pool::dbGetQuery(lidar_db, raster_agg_query) %>% dplyr::pull(foo)
+
+
+      shiny::showModal(
+        shiny::modalDialog(
+          shiny::tagList(
+            shiny::h4(glue::glue(
+              "20x20m raster value: {round(raster20x20_val, 3)}"
+            )),
+            shiny::h4(glue::glue(
+              "100x100m raster value: {round(raster100x100_val, 3)}"
+            ))
+          ),
+          title = glue::glue(
+            "{input$lidar_var_sel} at coordinates: {round(map_click$lng, 3)}, ",
+            "{round(map_click$lat, 3)}"
+          ),
+          easyClose = TRUE,
+          footer = NULL
+        )
+      )
+
     })
 
     ## download ####
