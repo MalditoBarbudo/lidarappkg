@@ -45,6 +45,10 @@ lidar_app <- function(
       # custom css
       shiny::includeCSS(
         system.file('resources', 'lidarapp.css', package = 'lidarappkg')
+      ),
+      # corporative image css
+      shiny::includeCSS(
+        system.file('resources', 'corp_image.css', package = 'lidarappkg')
       )
     ),
 
