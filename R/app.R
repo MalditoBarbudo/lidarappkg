@@ -309,7 +309,6 @@ lidar_app <- function(
         dplyr::select(poly_id, !! rlang::sym(var_column))
 
       # proper map
-      browser()
       leaflet::leaflet() %>%
         leaflet::setView(1.744, 41.726, zoom = 8) %>%
         leaflet::addProviderTiles(
@@ -459,7 +458,7 @@ lidar_app <- function(
     shiny::observeEvent(
       eventExpr = input$raster_map_click,
       handlerExpr = {
-        shinyjs::show('click_info')
+        # shinyjs::show('click_info')
       }
     )
 
