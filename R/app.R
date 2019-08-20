@@ -427,7 +427,7 @@ lidar_app <- function(
            ST_Transform(ST_SetSRID(ST_Makepoint({map_click$lng},{map_click$lat}),4326),3043)
          );"
       )
-      # query for 100x100
+      # query for 400x400
       raster_agg_query <- glue::glue(
         "SELECT ST_Value(
            rast,
@@ -442,9 +442,9 @@ lidar_app <- function(
       )
 
       raster20x20_val <- pool::dbGetQuery(lidar_db, raster_query) %>% dplyr::pull(foo)
-      raster100x100_val <- pool::dbGetQuery(lidar_db, raster_agg_query) %>% dplyr::pull(foo)
+      raster400x400_val <- pool::dbGetQuery(lidar_db, raster_agg_query) %>% dplyr::pull(foo)
 
-      return(list(raw = raster20x20_val, agg = raster100x100_val))
+      return(list(raw = raster20x20_val, agg = raster400x400_val))
     })
 
     # observer to watch the click in map to show rasters

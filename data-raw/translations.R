@@ -11,7 +11,7 @@ tibble::tribble(
   "user_file_sel_placeholder", "No s’ha seleccionat cap fitxer", "No file selected", "No se seleccionado ningún archivo",
   "sidebar_h4_results", "Resultats", "Results", "Resultados",
   "sidebar_h4_download", "Descarrega", "Download", "Descarga",
-  "main_panel_raster_siz_1", "Ràster per a la visualització té una mida de cel·la de 100x100 metres.", "Raster for visualization has a cell size of 100x100 meters.", "El ráster para la visualización tiene un tamaño de celda de 100x100 metros.",
+  "main_panel_raster_siz_1", "Ràster per a la visualització té una mida de cel·la de 400x400 metres.", "Raster for visualization has a cell size of 400x400 meters.", "El ráster para la visualización tiene un tamaño de celda de 400x400 metros.",
   "main_panel_raster_siz_2", "Ràster per als càlculs té una mida de cel·la de 20x20 metres.", "Raster for calculations has a cell size of 20x20 meters.", "El ráster para los cálculos tiene un tamaño de celda de 20x20 metros.",
   "data_format_label", "Format de dades", "Data format", "Formato de los datos",
   "data_length_label", "¿Totes les variables?", "All the variables?", "¿Todas las variables?",
@@ -69,7 +69,7 @@ tibble::tribble(
   # coordinates info
   'sidebar_h4_coords', '{input$lidar_var_sel} a les coordenades: {round(map_click$lng, 3)}, {round(map_click$lat, 3)}', '{input$lidar_var_sel} at coordinates: {round(map_click$lng, 3)}, {round(map_click$lat, 3)}', '{input$lidar_var_sel} en las coordenadas: {round(map_click$lng, 3)}, {round(map_click$lat, 3)}',
   'sidebar_p_rawraster', 'Valor per al ràster de 20x20m: {round(click_raster_values()$raw, 3)}', '20x20m raster value: {round(click_raster_values()$raw, 3)}', 'Valor para el ráster de 20x20m: {round(click_raster_values()$raw, 3)}',
-  'sidebar_p_aggraster', 'Valor per al ràster de 100x100m: {round(click_raster_values()$agg, 3)}', '100x100m raster value: {round(click_raster_values()$agg, 3)}', 'Valor para el ráster de 100x100m: {round(click_raster_values()$agg, 3)}',
+  'sidebar_p_aggraster', 'Valor per al ràster de 400x400m: {round(click_raster_values()$agg, 3)}', '400x400m raster value: {round(click_raster_values()$agg, 3)}', 'Valor para el ráster de 400x400m: {round(click_raster_values()$agg, 3)}',
 
   ## TODO continue translations thesaurus
 ) %>%
