@@ -18,9 +18,6 @@ lidar_app <- function(
     port = port
   )
 
-  ### Variables names inter ####################################################
-
-
   ### Language input ###########################################################
   shiny::addResourcePath(
     'images', system.file('resources', 'images', package = 'lidarappkg')
@@ -312,6 +309,7 @@ lidar_app <- function(
         dplyr::select(poly_id, !! rlang::sym(var_column))
 
       # proper map
+      browser()
       leaflet::leaflet() %>%
         leaflet::setView(1.744, 41.726, zoom = 8) %>%
         leaflet::addProviderTiles(
@@ -332,18 +330,25 @@ lidar_app <- function(
         leaflet::addMapPane('rasters', zIndex = 420) %>%
         leaflet::addLayersControl(
           baseGroups = c('Relief', 'Imaginery') %>% translate_app(lang_declared),
-          overlayGroups = c('lidar', 'poly') %>% translate_app(lang_declared),
+          overlayGroups = c('lidar', 'poly') %>%
+            translate_app(lang_declared) %>%
+            purrr::map_chr(~ glue::glue(.x)),
           options = leaflet::layersControlOptions(collapsed = FALSE, autoZIndex = FALSE)
         ) %>%
         leaflet::hideGroup('lidar' %>% translate_app(lang_declared)) %>%
         leaflet::removeImage('raster') %>%
-        leaflet::clearGroup('poly') %>%
+        leaflet::clearGroup('poly' %>%
+                              translate_app(lang_declared) %>%
+                              purrr::map_chr(~ glue::glue(.x))) %>%
         leaflet::addRasterImage(
           lidar_raster, project = FALSE, colors = palette, opacity = 1,
           group = 'lidar' %>% translate_app(lang_declared), layerId = 'raster'
         ) %>%
         leaflet::addPolygons(
-          data = user_poly, group = 'poly' %>% translate_app(lang_declared),
+          data = user_poly,
+          group = 'poly' %>%
+            translate_app(lang_declared) %>%
+            purrr::map_chr(~ glue::glue(.x)),
           label = ~poly_id,
           layerId = ~poly_id,
           weight = 1, smoothFactor = 1,
@@ -365,7 +370,9 @@ lidar_app <- function(
         ) %>%
         # leaflet.extras plugins
         leaflet.extras::addDrawToolbar(
-          targetGroup = 'poly' %>% translate_app(lang_declared),
+          targetGroup = 'poly' %>%
+            translate_app(lang_declared) %>%
+            purrr::map_chr(~ glue::glue(.x)),
           position = 'topleft',
           polylineOptions = FALSE, circleOptions = FALSE, rectangleOptions = FALSE,
           markerOptions = FALSE, circleMarkerOptions = FALSE,
