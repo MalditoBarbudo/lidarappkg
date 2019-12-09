@@ -290,7 +290,10 @@ lidar_app <- function(
 
       # raster intermediates
       temp_postgresql_conn <- pool::poolCheckout(lidar_db)
-      lidar_raster <- rpostgis::pgGetRast(temp_postgresql_conn, 'lidar_stack', bands = lidar_band)
+      lidar_raster <- rpostgis::pgGetRast(
+        temp_postgresql_conn,
+        c('public', 'lidar_stack'), bands = lidar_band
+      )
       pool::poolReturn(temp_postgresql_conn)
       # rm(temp_postgresql_conn)
 
