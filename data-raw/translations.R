@@ -24,7 +24,7 @@ tibble::tribble(
   'DBH', "Diàmetre Normal [cm]", "Diameter at Breast Height [cm]", " Diámetro Normal [cm]",
   'HM', "Altura Mitjana [m]", "Mean Height [m]", "Altura Media [m]",
   'REC', "Recobriment [%]", "Coating [%]", "Recubrimiento [%]",
-  'VAE', "Volum amb Escorça [m³/ha]", "Over Bark Volume[m³/ha]", "Volúmen con Corteza [m³/ha]",
+  'VAE', "Volum amb Escorça [m³/ha]", "Over Bark Volume [m³/ha]", "Volúmen con Corteza [m³/ha]",
   # poly type sel choices
   'Catalonia', "Catalunya", "Catalonia", "Cataluña",
   'Provinces', "Provincies", "Provinces", "Provincias",
