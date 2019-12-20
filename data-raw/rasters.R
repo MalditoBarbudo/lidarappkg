@@ -7,69 +7,69 @@ library(tidyverse)
 library(leaflet)
 
 # aggregated raster creation ####
-# basal_area_raster <- raster::raster(
-#   'data-raw/AB.tif'
-# ) %>%
-#   raster::aggregate(fact = 20) %>%
+basal_area_raster <- raster::raster(
+  'data-raw/AB.tif'
+) %>%
+  raster::aggregate(fact = 20) #%>%
 #   projectRasterForLeaflet('bilinear') %>%
 #   raster::writeRaster('data-raw/AB_aggregated20.grd')
-basal_area_raster <- raster::raster('data-raw/AB_aggregated20.grd')
+# basal_area_raster <- raster::raster('data-raw/AB_aggregated20.grd')
 
-# total_aerial_biomass_raster <- raster::raster(
-#   'data-raw/BAT.tif'
-# ) %>%
-#   raster::aggregate(fact = 20) %>%
+total_aerial_biomass_raster <- raster::raster(
+  'data-raw/BAT.tif'
+) %>%
+  raster::aggregate(fact = 20) #%>%
 #   projectRasterForLeaflet('bilinear') %>%
 #   raster::writeRaster('data-raw/BAT_aggregated20.grd')
-total_aerial_biomass_raster <- raster::raster('data-raw/BAT_aggregated20.grd')
+# total_aerial_biomass_raster <- raster::raster('data-raw/BAT_aggregated20.grd')
 
-# leaf_biomass_raster <- raster::raster(
-#   'data-raw/BF.tif'
-# ) %>%
-#   raster::aggregate(fact = 20) %>%
+leaf_biomass_raster <- raster::raster(
+  'data-raw/BF.tif'
+) %>%
+  raster::aggregate(fact = 20) #%>%
 #   projectRasterForLeaflet('bilinear') %>%
 #   raster::writeRaster('data-raw/BF_aggregated20.grd')
-leaf_biomass_raster <- raster::raster('data-raw/BF_aggregated20.grd')
+# leaf_biomass_raster <- raster::raster('data-raw/BF_aggregated20.grd')
 
-# total_aerial_carbon_raster <- raster::raster(
-#   'data-raw/CAT.tif'
-# ) %>%
-#   raster::aggregate(fact = 20) %>%
+total_aerial_carbon_raster <- raster::raster(
+  'data-raw/CAT.tif'
+) %>%
+  raster::aggregate(fact = 20) #%>%
 #   projectRasterForLeaflet('bilinear') %>%
 #   raster::writeRaster('data-raw/CAT_aggregated20.grd')
-total_aerial_carbon_raster <- raster::raster('data-raw/CAT_aggregated20.grd')
+# total_aerial_carbon_raster <- raster::raster('data-raw/CAT_aggregated20.grd')
 
-# dbh_raster <- raster::raster(
-#   'data-raw/DBH.tif'
-# ) %>%
-#   raster::aggregate(fact = 20) %>%
+dbh_raster <- raster::raster(
+  'data-raw/DBH.tif'
+) %>%
+  raster::aggregate(fact = 20) #%>%
 #   projectRasterForLeaflet('bilinear') %>%
 #   raster::writeRaster('data-raw/DBH_aggregated20.grd')
-dbh_raster <- raster::raster('data-raw/DBH_aggregated20.grd')
+# dbh_raster <- raster::raster('data-raw/DBH_aggregated20.grd')
 
-# hm_raster <- raster::raster(
-#   'data-raw/HM.tif'
-# ) %>%
-#   raster::aggregate(fact = 20) %>%
+hm_raster <- raster::raster(
+  'data-raw/HM.tif'
+) %>%
+  raster::aggregate(fact = 20) #%>%
 #   projectRasterForLeaflet('bilinear') %>%
 #   raster::writeRaster('data-raw/HM_aggregated20.grd')
-hm_raster <- raster::raster('data-raw/HM_aggregated20.grd')
+# hm_raster <- raster::raster('data-raw/HM_aggregated20.grd')
 
-# rec_raster <- raster::raster(
-#   'data-raw/REC.tif'
-# ) %>%
-#   raster::aggregate(fact = 20) %>%
+rec_raster <- raster::raster(
+  'data-raw/REC.tif'
+) %>%
+  raster::aggregate(fact = 20) #%>%
 #   projectRasterForLeaflet('bilinear') %>%
 #   raster::writeRaster('data-raw/REC_aggregated20.grd')
-rec_raster <- raster::raster('data-raw/REC_aggregated20.grd')
+# rec_raster <- raster::raster('data-raw/REC_aggregated20.grd')
 
-# vae_raster <- raster::raster(
-#   'data-raw/VAE.tif'
-# ) %>%
-#   raster::aggregate(fact = 20) %>%
+vae_raster <- raster::raster(
+  'data-raw/VAE.tif'
+) %>%
+  raster::aggregate(fact = 20) #%>%
 #   projectRasterForLeaflet('bilinear') %>%
 #   raster::writeRaster('data-raw/VAE_aggregated20.grd')
-vae_raster <- raster::raster('data-raw/VAE_aggregated20.grd')
+# vae_raster <- raster::raster('data-raw/VAE_aggregated20.grd')
 
 lidar_stack <- raster::stack(
   basal_area_raster, dbh_raster, hm_raster, leaf_biomass_raster, rec_raster,
@@ -99,13 +99,13 @@ lidar_stack <- raster::stack(
 # db writing ####
 # conn
 conn <- RPostgreSQL::dbConnect(
-  'PostgreSQL', host = 'localhost', dbname = 'lidargis', user = 'ifn',
+  'PostgreSQL', host = 'laboratoriforestal.creaf.uab.cat', dbname = 'lidargis', user = 'ifn',
   password = rstudioapi::askForPassword()
 )
 # pgPostGIS(conn)
 
 rpostgis::pgWriteRast(
-  conn, 'lidar_stack', lidar_stack, overwrite = TRUE
+  conn, 'lidar_stack_utm', lidar_stack, overwrite = TRUE
 )
 
 # lidar stack tests ####

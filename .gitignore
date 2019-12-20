@@ -7,4 +7,5 @@ data-raw/*.grd
 data-raw/*.gri
 data-raw/*.ovr
 data-raw/*.gpkg
+data-raw/*.zip
 .Rhistory

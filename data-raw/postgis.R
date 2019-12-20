@@ -8,7 +8,7 @@ library(lidarappkg)
 
 # conn
 conn <- RPostgreSQL::dbConnect(
-  'PostgreSQL', host = 'localhost', dbname = 'lidargis', user = 'ifn',
+  'PostgreSQL', host = 'laboratoriforestal.creaf.uab.cat', dbname = 'lidargis', user = 'ifn',
   password = rstudioapi::askForPassword()
 )
 # pgPostGIS(conn)
