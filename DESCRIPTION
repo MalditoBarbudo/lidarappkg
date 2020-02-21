@@ -24,5 +24,8 @@ Imports:
     pool,
     readr,
     writexl,
-    DT
+    DT,
+    lfcdata (>= 0.0.4.9000)
 RoxygenNote: 6.1.1
+Remotes:  
+    MalditoBarbudo/lfcdata

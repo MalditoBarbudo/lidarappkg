@@ -4,19 +4,20 @@
 #'
 #' @export
 lidar_app <- function(
-  user = 'guest', password = 'guest',
-  host = NULL, port = NULL, dbname = 'lidargis'
+  # user = 'guest', password = 'guest',
+  # host = NULL, port = NULL, dbname = 'lidargis'
 ) {
 
   ### DB access ################################################################
-  lidar_db <- pool::dbPool(
-    RPostgreSQL::PostgreSQL(),
-    user = user,
-    password = password,
-    dbname = dbname,
-    host = host,
-    port = port
-  )
+  lidardb <- lfcdata::lidar()
+  # lidar_db <- pool::dbPool(
+  #   RPostgreSQL::PostgreSQL(),
+  #   user = user,
+  #   password = password,
+  #   dbname = dbname,
+  #   host = host,
+  #   port = port
+  # )
 
   ### Language input ###########################################################
   shiny::addResourcePath(
@@ -24,9 +25,18 @@ lidar_app <- function(
   )
   lang_choices <- c('cat', 'spa', 'eng')
   lang_flags <- c(
-    glue::glue("<img class='flag-image' src='images/cat.png' width=20px><div class='flag-lang'>%s</div></img>"),
-    glue::glue("<img class='flag-image' src='images/spa.png' width=20px><div class='flag-lang'>%s</div></img>"),
-    glue::glue("<img class='flag-image' src='images/eng.png' width=20px><div class='flag-lang'>%s</div></img>")
+    glue::glue(
+      "<img class='flag-image' src='images/cat.png'",
+      " width=20px><div class='flag-lang'>%s</div></img>"
+    ),
+    glue::glue(
+      "<img class='flag-image' src='images/spa.png'",
+      " width=20px><div class='flag-lang'>%s</div></img>"
+    ),
+    glue::glue(
+      "<img class='flag-image' src='images/eng.png'",
+      " width=20px><div class='flag-lang'>%s</div></img>"
+    )
   )
 
   ## UI ####
@@ -205,13 +215,13 @@ lidar_app <- function(
     data_res <- shiny::reactive({
 
       data_res <- switch(input$poly_type_sel,
-        'Catalonia' = catalonia_poly(lidar_db),
-        'Provinces' = provinces_poly(lidar_db),
-        'Counties' = counties_poly(lidar_db),
-        'Municipalities' = municipalities_poly(lidar_db),
-        'Veguerias' = veguerias_poly(lidar_db),
-        'Drawed polygon' = drawed_poly(lidar_db, input$raster_map_draw_all_features, lang()),
-        'File upload' = file_poly(lidar_db, input$user_file_sel, input$poly_id_var, lang())
+        'Catalonia' = catalonia_poly(lidardb),
+        'Provinces' = provinces_poly(lidardb),
+        'Counties' = counties_poly(lidardb),
+        'Municipalities' = municipalities_poly(lidardb),
+        'Veguerias' = veguerias_poly(lidardb),
+        'Drawed polygon' = drawed_poly(lidardb, input$raster_map_draw_all_features, lang()),
+        'File upload' = file_poly(lidardb, input$user_file_sel, lang())
       )
       return(data_res)
     })
@@ -224,24 +234,20 @@ lidar_app <- function(
         shiny::need(data_res(), translate_app('data_res_need', lang()))
       )
 
-      lidar_var <- tolower(input$lidar_var_sel)
-      var_column <- glue::glue("mean_{lidar_var}")
+      lidar_var <- input$lidar_var_sel
       lang_declared <- lang()
-      # table_page <- selected_row()$page
       selected <- selected_row()$row
+
       if (input$poly_type_sel %in% c('Counties', 'Municipalities')) {
         displayStart <- selected - 1
       } else {
         displayStart <- 0
       }
 
-
-      # browser()
-
       data_res() %>%
         dplyr::as_tibble() %>%
         dplyr::select(
-          dplyr::one_of(c('poly_id', 'comarca', 'provincia', var_column))
+          dplyr::one_of(c('poly_id', 'comarca', 'provincia', lidar_var))
         ) %>%
         dplyr::mutate_if(is.numeric, ~round(., 3)) %>%
         magrittr::set_names(
@@ -267,6 +273,8 @@ lidar_app <- function(
     ## map output ####
     output$raster_map <- leaflet::renderLeaflet({
 
+      browser()
+
       shiny::validate(
         shiny::need(data_res(), translate_app('data_res_need', lang()))
         # shiny::need(input$poly_type_sel, 'No polygon type selected'),
@@ -275,38 +283,17 @@ lidar_app <- function(
 
       lang_declared <- lang()
 
-      # band to get from db stack
-      lidar_band <- switch(
-        input$lidar_var_sel,
-        'AB' = 1,
-        'BAT' = 6,
-        'BF' = 4,
-        'CAT' = 7,
-        'DBH' = 2,
-        'HM' = 3,
-        'REC' = 5,
-        'VAE' = 8
-      )
-
-      # raster intermediates
-      temp_postgresql_conn <- pool::poolCheckout(lidar_db)
-      lidar_raster <- rpostgis::pgGetRast(
-        temp_postgresql_conn,
-        c('public', 'lidar_stack'), bands = lidar_band
-      )
-      pool::poolReturn(temp_postgresql_conn)
-      # rm(temp_postgresql_conn)
+      lidar_raster <- lidardb$get_data(input$lidar_var_sel, 'raster')
 
       palette <- leaflet::colorNumeric(
         viridis::plasma(100),
-        # raster::values(basal_area_raster),
         raster::values(lidar_raster),
         na.color = 'transparent'
       )
 
       # poly intermediates
-      poly_type <- input$poly_type_sel
-      var_column <- glue::glue('mean_{tolower(input$lidar_var_sel)}')
+      # poly_type <- input$poly_type_sel
+      var_column <- input$lidar_var_sel
       user_poly <- data_res() %>%
         sf::st_transform('+proj=longlat +datum=WGS84') %>%
         dplyr::select(poly_id, !! rlang::sym(var_column))
@@ -450,8 +437,14 @@ lidar_app <- function(
          );"
       )
 
-      raster20x20_val <- pool::dbGetQuery(lidar_db, raster_query) %>% dplyr::pull(foo)
-      raster400x400_val <- pool::dbGetQuery(lidar_db, raster_agg_query) %>% dplyr::pull(foo)
+      raster20x20_val <- pool::dbGetQuery(
+        lidardb$.__enclos_env__$private$pool_conn, raster_query
+      ) %>%
+        dplyr::pull(foo)
+      raster400x400_val <- pool::dbGetQuery(
+        lidardb$.__enclos_env__$private$pool_conn, raster_agg_query
+      ) %>%
+        dplyr::pull(foo)
 
       return(list(raw = raster20x20_val, agg = raster400x400_val))
     })
@@ -639,17 +632,7 @@ lidar_app <- function(
 
   # Run the application
   lidarapp <- shiny::shinyApp(
-    ui = ui, server = server,
-    onStart = function() {
-
-      ## on stop routine to cloose the db pool
-      shiny::onStop(function() {
-        pool::poolClose(lidar_db)
-      })
-    }
+    ui = ui, server = server
   )
-
-  # shiny::runApp(nfi_app)
   return(lidarapp)
-
 }

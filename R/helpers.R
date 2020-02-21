@@ -17,40 +17,40 @@ navbarPageWithInputs <- function(..., inputs) {
 #'
 #' return the data pre calculated for catalonia
 #'
-catalonia_poly <- function(lidar_db) {
-  sf::st_read(lidar_db, 'lidar_catalunya')
+catalonia_poly <- function(lidardb) {
+  sf::st_read(lidardb$.__enclos_env__$private$pool_conn, 'lidar_catalunya')
 }
 
 #' provinces_poly
 #'
 #' return the data pre calculated for provinces
 #'
-provinces_poly <- function(lidar_db) {
-  sf::st_read(lidar_db, 'lidar_provincias')
+provinces_poly <- function(lidardb) {
+  sf::st_read(lidardb$.__enclos_env__$private$pool_conn, 'lidar_provincias')
 }
 
 #' counties_poly
 #'
 #' return the data pre calculated for counties
 #'
-counties_poly <- function(lidar_db) {
-  sf::st_read(lidar_db, 'lidar_comarcas')
+counties_poly <- function(lidardb) {
+  sf::st_read(lidardb$.__enclos_env__$private$pool_conn, 'lidar_comarcas')
 }
 
 #' municipalities_poly
 #'
 #' return the data pre calculated for municipalities
 #'
-municipalities_poly <- function(lidar_db) {
-  sf::st_read(lidar_db, 'lidar_municipios')
+municipalities_poly <- function(lidardb) {
+  sf::st_read(lidardb$.__enclos_env__$private$pool_conn, 'lidar_municipios')
 }
 
 #' veguerias_poly
 #'
 #' return the data pre calculated for veguerias
 #'
-veguerias_poly <- function(lidar_db) {
-  sf::st_read(lidar_db, 'lidar_veguerias')
+veguerias_poly <- function(lidardb) {
+  sf::st_read(lidardb$.__enclos_env__$private$pool_conn, 'lidar_veguerias')
 }
 
 
@@ -58,7 +58,7 @@ veguerias_poly <- function(lidar_db) {
 #'
 #' return the data calculated on-the-fly for the file loaded
 #'
-file_poly <- function(lidar_db, file, poly_id, lang) {
+file_poly <- function(lidardb, file, lang) {
 
   shiny::validate(
     shiny::need(file, translate_app('file_need', lang))
@@ -66,34 +66,28 @@ file_poly <- function(lidar_db, file, poly_id, lang) {
 
   # browser()
 
-  # check for input file format
-
-  ## csv (wkt) not working as it does not store the crs
-  # if (stringr::str_detect(file$type, 'csv')) {
-  #   sf::st_read(file$datapath, as_tibble = TRUE) %>%
-  #     lidar_clip(lidar_db = lidar_db, poly_id = names(.)[1])
-  # }
+  # check for input file format (csv (wkt) not working as it does not store the crs)
   if (stringr::str_detect(file$type, 'zip')) {
     tmp_folder <- tempdir()
     utils::unzip(file$datapath, exdir = tmp_folder)
 
-    sf::st_read(
+    user_polygons <- sf::st_read(
       list.files(tmp_folder, '.shp', recursive = TRUE, full.names = TRUE),
       as_tibble = TRUE
-    ) %>%
-      lidar_clip(lidar_db = lidar_db, poly_id = names(.)[1], lang = lang)
+    )
+
+    lidardb$clip_and_mean(user_polygons, lidardb$avail_tables())
   } else {
     # gpkg
-    sf::st_read(file$datapath, as_tibble = TRUE) %>%
-      lidar_clip(lidar_db = lidar_db, poly_id = names(.)[1], lang = lang)
+    user_polygons <- sf::st_read(file$datapath, as_tibble = TRUE)
+    lidardb$clip_and_mean(user_polygons, lidardb$avail_tables())
   }
 }
-
 
 #' drawed_poly
 #'
 #' return the data calculated on-the-fly for the drawed poly from leaflet
-drawed_poly <- function(lidar_db, custom_polygon, lang) {
+drawed_poly <- function(lidardb, custom_polygon, lang) {
 
   shiny::validate(
     shiny::need(
@@ -101,7 +95,7 @@ drawed_poly <- function(lidar_db, custom_polygon, lang) {
     ), errorClass = 'drawed_polygon_warn'
   )
 
-  custom_polygon[['features']][[1]][['geometry']][['coordinates']] %>%
+  user_polygons <- custom_polygon[['features']][[1]][['geometry']][['coordinates']] %>%
     purrr::flatten() %>%
     purrr::modify_depth(1, purrr::set_names, nm = c('long', 'lat')) %>%
     dplyr::bind_rows() %>%
@@ -109,8 +103,9 @@ drawed_poly <- function(lidar_db, custom_polygon, lang) {
     sf::st_polygon() %>%
     sf::st_sfc() %>%
     sf::st_sf(crs = "+proj=longlat +datum=WGS84") %>%
-    dplyr::mutate(poly_id = 'custom_polygon') %>%
-    lidar_clip(lidar_db = lidar_db, poly_id = 'poly_id', lang = lang)
+    dplyr::mutate(poly_id = 'custom_polygon')
+
+  lidardb$clip_and_mean(user_polygons, lidardb$avail_tables())
 }
 
 #' translate app function
@@ -132,9 +127,4 @@ translate_app <- function(id, lang) {
           }
         }
     )
-
-  # dplyr::tbl(db, 'app_translations_APP') %>%
-  #   dplyr::filter(text_id %in% id) %>%
-  #   dplyr::arrange(text_id) %>%
-  #   dplyr::pull(!! rlang::sym(glue::glue("translation_{lang}")))
 }

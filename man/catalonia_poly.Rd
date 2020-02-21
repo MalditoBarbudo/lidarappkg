@@ -4,7 +4,7 @@
 \alias{catalonia_poly}
 \title{catalonia_poly}
 \usage{
-catalonia_poly(lidar_db)
+catalonia_poly(lidardb)
 }
 \description{
 return the data pre calculated for catalonia

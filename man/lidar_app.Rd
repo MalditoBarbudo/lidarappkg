@@ -4,8 +4,7 @@
 \alias{lidar_app}
 \title{function to launch the lidar app}
 \usage{
-lidar_app(user = "guest", password = "guest", host = NULL,
-  port = NULL, dbname = "lidargis")
+lidar_app()
 }
 \description{
 function to launch the lidar app

@@ -4,7 +4,7 @@
 \alias{veguerias_poly}
 \title{veguerias_poly}
 \usage{
-veguerias_poly(lidar_db)
+veguerias_poly(lidardb)
 }
 \description{
 return the data pre calculated for veguerias

@@ -4,7 +4,7 @@
 \alias{municipalities_poly}
 \title{municipalities_poly}
 \usage{
-municipalities_poly(lidar_db)
+municipalities_poly(lidardb)
 }
 \description{
 return the data pre calculated for municipalities
