@@ -4,11 +4,14 @@
 library(rpostgis)
 library(sf)
 library(tidyverse)
-library(lidarappkg)
+library(lfcdata)
+
+lidardb <- lidar()
 
 # conn
-conn <- RPostgreSQL::dbConnect(
-  'PostgreSQL', host = 'laboratoriforestal.creaf.uab.cat', dbname = 'lidargis', user = 'ifn',
+conn <- RPostgres::dbConnect(
+  RPostgres::Postgres(), host = 'laboratoriforestal.creaf.uab.cat', dbname = 'lidargis',
+  user = 'ifn',
   password = rstudioapi::askForPassword()
 )
 # pgPostGIS(conn)
@@ -37,14 +40,66 @@ list.files('data-raw', '.tif$', full.names = TRUE) %>%
 
 ## pre-calculated data for known polygons ####
 
+
 # comarcas
-# sf::read_sf(
-#   '../../01_nfi_app/NFIappkg/data-raw/shapefiles/bm5mv20sh0tpc1_20180101_0.shp'
-# ) %>%
-#   dplyr::select(poly_id = NOMCOMAR, geometry) %>%
-#   lidar_clip(lidar_db = conn, poly_id = 'poly_id', safe = FALSE) %>%
-#   rmapshaper::ms_simplify(0.01) -> lidar_comarcas
-# sf::st_write(lidar_comarcas, conn, overwrite = TRUE)
+comarcas_polys <- sf::read_sf(
+  '../../01_nfi_app/NFIappkg/data-raw/shapefiles/bm5mv20sh0tpc1_20180101_0.shp'
+) %>%
+  dplyr::select(poly_id = NOMCOMAR, geometry) %>%
+  sf::st_set_crs(value = 3043)
+
+comarcas_sf <- lidardb %>%
+  lidar_clip_and_stats(
+    comarcas_polys, 'poly_id',
+    variables = c('AB', 'BAT', 'BF', 'CAT', 'DBH', 'HM', 'REC', 'VAE')
+  )
+
+sf::st_write(
+  comarcas_sf, lidardb$.__enclos_env__$private$pool_conn,
+  layer = 'lidar_counties',
+  overwrite = TRUE
+)
+
+# provincias
+provincias_polys <- sf::read_sf(
+  '../../01_nfi_app/NFIappkg/data-raw/shapefiles/bm5mv20sh0tpp1_20180101_0.shp'
+) %>%
+  dplyr::select(poly_id = NOMPROV, geometry) %>%
+  sf::st_set_crs(value = 3043)
+
+provincias_sf <- lidardb %>%
+  lidar_clip_and_stats(
+    provincias_polys, 'poly_id',
+    variables = c('AB', 'BAT', 'BF', 'CAT', 'DBH', 'HM', 'REC', 'VAE')
+  )
+
+sf::st_write(
+  provincias_sf, lidardb$.__enclos_env__$private$pool_conn,
+  layer = 'lidar_provinces',
+  overwrite = TRUE
+)
+
+# municipios
+municipios_polys <- sf::read_sf(
+  '../../01_nfi_app/NFIappkg/data-raw/shapefiles/bm5mv20sh0tpm1_20180101_0.shp'
+) %>%
+  dplyr::select(poly_id = NOMMUNI, geometry) %>%
+  sf::st_set_crs(value = 3043) %>%
+  dplyr::slice(172)
+
+municipios_sf <- lidardb %>%
+  lidar_clip_and_stats(
+    municipios_polys, 'poly_id',
+    variables = c('AB', 'BAT', 'BF', 'CAT', 'DBH', 'HM', 'REC', 'VAE')
+  )
+
+sf::st_write(
+  municipios_sf, lidardb$.__enclos_env__$private$pool_conn,
+  layer = 'lidar_municipalities',
+  overwrite = TRUE
+)
+
+
 # # provincias
 # sf::read_sf(
 #   '../../01_nfi_app/NFIappkg/data-raw/shapefiles/bm5mv20sh0tpp1_20180101_0.shp'
@@ -53,7 +108,7 @@ list.files('data-raw', '.tif$', full.names = TRUE) %>%
 #   lidar_clip(lidar_db = conn, poly_id = 'poly_id', safe = FALSE) %>%
 #   rmapshaper::ms_simplify(0.01) -> lidar_provincias
 # sf::st_write(lidar_provincias, conn, overwrite = TRUE)
-# municipios
+# # municipios
 # admin_thes <- sf::read_sf('../../01_nfi_app/NFIappkg/data-raw/shapefiles/bm5mv20sh0tpm1_20180101_0.shp') %>%
 #   dplyr::as_tibble() %>%
 #   dplyr::select(-geometry) %>%
@@ -135,4 +190,4 @@ list.files('data-raw', '.tif$', full.names = TRUE) %>%
 # foo
 
 # disconnect the db
-RPostgreSQL::dbDisconnect(conn)
+RPostgres::dbDisconnect(conn)
