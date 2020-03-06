@@ -215,11 +215,11 @@ lidar_app <- function(
     data_res <- shiny::reactive({
 
       data_res <- switch(input$poly_type_sel,
-        'Catalonia' = catalonia_poly(lidardb),
-        'Provinces' = provinces_poly(lidardb),
-        'Counties' = counties_poly(lidardb),
-        'Municipalities' = municipalities_poly(lidardb),
-        'Veguerias' = veguerias_poly(lidardb),
+        'Catalonia' = catalonia_poly(lidardb, input$lidar_var_sel),
+        'Provinces' = provinces_poly(lidardb, input$lidar_var_sel),
+        'Counties' = counties_poly(lidardb, input$lidar_var_sel),
+        'Municipalities' = municipalities_poly(lidardb, input$lidar_var_sel),
+        'Veguerias' = veguerias_poly(lidardb, input$lidar_var_sel),
         'Drawed polygon' = drawed_poly(lidardb, input$raster_map_draw_all_features, lang()),
         'File upload' = file_poly(lidardb, input$user_file_sel, lang())
       )
@@ -247,7 +247,8 @@ lidar_app <- function(
       data_res() %>%
         dplyr::as_tibble() %>%
         dplyr::select(
-          dplyr::one_of(c('poly_id', 'comarca', 'provincia', lidar_var))
+          dplyr::one_of(c('poly_id', 'comarca', 'provincia')),
+          dplyr::contains(lidar_var)
         ) %>%
         dplyr::mutate_if(is.numeric, ~round(., 3)) %>%
         magrittr::set_names(
@@ -273,7 +274,7 @@ lidar_app <- function(
     ## map output ####
     output$raster_map <- leaflet::renderLeaflet({
 
-      browser()
+      # browser()
 
       shiny::validate(
         shiny::need(data_res(), translate_app('data_res_need', lang()))
@@ -283,7 +284,8 @@ lidar_app <- function(
 
       lang_declared <- lang()
 
-      lidar_raster <- lidardb$get_data(input$lidar_var_sel, 'raster')
+      # lidar_raster <- lidardb$get_data(input$lidar_var_sel, 'raster')
+      lidar_raster <- lidardb$get_lowres_raster(input$lidar_var_sel, 'raster')
 
       palette <- leaflet::colorNumeric(
         viridis::plasma(100),
@@ -293,7 +295,7 @@ lidar_app <- function(
 
       # poly intermediates
       # poly_type <- input$poly_type_sel
-      var_column <- input$lidar_var_sel
+      var_column <- glue::glue("{input$lidar_var_sel}_average")
       user_poly <- data_res() %>%
         sf::st_transform('+proj=longlat +datum=WGS84') %>%
         dplyr::select(poly_id, !! rlang::sym(var_column))
@@ -330,7 +332,7 @@ lidar_app <- function(
                               translate_app(lang_declared) %>%
                               purrr::map_chr(~ glue::glue(.x))) %>%
         leaflet::addRasterImage(
-          lidar_raster, project = FALSE, colors = palette, opacity = 1,
+          lidar_raster, project = TRUE, colors = palette, opacity = 1,
           group = 'lidar' %>% translate_app(lang_declared), layerId = 'raster'
         ) %>%
         leaflet::addPolygons(

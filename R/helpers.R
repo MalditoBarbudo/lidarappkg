@@ -17,40 +17,45 @@ navbarPageWithInputs <- function(..., inputs) {
 #'
 #' return the data pre calculated for catalonia
 #'
-catalonia_poly <- function(lidardb) {
-  sf::st_read(lidardb$.__enclos_env__$private$pool_conn, 'lidar_catalunya')
+catalonia_poly <- function(lidardb, variable) {
+  # sf::st_read(lidardb$.__enclos_env__$private$pool_conn, 'lidar_catalunya')
+  lidardb$get_data('lidar_catalonia', variable)
 }
 
 #' provinces_poly
 #'
 #' return the data pre calculated for provinces
 #'
-provinces_poly <- function(lidardb) {
-  sf::st_read(lidardb$.__enclos_env__$private$pool_conn, 'lidar_provincias')
+provinces_poly <- function(lidardb, variable) {
+  # sf::st_read(lidardb$.__enclos_env__$private$pool_conn, 'lidar_provincias')
+  lidardb$get_data('lidar_provinces', variable)
 }
 
 #' counties_poly
 #'
 #' return the data pre calculated for counties
 #'
-counties_poly <- function(lidardb) {
-  sf::st_read(lidardb$.__enclos_env__$private$pool_conn, 'lidar_comarcas')
+counties_poly <- function(lidardb, variable) {
+  # sf::st_read(lidardb$.__enclos_env__$private$pool_conn, 'lidar_comarcas')
+  lidardb$get_data('lidar_counties', variable)
 }
 
 #' municipalities_poly
 #'
 #' return the data pre calculated for municipalities
 #'
-municipalities_poly <- function(lidardb) {
-  sf::st_read(lidardb$.__enclos_env__$private$pool_conn, 'lidar_municipios')
+municipalities_poly <- function(lidardb, variable) {
+  # sf::st_read(lidardb$.__enclos_env__$private$pool_conn, 'lidar_municipios')
+  lidardb$get_data('lidar_municipalities', variable)
 }
 
 #' veguerias_poly
 #'
 #' return the data pre calculated for veguerias
 #'
-veguerias_poly <- function(lidardb) {
-  sf::st_read(lidardb$.__enclos_env__$private$pool_conn, 'lidar_veguerias')
+veguerias_poly <- function(lidardb, variable) {
+  # sf::st_read(lidardb$.__enclos_env__$private$pool_conn, 'lidar_veguerias')
+  lidardb$get_data('lidar_vegueries', variable)
 }
 
 
@@ -76,11 +81,11 @@ file_poly <- function(lidardb, file, lang) {
       as_tibble = TRUE
     )
 
-    lidardb$clip_and_mean(user_polygons, lidardb$avail_tables())
+    lidardb$clip_and_stats(user_polygons, 'poly_id', 'all')
   } else {
     # gpkg
     user_polygons <- sf::st_read(file$datapath, as_tibble = TRUE)
-    lidardb$clip_and_mean(user_polygons, lidardb$avail_tables())
+    lidardb$clip_and_stats(user_polygons, 'poly_id', 'all')
   }
 }
 
@@ -105,7 +110,7 @@ drawed_poly <- function(lidardb, custom_polygon, lang) {
     sf::st_sf(crs = "+proj=longlat +datum=WGS84") %>%
     dplyr::mutate(poly_id = 'custom_polygon')
 
-  lidardb$clip_and_mean(user_polygons, lidardb$avail_tables())
+  lidardb$clip_and_stats(user_polygons, 'poly_id', 'all')
 }
 
 #' translate app function
