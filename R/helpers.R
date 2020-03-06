@@ -81,11 +81,14 @@ file_poly <- function(lidardb, file, lang) {
       as_tibble = TRUE
     )
 
-    lidardb$clip_and_stats(user_polygons, 'poly_id', 'all')
+    poly_id <- names(user_polygons)[1]
+
+    lidardb$clip_and_stats(user_polygons, poly_id, 'all')
   } else {
     # gpkg
     user_polygons <- sf::st_read(file$datapath, as_tibble = TRUE)
-    lidardb$clip_and_stats(user_polygons, 'poly_id', 'all')
+    poly_id <- names(user_polygons)[1]
+    lidardb$clip_and_stats(user_polygons, poly_id, 'all')
   }
 }
 
