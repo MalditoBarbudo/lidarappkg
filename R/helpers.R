@@ -13,51 +13,12 @@ navbarPageWithInputs <- function(..., inputs) {
   navbar
 }
 
-#' catalonia_poly
+#' requested_polys
 #'
-#' return the data pre calculated for catalonia
-#'
-catalonia_poly <- function(lidardb, variable) {
-  # sf::st_read(lidardb$.__enclos_env__$private$pool_conn, 'lidar_catalunya')
-  lidardb$get_data('lidar_catalonia', variable)
+#' return the requested precalculated polys
+requested_poly <- function(lidardb, poly_table, variable) {
+  lidardb$get_data(poly_table, variable)
 }
-
-#' provinces_poly
-#'
-#' return the data pre calculated for provinces
-#'
-provinces_poly <- function(lidardb, variable) {
-  # sf::st_read(lidardb$.__enclos_env__$private$pool_conn, 'lidar_provincias')
-  lidardb$get_data('lidar_provinces', variable)
-}
-
-#' counties_poly
-#'
-#' return the data pre calculated for counties
-#'
-counties_poly <- function(lidardb, variable) {
-  # sf::st_read(lidardb$.__enclos_env__$private$pool_conn, 'lidar_comarcas')
-  lidardb$get_data('lidar_counties', variable)
-}
-
-#' municipalities_poly
-#'
-#' return the data pre calculated for municipalities
-#'
-municipalities_poly <- function(lidardb, variable) {
-  # sf::st_read(lidardb$.__enclos_env__$private$pool_conn, 'lidar_municipios')
-  lidardb$get_data('lidar_municipalities', variable)
-}
-
-#' veguerias_poly
-#'
-#' return the data pre calculated for veguerias
-#'
-veguerias_poly <- function(lidardb, variable) {
-  # sf::st_read(lidardb$.__enclos_env__$private$pool_conn, 'lidar_veguerias')
-  lidardb$get_data('lidar_vegueries', variable)
-}
-
 
 #' file_poly
 #'

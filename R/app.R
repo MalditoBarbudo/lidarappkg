@@ -215,11 +215,21 @@ lidar_app <- function(
     data_res <- shiny::reactive({
 
       data_res <- switch(input$poly_type_sel,
-        'Catalonia' = catalonia_poly(lidardb, input$lidar_var_sel),
-        'Provinces' = provinces_poly(lidardb, input$lidar_var_sel),
-        'Counties' = counties_poly(lidardb, input$lidar_var_sel),
-        'Municipalities' = municipalities_poly(lidardb, input$lidar_var_sel),
-        'Veguerias' = veguerias_poly(lidardb, input$lidar_var_sel),
+        'Catalonia' = requested_poly(
+          lidardb, 'lidar_catalonia', input$lidar_var_sel
+        ),
+        'Provinces' = requested_poly(
+          lidardb, 'lidar_provinces', input$lidar_var_sel
+        ),
+        'Counties' = requested_poly(
+          lidardb, 'lidar_counties', input$lidar_var_sel
+        ),
+        'Municipalities' = requested_poly(
+          lidardb, 'lidar_municipalities', input$lidar_var_sel
+        ),
+        'Veguerias' = requested_poly(
+          lidardb, 'lidar_vegueries', input$lidar_var_sel
+        ),
         'Drawed polygon' = drawed_poly(lidardb, input$raster_map_draw_all_features, lang()),
         'File upload' = file_poly(lidardb, input$user_file_sel, lang())
       )
@@ -248,7 +258,7 @@ lidar_app <- function(
         dplyr::as_tibble() %>%
         dplyr::select(
           dplyr::one_of(c('poly_id', 'comarca', 'provincia')),
-          dplyr::contains(lidar_var)
+          dplyr::matches(glue::glue("{lidar_var}_average"))
         ) %>%
         dplyr::mutate_if(is.numeric, ~round(., 3)) %>%
         magrittr::set_names(
