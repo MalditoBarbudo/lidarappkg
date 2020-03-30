@@ -26,6 +26,6 @@ Imports:
     writexl,
     DT,
     lfcdata (>= 0.0.4.9000)
-RoxygenNote: 6.1.1
-Remotes:  
+RoxygenNote: 7.1.0
+Remotes: 
     MalditoBarbudo/lfcdata

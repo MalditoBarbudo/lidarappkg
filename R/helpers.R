@@ -1,5 +1,5 @@
-# Call this function with an input (such as `textInput("text", NULL, "Search")`) if you
-# want to add an input to the navbar (from dean attali,
+# Call this function with an input (such as `textInput("text", NULL, "Search")`)
+# if you want to add an input to the navbar (from dean attali,
 # https://github.com/daattali/advanced-shiny)
 navbarPageWithInputs <- function(..., inputs) {
   navbar <- shiny::navbarPage(...)
@@ -30,9 +30,8 @@ file_poly <- function(lidardb, file, lang) {
     shiny::need(file, translate_app('file_need', lang))
   )
 
-  # browser()
-
-  # check for input file format (csv (wkt) not working as it does not store the crs)
+  # check for input file format (csv (wkt) not working as it does not store the
+  # crs)
   if (stringr::str_detect(file$type, 'zip')) {
     tmp_folder <- tempdir()
     utils::unzip(file$datapath, exdir = tmp_folder)
@@ -40,15 +39,20 @@ file_poly <- function(lidardb, file, lang) {
     user_polygons <- sf::st_read(
       list.files(tmp_folder, '.shp', recursive = TRUE, full.names = TRUE),
       as_tibble = TRUE
-    )
-
+    ) %>%
+      sf::st_transform(crs = "+proj=longlat +datum=WGS84")
     poly_id <- names(user_polygons)[1]
+    # ensure polygon id is character (factors fuck it all)
+    user_polygons[[poly_id]] <- as.character(user_polygons[[poly_id]])
 
     lidardb$clip_and_stats(user_polygons, poly_id, 'all')
   } else {
     # gpkg
-    user_polygons <- sf::st_read(file$datapath, as_tibble = TRUE)
+    user_polygons <- sf::st_read(file$datapath, as_tibble = TRUE) %>%
+      sf::st_transform(crs = "+proj=longlat +datum=WGS84")
     poly_id <- names(user_polygons)[1]
+    # ensure polygon id is character (factors fuck it all)
+    user_polygons[[poly_id]] <- as.character(user_polygons[[poly_id]])
     lidardb$clip_and_stats(user_polygons, poly_id, 'all')
   }
 }
@@ -64,7 +68,8 @@ drawed_poly <- function(lidardb, custom_polygon, lang) {
     ), errorClass = 'drawed_polygon_warn'
   )
 
-  user_polygons <- custom_polygon[['features']][[1]][['geometry']][['coordinates']] %>%
+  user_polygons <-
+    custom_polygon[['features']][[1]][['geometry']][['coordinates']] %>%
     purrr::flatten() %>%
     purrr::modify_depth(1, purrr::set_names, nm = c('long', 'lat')) %>%
     dplyr::bind_rows() %>%
@@ -92,7 +97,9 @@ translate_app <- function(id, lang) {
           if (nrow(data_filtered) < 1) {
             .x
           } else {
-            dplyr::pull(data_filtered, !! rlang::sym(glue::glue("translation_{lang}")))
+            dplyr::pull(
+              data_filtered, !! rlang::sym(glue::glue("translation_{lang}"))
+            )
           }
         }
     )

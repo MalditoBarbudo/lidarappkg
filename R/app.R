@@ -3,21 +3,10 @@
 #' @importFrom magrittr %>%
 #'
 #' @export
-lidar_app <- function(
-  # user = 'guest', password = 'guest',
-  # host = NULL, port = NULL, dbname = 'lidargis'
-) {
+lidar_app <- function() {
 
   ### DB access ################################################################
   lidardb <- lfcdata::lidar()
-  # lidar_db <- pool::dbPool(
-  #   RPostgreSQL::PostgreSQL(),
-  #   user = user,
-  #   password = password,
-  #   dbname = dbname,
-  #   host = host,
-  #   port = port
-  # )
 
   ### Language input ###########################################################
   shiny::addResourcePath(
