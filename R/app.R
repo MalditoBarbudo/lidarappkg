@@ -130,20 +130,30 @@ lidar_app <- function() {
 
             # var input
             shiny::selectInput(
-              'lidar_var_sel', translate_app('lidar_val_sel_label', lang_declared),
-              choices = c('AB', 'BAT', 'BF', 'CAT', 'DBH', 'HM', 'REC', 'VAE') %>%
+              'lidar_var_sel',
+              translate_app('lidar_val_sel_label', lang_declared),
+              choices = c(
+                'AB', 'BAT', 'BF', 'CAT', 'DBH', 'HM', 'REC', 'VAE'
+              ) %>%
                 magrittr::set_names(translate_app(., lang_declared)),
               selected = 'AB'
             ),
 
             # poly input
             shiny::selectInput(
-              'poly_type_sel', translate_app('poly_type_sel_label', lang_declared),
+              'poly_type_sel',
+              translate_app('poly_type_sel_label', lang_declared),
               choices = c(
-                'Catalonia', 'Provinces', 'Counties', 'Municipalities', 'Veguerias',
-                'Drawed polygon', 'File upload'
+                "aut_community", "province", "vegueria", "region",
+                "municipality", "natural_interest_area",
+                "special_protection_natural_area", "natura_network_2000",
+                "file", "drawn_poly"
+                # 'Catalonia', 'Provinces', 'Counties', 'Municipalities',
+                # 'Veguerias',
+                # 'enpe', 'pein', 'xn2000',
+                # 'Drawed polygon', 'File upload'
               ) %>% magrittr::set_names(translate_app(., lang_declared)),
-              selected = 'Provinces'
+              selected = 'province'
             ),
 
             # hidden file selector div
@@ -204,23 +214,32 @@ lidar_app <- function() {
     data_res <- shiny::reactive({
 
       data_res <- switch(input$poly_type_sel,
-        'Catalonia' = requested_poly(
+        'aut_community' = requested_poly(
           lidardb, 'lidar_catalonia', input$lidar_var_sel
         ),
-        'Provinces' = requested_poly(
+        'province' = requested_poly(
           lidardb, 'lidar_provinces', input$lidar_var_sel
         ),
-        'Counties' = requested_poly(
+        'county' = requested_poly(
           lidardb, 'lidar_counties', input$lidar_var_sel
         ),
-        'Municipalities' = requested_poly(
+        'municipality' = requested_poly(
           lidardb, 'lidar_municipalities', input$lidar_var_sel
         ),
-        'Veguerias' = requested_poly(
+        'vegueria' = requested_poly(
           lidardb, 'lidar_vegueries', input$lidar_var_sel
         ),
-        'Drawed polygon' = drawed_poly(lidardb, input$raster_map_draw_all_features, lang()),
-        'File upload' = file_poly(lidardb, input$user_file_sel, lang())
+        "natural_interest_area" = requested_poly(
+          lidardb, 'lidar_pein', input$lidar_var_sel
+        ),
+        "special_protection_natural_area" = requested_poly(
+          lidardb, 'lidar_enpes', input$lidar_var_sel
+        ),
+        "natura_network_2000" = requested_poly(
+          lidardb, 'lidar_xn2000', input$lidar_var_sel
+        ),,
+        'drawn_poly' = drawed_poly(lidardb, input$raster_map_draw_all_features, lang()),
+        'file' = file_poly(lidardb, input$user_file_sel, lang())
       )
       return(data_res)
     })
@@ -237,7 +256,7 @@ lidar_app <- function() {
       lang_declared <- lang()
       selected <- selected_row()$row
 
-      if (input$poly_type_sel %in% c('Counties', 'Municipalities')) {
+      if (input$poly_type_sel %in% c('county', 'municipality')) {
         displayStart <- selected - 1
       } else {
         displayStart <- 0
@@ -619,7 +638,7 @@ lidar_app <- function() {
       eventExpr = input$poly_type_sel,
       handlerExpr = {
         poly_type <- input$poly_type_sel
-        if (poly_type == 'File upload') {
+        if (poly_type == 'file') {
           shinyjs::show('file_sel_div')
         } else {
           shinyjs::hide('file_sel_div')
