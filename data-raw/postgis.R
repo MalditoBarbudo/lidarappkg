@@ -5,16 +5,10 @@ library(rpostgis)
 library(sf)
 library(tidyverse)
 library(lfcdata)
+library(tictoc)
 
 lidardb <- lidar()
 
-# conn
-# conn <- RPostgres::dbConnect(
-#   RPostgres::Postgres(), host = 'laboratoriforestal.creaf.uab.cat', dbname = 'lidargis',
-#   user = 'ifn',
-#   password = rstudioapi::askForPassword()
-# )
-# pgPostGIS(conn)
 
 ## tables creation ####
 # Read the rasters, write the tables and get the raster list for tests
@@ -40,6 +34,7 @@ lidardb <- lidar()
 
 ## pre-calculated data for known polygons ####
 # catalunya
+tic()
 catalunya_polys <- sf::read_sf(
   '../../01_nfi_app/NFIappkg/data-raw/shapefiles/catalunya.shp'
 ) %>%
@@ -51,17 +46,26 @@ catalunya_sf <- lidardb %>%
     catalunya_polys, 'poly_id',
     variables = c('AB', 'BAT', 'BF', 'CAT', 'DBH', 'HM', 'REC', 'VAE')
   )
-
-sf::st_write(
-  catalunya_sf %>% rmapshaper::ms_simplify(0.05),
-  lidardb$.__enclos_env__$private$pool_conn,
-  layer = 'lidar_catalonia',
-  overwrite = TRUE
+# conn
+conn <- RPostgres::dbConnect(
+  RPostgres::Postgres(),
+  host = 'laboratoriforestal.creaf.uab.cat', dbname = 'lidargis',
+  user = 'guest',
+  password = 'guest'
 )
-
-
+catalunya_sf %>%
+  rmapshaper::ms_simplify(0.01, keep_shapes = TRUE) %>%
+  sf::st_write(
+    conn,
+    layer = 'lidar_catalonia',
+    overwrite = TRUE
+  )
+# disconnect the db
+RPostgres::dbDisconnect(conn)
+toc()
 
 # provincias
+tic()
 provincias_polys <- sf::read_sf(
   '../../01_nfi_app/NFIappkg/data-raw/shapefiles/bm5mv20sh0tpp1_20180101_0.shp'
 ) %>%
@@ -74,14 +78,27 @@ provincias_sf <- lidardb %>%
     variables = c('AB', 'BAT', 'BF', 'CAT', 'DBH', 'HM', 'REC', 'VAE')
   )
 
-sf::st_write(
-  provincias_sf %>% rmapshaper::ms_simplify(0.05),
-  lidardb$.__enclos_env__$private$pool_conn,
-  layer = 'lidar_provinces',
-  overwrite = TRUE
+# conn
+conn <- RPostgres::dbConnect(
+  RPostgres::Postgres(),
+  host = 'laboratoriforestal.creaf.uab.cat', dbname = 'lidargis',
+  user = 'guest',
+  password = 'guest'
 )
 
+provincias_sf %>%
+  rmapshaper::ms_simplify(0.01, keep_shapes = TRUE) %>%
+  sf::st_write(
+    conn,
+    layer = 'lidar_provinces',
+    overwrite = TRUE
+  )
+# disconnect the db
+RPostgres::dbDisconnect(conn)
+toc()
+
 # comarcas
+tic()
 comarcas_polys <- sf::read_sf(
   '../../01_nfi_app/NFIappkg/data-raw/shapefiles/bm5mv20sh0tpc1_20180101_0.shp'
 ) %>%
@@ -94,14 +111,26 @@ comarcas_sf <- lidardb %>%
     variables = c('AB', 'BAT', 'BF', 'CAT', 'DBH', 'HM', 'REC', 'VAE')
   )
 
+# conn
+conn <- RPostgres::dbConnect(
+  RPostgres::Postgres(),
+  host = 'laboratoriforestal.creaf.uab.cat', dbname = 'lidargis',
+  user = 'guest',
+  password = 'guest'
+)
+
 sf::st_write(
-  comarcas_sf %>% rmapshaper::ms_simplify(0.05),
-  lidardb$.__enclos_env__$private$pool_conn,
+  comarcas_sf %>% rmapshaper::ms_simplify(0.01, keep_shapes = TRUE),
+  conn,
   layer = 'lidar_counties',
   overwrite = TRUE
 )
+# disconnect the db
+RPostgres::dbDisconnect(conn)
+toc()
 
 # municipios
+tic()
 municipios_polys <- sf::read_sf(
   '../../01_nfi_app/NFIappkg/data-raw/shapefiles/bm5mv20sh0tpm1_20180101_0.shp'
 ) %>%
@@ -114,14 +143,27 @@ municipios_sf <- lidardb %>%
     variables = c('AB', 'BAT', 'BF', 'CAT', 'DBH', 'HM', 'REC', 'VAE')
   )
 
-sf::st_write(
-  municipios_sf %>% rmapshaper::ms_simplify(0.05),
-  lidardb$.__enclos_env__$private$pool_conn,
-  layer = 'lidar_municipalities',
-  overwrite = TRUE
+# conn
+conn <- RPostgres::dbConnect(
+  RPostgres::Postgres(),
+  host = 'laboratoriforestal.creaf.uab.cat', dbname = 'lidargis',
+  user = 'guest',
+  password = 'guest'
 )
 
+municipios_sf %>%
+  rmapshaper::ms_simplify(0.01, keep_shapes = TRUE) %>%
+  sf::st_write(
+    conn,
+    layer = 'lidar_municipalities',
+    overwrite = TRUE
+  )
+# disconnect the db
+RPostgres::dbDisconnect(conn)
+toc()
+
 # veguerias
+tic()
 veguerias_polys <- sf::read_sf(
   '../../01_nfi_app/NFIappkg/data-raw/shapefiles/bm5mv20sh0tpv1_20180101_0.shp'
 ) %>%
@@ -134,19 +176,37 @@ veguerias_sf <- lidardb %>%
     variables = c('AB', 'BAT', 'BF', 'CAT', 'DBH', 'HM', 'REC', 'VAE')
   )
 
-sf::st_write(
-  veguerias_sf %>% rmapshaper::ms_simplify(0.05),
-  lidardb$.__enclos_env__$private$pool_conn,
-  layer = 'lidar_vegueries',
-  overwrite = TRUE
+# conn
+conn <- RPostgres::dbConnect(
+  RPostgres::Postgres(),
+  host = 'laboratoriforestal.creaf.uab.cat', dbname = 'lidargis',
+  user = 'guest',
+  password = 'guest'
 )
 
+veguerias_sf %>%
+  rmapshaper::ms_simplify(0.01, keep_shapes = TRUE) %>%
+  sf::st_write(
+    conn,
+    layer = 'lidar_vegueries',
+    overwrite = TRUE
+  )
+# disconnect the db
+RPostgres::dbDisconnect(conn)
+toc()
+
 # ENPES
+tic()
 enpes_polys <- sf::read_sf(
   '../../01_nfi_app/NFIappkg/data-raw/shapefiles/enpe_2017.shp'
 ) %>%
   dplyr::select(poly_id = nom, geometry) %>%
-  sf::st_set_crs(value = 3043)
+  sf::st_set_crs(value = 3043) %>%
+  dplyr::mutate(dummy = poly_id) %>%
+  dplyr::group_by(poly_id) %>%
+  dplyr::summarise(dummy = dplyr::first(dummy)) %>%
+  dplyr::select(-dummy) %>%
+  sf::st_cast('MULTIPOLYGON')
 
 enpes_sf <- lidardb %>%
   lidar_clip_and_stats(
@@ -154,19 +214,37 @@ enpes_sf <- lidardb %>%
     variables = c('AB', 'BAT', 'BF', 'CAT', 'DBH', 'HM', 'REC', 'VAE')
   )
 
-sf::st_write(
-  enpes_sf,
-  lidardb$.__enclos_env__$private$pool_conn,
-  layer = 'lidar_enpes',
-  overwrite = TRUE
+# conn
+conn <- RPostgres::dbConnect(
+  RPostgres::Postgres(),
+  host = 'laboratoriforestal.creaf.uab.cat', dbname = 'lidargis',
+  user = 'guest',
+  password = 'guest'
 )
 
+enpes_sf %>%
+  rmapshaper::ms_simplify(0.01, keep_shapes = TRUE) %>%
+  sf::st_write(
+    conn,
+    layer = 'lidar_enpes',
+    overwrite = TRUE
+  )
+# disconnect the db
+RPostgres::dbDisconnect(conn)
+toc()
+
 # PEIN
+tic()
 pein_polys <- sf::read_sf(
   '../../01_nfi_app/NFIappkg/data-raw/shapefiles/pein_2017.shp'
 ) %>%
   dplyr::select(poly_id = nom, geometry) %>%
-  sf::st_set_crs(value = 3043)
+  sf::st_set_crs(value = 3043) %>%
+  dplyr::mutate(dummy = poly_id) %>%
+  dplyr::group_by(poly_id) %>%
+  dplyr::summarise(dummy = dplyr::first(dummy)) %>%
+  dplyr::select(-dummy) %>%
+  sf::st_cast('MULTIPOLYGON')
 
 pein_sf <- lidardb %>%
   lidar_clip_and_stats(
@@ -174,19 +252,36 @@ pein_sf <- lidardb %>%
     variables = c('AB', 'BAT', 'BF', 'CAT', 'DBH', 'HM', 'REC', 'VAE')
   )
 
-sf::st_write(
-  pein_sf,
-  lidardb$.__enclos_env__$private$pool_conn,
-  layer = 'lidar_pein',
-  overwrite = TRUE
+conn <- RPostgres::dbConnect(
+  RPostgres::Postgres(),
+  host = 'laboratoriforestal.creaf.uab.cat', dbname = 'lidargis',
+  user = 'guest',
+  password = 'guest'
 )
 
+pein_sf %>%
+  rmapshaper::ms_simplify(0.01, keep_shapes = TRUE) %>%
+  sf::st_write(
+    conn,
+    layer = 'lidar_pein',
+    overwrite = TRUE
+  )
+# disconnect the db
+RPostgres::dbDisconnect(conn)
+toc()
+
 # xn2000
+tic()
 xn2000_polys <- sf::read_sf(
   '../../01_nfi_app/NFIappkg/data-raw/shapefiles/xn2000_2017.shp'
 ) %>%
   dplyr::select(poly_id = nom_n2, geometry) %>%
-  sf::st_set_crs(value = 3043)
+  sf::st_set_crs(value = 3043) %>%
+  dplyr::mutate(dummy = poly_id) %>%
+  dplyr::group_by(poly_id) %>%
+  dplyr::summarise(dummy = dplyr::first(dummy)) %>%
+  dplyr::select(-dummy) %>%
+  sf::st_cast('MULTIPOLYGON')
 
 xn2000_sf <- lidardb %>%
   lidar_clip_and_stats(
@@ -194,12 +289,21 @@ xn2000_sf <- lidardb %>%
     variables = c('AB', 'BAT', 'BF', 'CAT', 'DBH', 'HM', 'REC', 'VAE')
   )
 
-sf::st_write(
-  xn2000_sf,
-  lidardb$.__enclos_env__$private$pool_conn,
-  layer = 'lidar_xn2000',
-  overwrite = TRUE
+conn <- RPostgres::dbConnect(
+  RPostgres::Postgres(),
+  host = 'laboratoriforestal.creaf.uab.cat', dbname = 'lidargis',
+  user = 'guest',
+  password = 'guest'
 )
 
+xn2000_sf %>%
+  rmapshaper::ms_simplify(0.01, keep_shapes = TRUE) %>%
+  sf::st_write(
+    conn,
+    layer = 'lidar_xn2000',
+    overwrite = TRUE
+  )
+
 # disconnect the db
-# RPostgres::dbDisconnect(conn)
+RPostgres::dbDisconnect(conn)
+toc()

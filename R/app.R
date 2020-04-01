@@ -220,7 +220,7 @@ lidar_app <- function() {
         'province' = requested_poly(
           lidardb, 'lidar_provinces', input$lidar_var_sel
         ),
-        'county' = requested_poly(
+        'region' = requested_poly(
           lidardb, 'lidar_counties', input$lidar_var_sel
         ),
         'municipality' = requested_poly(
@@ -256,7 +256,7 @@ lidar_app <- function() {
       lang_declared <- lang()
       selected <- selected_row()$row
 
-      if (input$poly_type_sel %in% c('county', 'municipality')) {
+      if (input$poly_type_sel %in% c('region', 'municipality')) {
         displayStart <- selected - 1
       } else {
         displayStart <- 0

@@ -29,7 +29,7 @@ tibble::tribble(
   "aut_community", "Catalunya", "Catalonia", "Cataluña",
   "province", "Provincies", "Provinces", "Provincias",
   "vegueria", "Vegueries", "Veguerias", "Veguerias",
-  "county", "Comarques", "Counties", "Comarcas",
+  "region", "Comarques", "Counties", "Comarcas",
   "municipality", "Municipis", "Municipalities", "Municipios",
   "natural_interest_area", "Àrees d'interès natural", "Natural interest areas", "Áreas de interés natural",
   "special_protection_natural_area", "Àrees naturals de protecció especial", "Special protection natural areas", "Áreas naturales de protección especial",
