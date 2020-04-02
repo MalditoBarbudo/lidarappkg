@@ -131,7 +131,8 @@ tibble::tribble(
   "poly_data_progress_mes", "Obtenint dades dels polígons...", "Retrieving polygon data...", "Obteniendo datos de los polígonos...",
   "poly_visible_progress_mes", "Preparant dades...", "Preparing data", "Preparando datos...",
   "raster_progress_mes", "S'està baixant ràster de baixa resolució...", "Downloading low res raster...", "Descargando ráster de baja resolución...",
-  "dismiss", "Descartar", "Dismiss", "Cancelar"
+  "dismiss", "Descartar", "Dismiss", "Cancelar",
+  "not_enough_info_plot_warning", "No hi ha dades suficients per construir el gràfic de forma segura", "Not enough data to safely build the plot", "No hay datos suficientes para contruir la gráfica de manera segura",
 
   ## TODO continue translations thesaurus
 ) -> app_translations

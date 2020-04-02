@@ -42,6 +42,14 @@ mod_info <- function(
       dplyr::as_tibble() %>%
       dplyr::select(poly_id, dplyr::contains('_average'), -geometry)
 
+    # one row validation
+    shiny::validate(
+      shiny::need(
+        nrow(data_plot) > 3,
+        translate_app('not_enough_info_plot_warning', lang(), app_translations)
+      )
+    )
+
     # plot list
     plot_list <- c('AB', 'BAT', 'BF', 'CAT', 'DBH', 'HM', 'REC', 'VAE') %>%
       magrittr::set_names(.,.) %>%
