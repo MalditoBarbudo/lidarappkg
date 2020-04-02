@@ -17,7 +17,8 @@ navbarPageWithInputs <- function(..., inputs) {
 #'
 #' return the requested precalculated polys
 requested_poly <- function(lidardb, poly_table, variable = 'all') {
-  lidardb$get_data(poly_table, variable)
+  lidardb$get_data(poly_table, variable) %>%
+    sf::st_transform(crs = '+proj=longlat +datum=WGS84')
 }
 
 #' file_poly

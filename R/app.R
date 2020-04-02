@@ -101,7 +101,24 @@ lidar_app <- function() {
             mod_saveOutput('mod_saveOutput')
           ),
           mainPanel = shiny::mainPanel(
-
+            width = 8,
+            shiny::tabsetPanel(
+              id = 'main_panel_tabset', type = 'pills',
+              shiny::tabPanel(
+                # title = mod_tab_translateOutput('map_translation'),
+                title = 'map_translation',
+                # 'map',
+                value = 'map_panel',
+                mod_mapOutput('mod_mapOutput')
+              )#,
+              # shiny::tabPanel(
+              #   # title = mod_tab_translateOutput('table_translation'),
+              #   title = 'table_translation',
+              #   # 'table',
+              #   value = 'table_panel',
+              #   mod_dataTableOutput('mod_dataTableOutput')
+              # )
+            )
           )
         )
 
@@ -135,13 +152,18 @@ lidar_app <- function() {
     # main_data
     main_data_reactives <- shiny::callModule(
       mod_mainData, 'mod_mainDataOutput', lang, app_translations,
-      data_reactives,
+      data_reactives, map_reactives,
       lidardb
     )
     # save output
     shiny::callModule(
       mod_save, 'mod_saveOutput', lang, app_translations,
       main_data_reactives
+    )
+    # map
+    map_reactives <- shiny::callModule(
+      mod_map, 'mod_mapOutput', lang, app_translations,
+      main_data_reactives, data_reactives
     )
 
     ## explore UI (to use lang) ####
@@ -321,110 +343,110 @@ lidar_app <- function() {
     })
 
     ## map output ####
-    output$raster_map <- leaflet::renderLeaflet({
-
-      # browser()
-
-      shiny::validate(
-        shiny::need(data_res(), translate_app('data_res_need', lang()))
-        # shiny::need(input$poly_type_sel, 'No polygon type selected'),
-        # shiny::need(input$lidar_val_sel, 'No lidar variable selected')
-      )
-
-      lang_declared <- lang()
-
-      # lidar_raster <- lidardb$get_data(input$lidar_var_sel, 'raster')
-      lidar_raster <- lidardb$get_lowres_raster(input$lidar_var_sel, 'raster')
-
-      palette <- leaflet::colorNumeric(
-        viridis::plasma(100),
-        raster::values(lidar_raster),
-        na.color = 'transparent'
-      )
-
-      # poly intermediates
-      # poly_type <- input$poly_type_sel
-      var_column <- glue::glue("{input$lidar_var_sel}_average")
-      user_poly <- data_res() %>%
-        sf::st_transform('+proj=longlat +datum=WGS84') %>%
-        dplyr::select(poly_id, !! rlang::sym(var_column))
-
-      # proper map
-      leaflet::leaflet() %>%
-        leaflet::setView(1.744, 41.726, zoom = 8) %>%
-        leaflet::addProviderTiles(
-          leaflet::providers$Esri.WorldShadedRelief,
-          group = 'Relief' %>% translate_app(lang_declared),
-          options = leaflet::providerTileOptions(
-            # zIndex = -1
-          )
-        ) %>%
-        leaflet::addProviderTiles(
-          leaflet::providers$Esri.WorldImagery,
-          group = 'Imaginery' %>% translate_app(lang_declared),
-          options = leaflet::providerTileOptions(
-            # zIndex = -1
-          )
-        ) %>%
-        leaflet::addMapPane('polys', zIndex = 410) %>%
-        leaflet::addMapPane('rasters', zIndex = 420) %>%
-        leaflet::addLayersControl(
-          baseGroups = c('Relief', 'Imaginery') %>% translate_app(lang_declared),
-          overlayGroups = c('lidar', 'poly') %>%
-            translate_app(lang_declared) %>%
-            purrr::map_chr(~ glue::glue(.x)),
-          options = leaflet::layersControlOptions(collapsed = FALSE, autoZIndex = FALSE)
-        ) %>%
-        leaflet::hideGroup('lidar' %>% translate_app(lang_declared)) %>%
-        leaflet::removeImage('raster') %>%
-        leaflet::clearGroup('poly' %>%
-                              translate_app(lang_declared) %>%
-                              purrr::map_chr(~ glue::glue(.x))) %>%
-        leaflet::addRasterImage(
-          lidar_raster, project = TRUE, colors = palette, opacity = 1,
-          group = 'lidar' %>% translate_app(lang_declared), layerId = 'raster'
-        ) %>%
-        leaflet::addPolygons(
-          data = user_poly,
-          group = 'poly' %>%
-            translate_app(lang_declared) %>%
-            purrr::map_chr(~ glue::glue(.x)),
-          label = ~poly_id,
-          layerId = ~poly_id,
-          weight = 1, smoothFactor = 1,
-          opacity = 1.0, fill = TRUE,
-          color = '#6C7A89FF', fillColor = palette(user_poly[[var_column]]),
-          fillOpacity = 0.7,
-          highlightOptions = leaflet::highlightOptions(
-            color = "#CF000F", weight = 2,
-            bringToFront = FALSE
-          ),
-          options = leaflet::pathOptions(
-            pane = 'polys'
-          )
-        ) %>%
-        leaflet::addLegend(
-          pal = palette, values = raster::values(lidar_raster),
-          title = input$lidar_var_sel %>% translate_app(lang_declared), position = 'bottomright',
-          opacity = 1
-        ) %>%
-        # leaflet.extras plugins
-        leaflet.extras::addDrawToolbar(
-          targetGroup = 'poly' %>%
-            translate_app(lang_declared) %>%
-            purrr::map_chr(~ glue::glue(.x)),
-          position = 'topleft',
-          polylineOptions = FALSE, circleOptions = FALSE, rectangleOptions = FALSE,
-          markerOptions = FALSE, circleMarkerOptions = FALSE,
-          polygonOptions = leaflet.extras::drawPolygonOptions(
-            shapeOptions = leaflet.extras::drawShapeOptions()
-          ),
-          editOptions = leaflet.extras::editToolbarOptions(
-            edit = TRUE, remove = TRUE
-          ),
-          singleFeature = TRUE
-        )
-    })
+    # output$raster_map <- leaflet::renderLeaflet({
+    #
+    #   # browser()
+    #
+    #   shiny::validate(
+    #     shiny::need(data_res(), translate_app('data_res_need', lang()))
+    #     # shiny::need(input$poly_type_sel, 'No polygon type selected'),
+    #     # shiny::need(input$lidar_val_sel, 'No lidar variable selected')
+    #   )
+    #
+    #   lang_declared <- lang()
+    #
+    #   # lidar_raster <- lidardb$get_data(input$lidar_var_sel, 'raster')
+    #   lidar_raster <- lidardb$get_lowres_raster(input$lidar_var_sel, 'raster')
+    #
+    #   palette <- leaflet::colorNumeric(
+    #     viridis::plasma(100),
+    #     raster::values(lidar_raster),
+    #     na.color = 'transparent'
+    #   )
+    #
+    #   # poly intermediates
+    #   # poly_type <- input$poly_type_sel
+    #   var_column <- glue::glue("{input$lidar_var_sel}_average")
+    #   user_poly <- data_res() %>%
+    #     sf::st_transform('+proj=longlat +datum=WGS84') %>%
+    #     dplyr::select(poly_id, !! rlang::sym(var_column))
+    #
+    #   # proper map
+    #   leaflet::leaflet() %>%
+    #     leaflet::setView(1.744, 41.726, zoom = 8) %>%
+    #     leaflet::addProviderTiles(
+    #       leaflet::providers$Esri.WorldShadedRelief,
+    #       group = 'Relief' %>% translate_app(lang_declared),
+    #       options = leaflet::providerTileOptions(
+    #         # zIndex = -1
+    #       )
+    #     ) %>%
+    #     leaflet::addProviderTiles(
+    #       leaflet::providers$Esri.WorldImagery,
+    #       group = 'Imaginery' %>% translate_app(lang_declared),
+    #       options = leaflet::providerTileOptions(
+    #         # zIndex = -1
+    #       )
+    #     ) %>%
+    #     leaflet::addMapPane('polys', zIndex = 410) %>%
+    #     leaflet::addMapPane('rasters', zIndex = 420) %>%
+    #     leaflet::addLayersControl(
+    #       baseGroups = c('Relief', 'Imaginery') %>% translate_app(lang_declared),
+    #       overlayGroups = c('lidar', 'poly') %>%
+    #         translate_app(lang_declared) %>%
+    #         purrr::map_chr(~ glue::glue(.x)),
+    #       options = leaflet::layersControlOptions(collapsed = FALSE, autoZIndex = FALSE)
+    #     ) %>%
+    #     leaflet::hideGroup('lidar' %>% translate_app(lang_declared)) %>%
+    #     leaflet::removeImage('raster') %>%
+    #     leaflet::clearGroup('poly' %>%
+    #                           translate_app(lang_declared) %>%
+    #                           purrr::map_chr(~ glue::glue(.x))) %>%
+    #     leaflet::addRasterImage(
+    #       lidar_raster, project = TRUE, colors = palette, opacity = 1,
+    #       group = 'lidar' %>% translate_app(lang_declared), layerId = 'raster'
+    #     ) %>%
+    #     leaflet::addPolygons(
+    #       data = user_poly,
+    #       group = 'poly' %>%
+    #         translate_app(lang_declared) %>%
+    #         purrr::map_chr(~ glue::glue(.x)),
+    #       label = ~poly_id,
+    #       layerId = ~poly_id,
+    #       weight = 1, smoothFactor = 1,
+    #       opacity = 1.0, fill = TRUE,
+    #       color = '#6C7A89FF', fillColor = palette(user_poly[[var_column]]),
+    #       fillOpacity = 0.7,
+    #       highlightOptions = leaflet::highlightOptions(
+    #         color = "#CF000F", weight = 2,
+    #         bringToFront = FALSE
+    #       ),
+    #       options = leaflet::pathOptions(
+    #         pane = 'polys'
+    #       )
+    #     ) %>%
+    #     leaflet::addLegend(
+    #       pal = palette, values = raster::values(lidar_raster),
+    #       title = input$lidar_var_sel %>% translate_app(lang_declared), position = 'bottomright',
+    #       opacity = 1
+    #     ) %>%
+    #     # leaflet.extras plugins
+    #     leaflet.extras::addDrawToolbar(
+    #       targetGroup = 'poly' %>%
+    #         translate_app(lang_declared) %>%
+    #         purrr::map_chr(~ glue::glue(.x)),
+    #       position = 'topleft',
+    #       polylineOptions = FALSE, circleOptions = FALSE, rectangleOptions = FALSE,
+    #       markerOptions = FALSE, circleMarkerOptions = FALSE,
+    #       polygonOptions = leaflet.extras::drawPolygonOptions(
+    #         shapeOptions = leaflet.extras::drawShapeOptions()
+    #       ),
+    #       editOptions = leaflet.extras::editToolbarOptions(
+    #         edit = TRUE, remove = TRUE
+    #       ),
+    #       singleFeature = TRUE
+    #     )
+    # })
 
     ## map and table reactives and observers ####
     # reactive to select the row of clicked polygon

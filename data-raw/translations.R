@@ -57,7 +57,7 @@ tibble::tribble(
   # map translations
   'Relief', 'Relleu (base)', 'Relief (base)', 'Relieve (base)',
   'Imaginery', 'Satèl·lit (base)', 'Imaginery (base)', 'Satélite (base)',
-  'poly', '{input$poly_type_sel %>% translate_app(lang_declared)} (capa)', '{input$poly_type_sel %>% translate_app(lang_declared)} (layer)', '{input$poly_type_sel %>% translate_app(lang_declared)} (capa)',
+  'poly', '{data_reactives$poly_type_sel %>% translate_app(lang(), app_translations)} (capa)', '{data_reactives$poly_type_sel %>% translate_app(lang(), app_translations)} (layer)', '{data_reactives$poly_type_sel %>% translate_app(lang(), app_translations)} (capa)',
   'lidar', 'LiDAR (capa)', 'LiDAR (layer)', 'LiDAR (capa)',
   # table names
   'poly_id', 'Polígon', 'Polygon', 'Polígono',
@@ -79,10 +79,9 @@ tibble::tribble(
   # coordinates info
   'sidebar_h4_coords', '{input$lidar_var_sel %>% translate_app(lang_declared)} a les coordenades: {round(map_click$lng, 3)}, {round(map_click$lat, 3)}', '{input$lidar_var_sel %>% translate_app(lang_declared)} at coordinates: {round(map_click$lng, 3)}, {round(map_click$lat, 3)}', '{input$lidar_var_sel %>% translate_app(lang_declared)} en las coordenadas: {round(map_click$lng, 3)}, {round(map_click$lat, 3)}',
   'sidebar_p_rawraster', 'Valor per al ràster de 20x20m: {round(click_raster_values()$raw, 3)}', '20x20m raster value: {round(click_raster_values()$raw, 3)}', 'Valor para el ráster de 20x20m: {round(click_raster_values()$raw, 3)}',
-  'sidebar_p_aggraster', 'Valor per al ràster de 400x400m: {round(click_raster_values()$agg, 3)}', '400x400m raster value: {round(click_raster_values()$agg, 3)}', 'Valor para el ráster de 400x400m: {round(click_raster_values()$agg, 3)}',
+  'sidebar_p_aggraster', 'Valor per al ràster de 400x400m: {round(click_raster_values()$agg, 3)}', '400x400m raster value: {round(click_raster_values()$agg, 3)}', 'Valor para el ráster de 400x400m: {round(click_raster_values()$agg, 3)}'
 
   ## TODO continue translations thesaurus
-) %>%
-  {.} -> app_translations
+) -> app_translations
 
 usethis::use_data(app_translations, internal = TRUE, overwrite = TRUE)

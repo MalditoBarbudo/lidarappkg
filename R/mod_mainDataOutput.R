@@ -18,7 +18,7 @@ mod_mainDataOutput <- function(id) {
 #'
 #' @param lang lang selected
 #' @param app_translations dictionary
-#' @param data_reactives reactives needed to retrieve the data
+#' @param data_reactives,map_reactives reactives needed to retrieve the data
 #' @param lidardb access to lidar database
 #'
 #' @export
@@ -27,12 +27,20 @@ mod_mainDataOutput <- function(id) {
 mod_mainData <- function(
   input, output, session,
   lang, app_translations,
-  data_reactives,
+  data_reactives, map_reactives,
   lidardb
 ) {
 
   # reactives ####
   data_polys <- shiny::reactive({
+
+    progress <- shiny::Progress$new(session, min = 5, max = 100)
+    on.exit(progress$close())
+    progress$set(
+      message = translate_app(
+        'poly_data_progress_mes', lang(), app_translations
+      )
+    )
 
     shiny::validate(
       shiny::need(data_reactives$poly_type_sel, 'no poly yet')
@@ -41,6 +49,8 @@ mod_mainData <- function(
     poly_type <- data_reactives$poly_type_sel
     lidar_var <- shiny::isolate(data_reactives$lidar_var_sel)
     user_file <- shiny::isolate(data_reactives$user_file_sel)
+
+    progress$set(value = 25)
 
     res <- switch(
       poly_type,
@@ -68,9 +78,14 @@ mod_mainData <- function(
       "natura_network_2000" = requested_poly(
         lidardb, 'lidar_xn2000'
       ),
-      'drawn_poly' = drawed_poly(lidardb, input$raster_map_draw_all_features),
+      'drawn_poly' = drawed_poly(
+        lidardb, map_reactives$lidar_map_draw_all_features
+      ),
       'file' = file_poly(lidardb, user_file)
     )
+
+    progress$set(value = 85)
+
     return(res)
   })
 
@@ -79,12 +94,22 @@ mod_mainData <- function(
       shiny::need(data_reactives$lidar_var_sel, 'no var yet')
     )
 
+    progress <- shiny::Progress$new(session, min = 85, max = 100)
+    on.exit(progress$close())
+    progress$set(
+      message = translate_app(
+        'poly_visible_progress_mes', lang(), app_translations
+      )
+    )
+
     lidar_var <- data_reactives$lidar_var_sel
     res <- data_polys() %>%
       dplyr::select(
         poly_id, poly_km2,
         dplyr::matches(glue::glue("^{lidar_var}_"))
       )
+
+    progress$set(value = 99)
     return(res)
   })
 
@@ -92,8 +117,19 @@ mod_mainData <- function(
     shiny::validate(
       shiny::need(data_reactives$lidar_var_sel, 'no var yet')
     )
+
+    progress <- shiny::Progress$new(session, min = 5, max = 100)
+    on.exit(progress$close())
+    progress$set(
+      message = translate_app(
+        'raster_progress_mes', lang(), app_translations
+      )
+    )
+
+    progress$set(value = 15)
     lidar_var <- data_reactives$lidar_var_sel
     lidar_raster <- lidardb$get_lowres_raster(lidar_var, 'raster')
+    progress$set(value = 99)
     return(lidar_raster)
   })
 
