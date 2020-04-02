@@ -3,6 +3,8 @@
 export(lidar_app)
 export(mod_data)
 export(mod_dataInput)
+export(mod_info)
+export(mod_infoUI)
 export(mod_mainData)
 export(mod_mainDataOutput)
 export(mod_map)

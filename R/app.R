@@ -144,7 +144,7 @@ lidar_app <- function() {
       input$lang
     })
 
-    ## modules calling
+    ## modules calling ####
     # data inputs
     data_reactives <- shiny::callModule(
       mod_data, 'mod_dataInput', lang, app_translations
@@ -169,6 +169,28 @@ lidar_app <- function() {
     shiny::callModule(
       mod_table, 'mod_tableOutput', lang, app_translations,
       main_data_reactives
+    )
+    # info
+    shiny::callModule(
+      mod_info, 'mod_infoUI', lang, app_translations,
+      map_reactives, main_data_reactives, data_reactives
+    )
+
+    ## observers ####
+    # modal observer
+    shiny::observeEvent(
+      eventExpr = map_reactives$lidar_map_shape_click,
+      handlerExpr = {
+        shiny::showModal(
+          shiny::modalDialog(
+            mod_infoUI('mod_infoUI'),
+            footer = shiny::modalButton(
+              translate_app('dismiss', lang(), app_translations)
+            ),
+            size = 'l', easyClose = TRUE
+          )
+        )
+      }
     )
 
     ## explore UI (to use lang) ####
@@ -304,48 +326,48 @@ lidar_app <- function() {
 
     # table output ####
     # output$poly_res_table <- shiny::renderTable({
-    output$poly_res_table <- DT::renderDT({
-
-      shiny::validate(
-        shiny::need(data_res(), translate_app('data_res_need', lang()))
-      )
-
-      lidar_var <- input$lidar_var_sel
-      lang_declared <- lang()
-      selected <- selected_row()$row
-
-      if (input$poly_type_sel %in% c('region', 'municipality')) {
-        displayStart <- selected - 1
-      } else {
-        displayStart <- 0
-      }
-
-      data_res() %>%
-        dplyr::as_tibble() %>%
-        dplyr::select(
-          dplyr::one_of(c('poly_id', 'comarca', 'provincia')),
-          dplyr::matches(glue::glue("{lidar_var}_average"))
-        ) %>%
-        dplyr::mutate_if(is.numeric, ~round(., 3)) %>%
-        magrittr::set_names(
-          translate_app(names(.), lang_declared)
-        ) %>%
-        DT::datatable(
-          class = 'compact hover nowrap row-border order-column',
-          selection = list(
-            mode = 'single', selected = selected, target = 'row'
-          ),
-          # extensions = 'Scroller',
-          options = list(
-            dom = 'trp',
-            displayStart = displayStart,
-            pageLength = 10
-            # lengthMenu = c(10, 25, 50),
-            # deferRender = FALSE,
-            # scrollY = '250px'
-          )
-        )
-    })
+    # output$poly_res_table <- DT::renderDT({
+    #
+    #   shiny::validate(
+    #     shiny::need(data_res(), translate_app('data_res_need', lang()))
+    #   )
+    #
+    #   lidar_var <- input$lidar_var_sel
+    #   lang_declared <- lang()
+    #   selected <- selected_row()$row
+    #
+    #   if (input$poly_type_sel %in% c('region', 'municipality')) {
+    #     displayStart <- selected - 1
+    #   } else {
+    #     displayStart <- 0
+    #   }
+    #
+    #   data_res() %>%
+    #     dplyr::as_tibble() %>%
+    #     dplyr::select(
+    #       dplyr::one_of(c('poly_id', 'comarca', 'provincia')),
+    #       dplyr::matches(glue::glue("{lidar_var}_average"))
+    #     ) %>%
+    #     dplyr::mutate_if(is.numeric, ~round(., 3)) %>%
+    #     magrittr::set_names(
+    #       translate_app(names(.), lang_declared)
+    #     ) %>%
+    #     DT::datatable(
+    #       class = 'compact hover nowrap row-border order-column',
+    #       selection = list(
+    #         mode = 'single', selected = selected, target = 'row'
+    #       ),
+    #       # extensions = 'Scroller',
+    #       options = list(
+    #         dom = 'trp',
+    #         displayStart = displayStart,
+    #         pageLength = 10
+    #         # lengthMenu = c(10, 25, 50),
+    #         # deferRender = FALSE,
+    #         # scrollY = '250px'
+    #       )
+    #     )
+    # })
 
     ## map output ####
     # output$raster_map <- leaflet::renderLeaflet({

@@ -94,6 +94,7 @@ translate_app <- function(id, lang, app_translations) {
         dplyr::filter(text_id == .x) %>% {
           data_filtered <- .
           if (nrow(data_filtered) < 1) {
+            warning(glue::glue("{.x} not found in thesaurus"))
             .x
           } else {
             dplyr::pull(

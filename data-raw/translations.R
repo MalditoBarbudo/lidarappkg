@@ -4,7 +4,7 @@ tibble::tribble(
   ~text_id, ~translation_cat, ~translation_eng, ~translation_spa,
 
   "sidebar_h4_title", "Controls", 'Controls', "Controles",
-  "lidar_val_sel_label", "Seleccioneu la variable que voleu visualitzar", "Select the variable to visualize", "Selecciona la variable a visualizar",
+  "lidar_var_sel_label", "Seleccioneu la variable que voleu visualitzar", "Select the variable to visualize", "Selecciona la variable a visualizar",
   "poly_type_sel_label", "Seleccioneu els polígons a agregar", "Select the polygons to aggregate", "Selecciona los polígonos a agregar",
   "user_file_sel_label", "Pengeu un fitxer", "Upload a file", "Cargar un archivo",
   "user_file_sel_button_label", "Navegueu", "Browse", "Explora",
@@ -16,7 +16,7 @@ tibble::tribble(
   "data_format_label", "Format de dades", "Data format", "Formato de los datos",
   "data_length_label", "¿Totes les variables?", "All the variables?", "¿Todas las variables?",
   "modal_dismiss_label", "Cancel·lar", "Dismiss", "Cancelar",
-  # lidar_val_sel choices
+  # lidar_var_sel choices
   'AB', "Àrea Basal [m²/ha]", "Basal Area [m²/ha]", "Área Basal [m²/ha]",
   'BAT',  "Biomassa Aèria Total [t/ha]", "Total Aerial Biomass [t/ha]", "Biomasa Aérea Total [t/ha]",
   'BF', "Biomassa de fulles [t/ha]", "Leaf Biomass [t/ha]", "Biomasa de Hojas [t/ha]",
@@ -36,6 +36,16 @@ tibble::tribble(
   "natura_network_2000", "Xarxa Natura 2000", "Natura 2000 network", "Red Natura 2000",
   "file", "Arxiu de polìgons", "Polygon file", "Archivo de polígonos",
   "drawn_poly", "Polígon dibuixat", "Drawn polygon", "Polígono dibujado",
+  # poly_types_info_titles
+  "province_info_plot_title", "{click_value} comparat amb altres províncies", "{click_value} compared to other provinces", "{click_value} comparado con otras provincias",
+  "vegueria_info_plot_title", "{click_value} comparat amb altres vegueries", "{click_value} compared to other veguerias", "{click_value} comparado con otras veguerias",
+  "region_info_plot_title", "{click_value} comparat amb altres comarques", "{click_value} compared to other counties", "{click_value} comparado con otras comarcas",
+  "municipality_info_plot_title", "{click_value} comparat amb altres municipis", "{click_value} compared to other municipalities", "{click_value} comparado con otros municipios",
+  "natural_interest_area_info_plot_title", "{click_value} comparat amb altres arees", "{click_value} compared to other areas", "{click_value} comparado con otras áreas",
+  "special_protection_natural_area_info_plot_title", "{click_value} comparat amb altres arees", "{click_value} compared to other areas", "{click_value} comparado con otras áreas",
+  "natura_network_2000_info_plot_title", "{click_value} comparat amb altres arees", "{click_value} compared to other areas", "{click_value} comparado con otras áreas",
+  "file_info_plot_title", "{click_value} comparat amb altres polígons", "{click_value} compared to other polygons", "{click_value} comparado con otros polígonos",
+  "drawn_poly_info_plot_title",  "{click_value} comparat amb altres polígons", "{click_value} compared to other polygons", "{click_value} comparado con otros polígonos",
   # data format options
   'GIS', 'SIG', 'GIS', 'SIG',
   'TABLE', 'Table', 'Table', 'Tabla',
@@ -113,7 +123,12 @@ tibble::tribble(
   # coordinates info
   'sidebar_h4_coords', '{input$lidar_var_sel %>% translate_app(lang_declared)} a les coordenades: {round(map_click$lng, 3)}, {round(map_click$lat, 3)}', '{input$lidar_var_sel %>% translate_app(lang_declared)} at coordinates: {round(map_click$lng, 3)}, {round(map_click$lat, 3)}', '{input$lidar_var_sel %>% translate_app(lang_declared)} en las coordenadas: {round(map_click$lng, 3)}, {round(map_click$lat, 3)}',
   'sidebar_p_rawraster', 'Valor per al ràster de 20x20m: {round(click_raster_values()$raw, 3)}', '20x20m raster value: {round(click_raster_values()$raw, 3)}', 'Valor para el ráster de 20x20m: {round(click_raster_values()$raw, 3)}',
-  'sidebar_p_aggraster', 'Valor per al ràster de 400x400m: {round(click_raster_values()$agg, 3)}', '400x400m raster value: {round(click_raster_values()$agg, 3)}', 'Valor para el ráster de 400x400m: {round(click_raster_values()$agg, 3)}'
+  'sidebar_p_aggraster', 'Valor per al ràster de 400x400m: {round(click_raster_values()$agg, 3)}', '400x400m raster value: {round(click_raster_values()$agg, 3)}', 'Valor para el ráster de 400x400m: {round(click_raster_values()$agg, 3)}',
+  # progress messages
+  "poly_data_progress_mes", "Obtenint dades dels polígons...", "Retrieving polygon data...", "Obteniendo datos de los polígonos...",
+  "poly_visible_progress_mes", "Preparant dades...", "Preparing data", "Preparando datos...",
+  "raster_progress_mes", "S'està baixant ràster de baixa resolució...", "Downloading low res raster...", "Descargando ráster de baja resolución...",
+  "dismiss", "Descartar", "Dismiss", "Cancelar"
 
   ## TODO continue translations thesaurus
 ) -> app_translations
