@@ -47,6 +47,7 @@ mod_table <- function(
         colnames = translate_app(names(.), lang(), app_translations),
         class = 'hover order-column stripe nowrap',
         filter = list(position = 'top', clear = FALSE, plain = FALSE),
+        selection = 'single',
         # extensions = 'Buttons',
         options = list(
           pageLength = 15,
@@ -62,5 +63,12 @@ mod_table <- function(
         )
       )
   })
+
+  # reactives to return ####
+  table_reactives <- shiny::reactiveValues()
+  shiny::observe({
+    table_reactives$lidar_table_rows_selected <- input$lidar_table_rows_selected
+  })
+  return(table_reactives)
 
 }

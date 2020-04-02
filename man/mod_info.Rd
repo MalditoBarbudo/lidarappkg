@@ -10,9 +10,9 @@ mod_info(
   session,
   lang,
   app_translations,
-  map_reactives,
   main_data_reactives,
-  data_reactives
+  data_reactives,
+  id_click
 )
 }
 \arguments{
@@ -26,7 +26,9 @@ mod_info(
 
 \item{app_translations}{dictionary}
 
-\item{map_reactives, main_data_reactives, data_reactives}{reactives needed}
+\item{main_data_reactives, data_reactives}{reactives needed}
+
+\item{id_click}{character with the id of the shape/row clicked}
 }
 \description{
 mod_info server function

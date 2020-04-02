@@ -25,19 +25,18 @@ mod_infoUI <- function(id) {
 #'
 #' @param lang lang selected
 #' @param app_translations dictionary
-#' @param map_reactives,main_data_reactives,data_reactives reactives needed
+#' @param main_data_reactives,data_reactives reactives needed
+#' @param id_click character with the id of the shape/row clicked
 #'
 #' @export
 mod_info <- function(
   input, output, session,
   lang, app_translations,
-  map_reactives, main_data_reactives, data_reactives
+  main_data_reactives, data_reactives, id_click
 ) {
 
   plot_generation <- shiny::reactive({
 
-    click <- map_reactives$lidar_map_shape_click
-    id_click <- click$id
     data_plot <- main_data_reactives$data_polys %>%
       dplyr::as_tibble() %>%
       dplyr::select(poly_id, dplyr::contains('_average'), -geometry)
@@ -112,7 +111,7 @@ mod_info <- function(
   })
 
   output$plot_title <- shiny::renderText({
-    click_value <- map_reactives$lidar_map_shape_click$id
+    click_value <- id_click
     glue::glue(
       translate_app(
         glue::glue("{data_reactives$poly_type_sel}_info_plot_title"),
