@@ -4,7 +4,7 @@
 \alias{translate_app}
 \title{translate app function}
 \usage{
-translate_app(id, lang)
+translate_app(id, lang, app_translations)
 }
 \description{
 translate the app based on the lang selected

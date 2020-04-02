@@ -4,7 +4,7 @@
 \alias{drawed_poly}
 \title{drawed_poly}
 \usage{
-drawed_poly(lidardb, custom_polygon, lang)
+drawed_poly(lidardb, custom_polygon)
 }
 \description{
 return the data calculated on-the-fly for the drawed poly from leaflet

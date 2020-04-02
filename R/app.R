@@ -89,7 +89,21 @@ lidar_app <- function() {
 
         # we need an UI beacuse we need to translate based on the lang input from the
         # navbar
-        shiny::uiOutput('explore_ui')
+        # shiny::uiOutput('explore_ui')
+        # we use modules now, as in ifn app.
+        shiny::sidebarLayout(
+          position = 'left',
+          sidebarPanel = shiny::sidebarPanel(
+            width = 4,
+            # data selection module:
+            mod_dataInput('mod_dataInput'),
+            shiny::br(),
+            mod_saveOutput('mod_saveOutput')
+          ),
+          mainPanel = shiny::mainPanel(
+
+          )
+        )
 
       ) # end of tabPanel "Explore"
     ) # end of navbarPage
@@ -113,136 +127,153 @@ lidar_app <- function() {
       input$lang
     })
 
+    ## modules calling
+    # data inputs
+    data_reactives <- shiny::callModule(
+      mod_data, 'mod_dataInput', lang, app_translations
+    )
+    # main_data
+    main_data_reactives <- shiny::callModule(
+      mod_mainData, 'mod_mainDataOutput', lang, app_translations,
+      data_reactives,
+      lidardb
+    )
+    # save output
+    shiny::callModule(
+      mod_save, 'mod_saveOutput', lang, app_translations,
+      main_data_reactives
+    )
+
     ## explore UI (to use lang) ####
-    output$explore_ui <- shiny::renderUI({
-
-      # lang
-      lang_declared <- lang()
-
-      # proper UI ####
-      shiny::fluidPage(
-        shiny::sidebarLayout(
-
-          sidebarPanel = shiny::sidebarPanel(
-            width = 4,
-            # title
-            shiny::h4(translate_app('sidebar_h4_title', lang_declared)),
-
-            # var input
-            shiny::selectInput(
-              'lidar_var_sel',
-              translate_app('lidar_val_sel_label', lang_declared),
-              choices = c(
-                'AB', 'BAT', 'BF', 'CAT', 'DBH', 'HM', 'REC', 'VAE'
-              ) %>%
-                magrittr::set_names(translate_app(., lang_declared)),
-              selected = 'AB'
-            ),
-
-            # poly input
-            shiny::selectInput(
-              'poly_type_sel',
-              translate_app('poly_type_sel_label', lang_declared),
-              choices = c(
-                "aut_community", "province", "vegueria", "region",
-                "municipality", "natural_interest_area",
-                "special_protection_natural_area", "natura_network_2000",
-                "file", "drawn_poly"
-                # 'Catalonia', 'Provinces', 'Counties', 'Municipalities',
-                # 'Veguerias',
-                # 'enpe', 'pein', 'xn2000',
-                # 'Drawed polygon', 'File upload'
-              ) %>% magrittr::set_names(translate_app(., lang_declared)),
-              selected = 'province'
-            ),
-
-            # hidden file selector div
-            shinyjs::hidden(
-              shiny::div(
-                id = 'file_sel_div',
-                shiny::fluidRow(
-                  shiny::column(
-                    12,
-                    shiny::fileInput(
-                      'user_file_sel',
-                      translate_app('user_file_sel_label', lang_declared),
-                      accept = c('zip', 'gpkg'),
-                      buttonLabel = translate_app('user_file_sel_button_label', lang_declared),
-                      placeholder = translate_app('user_file_sel_placeholder', lang_declared)
-                    )#,
-                    # shiny::selectInput(
-                    #   'poly_id_var', 'Select the polygon id variable',
-                    #   names(data_res())
-                    # )
-                  )
-                )
-              )
-            ),
-
-            # res output
-            shiny::h4(translate_app('sidebar_h4_results', lang_declared)),
-            # shiny::tableOutput('poly_res_table'),
-            DT::DTOutput('poly_res_table'),
-
-            shinyjs::hidden(
-              shiny::uiOutput('click_info')
-            ),
-
-            # download buttons
-            shiny::h4(translate_app('sidebar_h4_download', lang_declared)),
-            shiny::actionButton(
-              'download_trigger_btn', translate_app('sidebar_h4_download', lang_declared),
-              icon = shiny::icon('download')
-            )
-          ),
-          mainPanel = shiny::mainPanel(
-            width = 8,
-            leaflet::leafletOutput('raster_map', height = 600) %>%
-              shinyWidgets::addSpinner(spin = 'cube', color = '#26a65b'),
-            shiny::p(
-              translate_app('main_panel_raster_siz_1', lang_declared),
-              translate_app('main_panel_raster_siz_2', lang_declared)
-            )
-          )
-        ) # end of sidebar layout
-      ) # end of fluidPage
-    }) # end of exploreUI
+    # output$explore_ui <- shiny::renderUI({
+    #
+    #   # lang
+    #   lang_declared <- lang()
+    #
+    #   # proper UI ####
+    #   shiny::fluidPage(
+    #     shiny::sidebarLayout(
+    #
+    #       sidebarPanel = shiny::sidebarPanel(
+    #         width = 4,
+    #         # title
+    #         shiny::h4(translate_app('sidebar_h4_title', lang_declared)),
+    #
+    #         # var input
+    #         shiny::selectInput(
+    #           'lidar_var_sel',
+    #           translate_app('lidar_val_sel_label', lang_declared),
+    #           choices = c(
+    #             'AB', 'BAT', 'BF', 'CAT', 'DBH', 'HM', 'REC', 'VAE'
+    #           ) %>%
+    #             magrittr::set_names(translate_app(., lang_declared)),
+    #           selected = 'AB'
+    #         ),
+    #
+    #         # poly input
+    #         shiny::selectInput(
+    #           'poly_type_sel',
+    #           translate_app('poly_type_sel_label', lang_declared),
+    #           choices = c(
+    #             "aut_community", "province", "vegueria", "region",
+    #             "municipality", "natural_interest_area",
+    #             "special_protection_natural_area", "natura_network_2000",
+    #             "file", "drawn_poly"
+    #             # 'Catalonia', 'Provinces', 'Counties', 'Municipalities',
+    #             # 'Veguerias',
+    #             # 'enpe', 'pein', 'xn2000',
+    #             # 'Drawed polygon', 'File upload'
+    #           ) %>% magrittr::set_names(translate_app(., lang_declared)),
+    #           selected = 'province'
+    #         ),
+    #
+    #         # hidden file selector div
+    #         shinyjs::hidden(
+    #           shiny::div(
+    #             id = 'file_sel_div',
+    #             shiny::fluidRow(
+    #               shiny::column(
+    #                 12,
+    #                 shiny::fileInput(
+    #                   'user_file_sel',
+    #                   translate_app('user_file_sel_label', lang_declared),
+    #                   accept = c('zip', 'gpkg'),
+    #                   buttonLabel = translate_app('user_file_sel_button_label', lang_declared),
+    #                   placeholder = translate_app('user_file_sel_placeholder', lang_declared)
+    #                 )#,
+    #                 # shiny::selectInput(
+    #                 #   'poly_id_var', 'Select the polygon id variable',
+    #                 #   names(data_res())
+    #                 # )
+    #               )
+    #             )
+    #           )
+    #         ),
+    #
+    #         # res output
+    #         shiny::h4(translate_app('sidebar_h4_results', lang_declared)),
+    #         # shiny::tableOutput('poly_res_table'),
+    #         DT::DTOutput('poly_res_table'),
+    #
+    #         shinyjs::hidden(
+    #           shiny::uiOutput('click_info')
+    #         ),
+    #
+            # # download buttons
+            # shiny::h4(translate_app('sidebar_h4_download', lang_declared)),
+            # shiny::actionButton(
+            #   'download_trigger_btn', translate_app('sidebar_h4_download', lang_declared),
+            #   icon = shiny::icon('download')
+            # )
+    #       ),
+    #       mainPanel = shiny::mainPanel(
+    #         width = 8,
+    #         leaflet::leafletOutput('raster_map', height = 600) %>%
+    #           shinyWidgets::addSpinner(spin = 'cube', color = '#26a65b'),
+    #         shiny::p(
+    #           translate_app('main_panel_raster_siz_1', lang_declared),
+    #           translate_app('main_panel_raster_siz_2', lang_declared)
+    #         )
+    #       )
+    #     ) # end of sidebar layout
+    #   ) # end of fluidPage
+    # }) # end of exploreUI
 
     # proper server ####
 
     # data res reactive ####
-    data_res <- shiny::reactive({
-
-      data_res <- switch(input$poly_type_sel,
-        'aut_community' = requested_poly(
-          lidardb, 'lidar_catalonia', input$lidar_var_sel
-        ),
-        'province' = requested_poly(
-          lidardb, 'lidar_provinces', input$lidar_var_sel
-        ),
-        'region' = requested_poly(
-          lidardb, 'lidar_counties', input$lidar_var_sel
-        ),
-        'municipality' = requested_poly(
-          lidardb, 'lidar_municipalities', input$lidar_var_sel
-        ),
-        'vegueria' = requested_poly(
-          lidardb, 'lidar_vegueries', input$lidar_var_sel
-        ),
-        "natural_interest_area" = requested_poly(
-          lidardb, 'lidar_pein', input$lidar_var_sel
-        ),
-        "special_protection_natural_area" = requested_poly(
-          lidardb, 'lidar_enpes', input$lidar_var_sel
-        ),
-        "natura_network_2000" = requested_poly(
-          lidardb, 'lidar_xn2000', input$lidar_var_sel
-        ),,
-        'drawn_poly' = drawed_poly(lidardb, input$raster_map_draw_all_features, lang()),
-        'file' = file_poly(lidardb, input$user_file_sel, lang())
-      )
-      return(data_res)
-    })
+    # data_res <- shiny::reactive({
+    #
+    #   data_res <- switch(input$poly_type_sel,
+    #     'aut_community' = requested_poly(
+    #       lidardb, 'lidar_catalonia', input$lidar_var_sel
+    #     ),
+    #     'province' = requested_poly(
+    #       lidardb, 'lidar_provinces', input$lidar_var_sel
+    #     ),
+    #     'region' = requested_poly(
+    #       lidardb, 'lidar_counties', input$lidar_var_sel
+    #     ),
+    #     'municipality' = requested_poly(
+    #       lidardb, 'lidar_municipalities', input$lidar_var_sel
+    #     ),
+    #     'vegueria' = requested_poly(
+    #       lidardb, 'lidar_vegueries', input$lidar_var_sel
+    #     ),
+    #     "natural_interest_area" = requested_poly(
+    #       lidardb, 'lidar_pein', input$lidar_var_sel
+    #     ),
+    #     "special_protection_natural_area" = requested_poly(
+    #       lidardb, 'lidar_enpes', input$lidar_var_sel
+    #     ),
+    #     "natura_network_2000" = requested_poly(
+    #       lidardb, 'lidar_xn2000', input$lidar_var_sel
+    #     ),,
+    #     'drawn_poly' = drawed_poly(lidardb, input$raster_map_draw_all_features, lang()),
+    #     'file' = file_poly(lidardb, input$user_file_sel, lang())
+    #   )
+    #   return(data_res)
+    # })
 
     # table output ####
     # output$poly_res_table <- shiny::renderTable({
@@ -497,154 +528,154 @@ lidar_app <- function() {
       )
     })
 
-    ## download ####
-    # modal for saving the data
-    shiny::observeEvent(
-      eventExpr = input$download_trigger_btn,
-      handlerExpr = {
-
-        lang_declared = lang()
-
-        shiny::showModal(
-          ui = shiny::modalDialog(
-            shiny::tagList(
-
-              shiny::fluidRow(
-                shiny::column(
-                  12,
-                  # format options
-                  shiny::selectInput(
-                    'data_format', translate_app('data_format_label', lang_declared),
-                    choices = list(
-                      'GIS' = c('shp', 'wkt', 'gpkg') %>%
-                        magrittr::set_names(translate_app(., lang_declared)),
-                      'TABLE' = c('csv', 'xlsx') %>%
-                        magrittr::set_names(translate_app(., lang_declared))
-                    ) %>% magrittr::set_names(translate_app(names(.), lang_declared)),
-                    selected = 'gpkg'
-                  ),
-                  # shiny::radioButtons(
-                  #   'data_format', 'Data format',
-                  #   # text_translate('data_format', lang(), texts_thes),
-                  #   choices = list('GIS' = c('shp', 'wkt', 'gpkg'),
-                  #                  'TABLE' = c('csv', 'xlsx')),
-                  #   selected = 'gpkg'
-                  # ),
-                  # length options
-                  shiny::radioButtons(
-                    'data_length', translate_app('data_length_label', lang_declared),
-                    # text_translate('data_length', lang(), texts_thes),
-                    choices = c('visible', 'all_columns') %>%
-                      magrittr::set_names(translate_app(., lang_declared)),
-                    selected = 'visible', width = '100%'
-                  )
-                )
-              )
-            ),
-            easyClose = TRUE,
-            footer = shiny::tagList(
-              shiny::modalButton(translate_app('modal_dismiss_label', lang_declared)),
-              shiny::downloadButton(
-                'download_data_with_options',
-                label = translate_app('sidebar_h4_download', lang_declared),
-                class = 'btn-success'
-              )
-            )
-          )
-        )
-      }
-    )
+    # ## download ####
+    # # modal for saving the data
+    # shiny::observeEvent(
+    #   eventExpr = input$download_trigger_btn,
+    #   handlerExpr = {
+    #
+    #     lang_declared = lang()
+    #
+    #     shiny::showModal(
+    #       ui = shiny::modalDialog(
+    #         shiny::tagList(
+    #
+    #           shiny::fluidRow(
+    #             shiny::column(
+    #               12,
+    #               # format options
+    #               shiny::selectInput(
+    #                 'data_format', translate_app('data_format_label', lang_declared),
+    #                 choices = list(
+    #                   'GIS' = c('shp', 'wkt', 'gpkg') %>%
+    #                     magrittr::set_names(translate_app(., lang_declared)),
+    #                   'TABLE' = c('csv', 'xlsx') %>%
+    #                     magrittr::set_names(translate_app(., lang_declared))
+    #                 ) %>% magrittr::set_names(translate_app(names(.), lang_declared)),
+    #                 selected = 'gpkg'
+    #               ),
+    #               # shiny::radioButtons(
+    #               #   'data_format', 'Data format',
+    #               #   # text_translate('data_format', lang(), texts_thes),
+    #               #   choices = list('GIS' = c('shp', 'wkt', 'gpkg'),
+    #               #                  'TABLE' = c('csv', 'xlsx')),
+    #               #   selected = 'gpkg'
+    #               # ),
+    #               # length options
+    #               shiny::radioButtons(
+    #                 'data_length', translate_app('data_length_label', lang_declared),
+    #                 # text_translate('data_length', lang(), texts_thes),
+    #                 choices = c('visible', 'all_columns') %>%
+    #                   magrittr::set_names(translate_app(., lang_declared)),
+    #                 selected = 'visible', width = '100%'
+    #               )
+    #             )
+    #           )
+    #         ),
+    #         easyClose = TRUE,
+    #         footer = shiny::tagList(
+    #           shiny::modalButton(translate_app('modal_dismiss_label', lang_declared)),
+    #           shiny::downloadButton(
+    #             'download_data_with_options',
+    #             label = translate_app('sidebar_h4_download', lang_declared),
+    #             class = 'btn-success'
+    #           )
+    #         )
+    #       )
+    #     )
+    #   }
+    # )
 
     # download handlers
-    output$download_data_with_options <- shiny::downloadHandler(
-      filename = function() {
-
-        file_name <- switch(
-          input$data_format,
-          'shp' = 'lidar_data.zip',
-          'wkt' = 'lidar_data.csv',
-          'gpkg' = 'lidar_data.gpkg',
-          'csv' = 'lidar_data.csv',
-          'xlsx' = 'lidar_data.xlsx'
-        )
-
-        return(file_name)
-      },
-      content = function(file) {
-
-        # data length
-        result_data <- data_res() %>%
-          sf::st_transform('+proj=longlat +datum=WGS84')
-
-        if (input$data_length == 'visible') {
-          var_column <- glue::glue('mean_{tolower(input$lidar_var_sel)}')
-          result_data <- result_data %>%
-            dplyr::select(poly_id, !! rlang::sym(var_column))
-        }
-
-        # data format
-
-        # shapefile
-        if (input$data_format == 'shp') {
-          tmp_dir <- tempdir()
-          sf::st_write(
-            result_data,
-            file.path(tmp_dir, glue::glue("lidar_data_{Sys.Date()}.shp")),
-            layer = glue::glue("lidar_data_{Sys.Date()}"),
-            delete_layer = TRUE
-          )
-          shp_files <- list.files(tmp_dir, 'lidar_data_', full.names = TRUE)
-          utils::zip(
-            file.path(tmp_dir, 'shp_files.zip'),
-            shp_files
-          )
-          file.copy(file.path(tmp_dir, 'shp_files.zip'), file)
-          file.remove(file.path(tmp_dir, 'shp_files.zip'), shp_files)
-        } else {
-          # well known text
-          if (input$data_format == 'wkt') {
-            sf::write_sf(
-              result_data, file, delete_layer = TRUE,
-              layer_options = "GEOMETRY=AS_WKT"
-            )
-          } else {
-            # geopackage
-            if (input$data_format == 'gpkg') {
-              sf::st_write(
-                result_data, file, delete_dsn = TRUE
-              )
-            } else {
-              # csv text (no geometry)
-              if (input$data_format == 'csv') {
-                result_data %>%
-                  dplyr::as_tibble() %>%
-                  dplyr::select(-geometry) %>%
-                  readr::write_csv(file)
-              } else {
-                # xlsx (no geometry)
-                result_data %>%
-                  dplyr::as_tibble() %>%
-                  dplyr::select(-geometry) %>%
-                  writexl::write_xlsx(file)
-              }
-            }
-          }
-        }
-      }
-    )
+    # output$download_data_with_options <- shiny::downloadHandler(
+    #   filename = function() {
+    #
+    #     file_name <- switch(
+    #       input$data_format,
+    #       'shp' = 'lidar_data.zip',
+    #       'wkt' = 'lidar_data.csv',
+    #       'gpkg' = 'lidar_data.gpkg',
+    #       'csv' = 'lidar_data.csv',
+    #       'xlsx' = 'lidar_data.xlsx'
+    #     )
+    #
+    #     return(file_name)
+    #   },
+    #   content = function(file) {
+    #
+    #     # data length
+    #     result_data <- data_res() %>%
+    #       sf::st_transform('+proj=longlat +datum=WGS84')
+    #
+    #     if (input$data_length == 'visible') {
+    #       var_column <- glue::glue('mean_{tolower(input$lidar_var_sel)}')
+    #       result_data <- result_data %>%
+    #         dplyr::select(poly_id, !! rlang::sym(var_column))
+    #     }
+    #
+    #     # data format
+    #
+    #     # shapefile
+    #     if (input$data_format == 'shp') {
+    #       tmp_dir <- tempdir()
+    #       sf::st_write(
+    #         result_data,
+    #         file.path(tmp_dir, glue::glue("lidar_data_{Sys.Date()}.shp")),
+    #         layer = glue::glue("lidar_data_{Sys.Date()}"),
+    #         delete_layer = TRUE
+    #       )
+    #       shp_files <- list.files(tmp_dir, 'lidar_data_', full.names = TRUE)
+    #       utils::zip(
+    #         file.path(tmp_dir, 'shp_files.zip'),
+    #         shp_files
+    #       )
+    #       file.copy(file.path(tmp_dir, 'shp_files.zip'), file)
+    #       file.remove(file.path(tmp_dir, 'shp_files.zip'), shp_files)
+    #     } else {
+    #       # well known text
+    #       if (input$data_format == 'wkt') {
+    #         sf::write_sf(
+    #           result_data, file, delete_layer = TRUE,
+    #           layer_options = "GEOMETRY=AS_WKT"
+    #         )
+    #       } else {
+    #         # geopackage
+    #         if (input$data_format == 'gpkg') {
+    #           sf::st_write(
+    #             result_data, file, delete_dsn = TRUE
+    #           )
+    #         } else {
+    #           # csv text (no geometry)
+    #           if (input$data_format == 'csv') {
+    #             result_data %>%
+    #               dplyr::as_tibble() %>%
+    #               dplyr::select(-geometry) %>%
+    #               readr::write_csv(file)
+    #           } else {
+    #             # xlsx (no geometry)
+    #             result_data %>%
+    #               dplyr::as_tibble() %>%
+    #               dplyr::select(-geometry) %>%
+    #               writexl::write_xlsx(file)
+    #           }
+    #         }
+    #       }
+    #     }
+    #   }
+    # )
 
     ## file upload observer ####
-    shiny::observeEvent(
-      eventExpr = input$poly_type_sel,
-      handlerExpr = {
-        poly_type <- input$poly_type_sel
-        if (poly_type == 'file') {
-          shinyjs::show('file_sel_div')
-        } else {
-          shinyjs::hide('file_sel_div')
-        }
-      }
-    )
+    # shiny::observeEvent(
+    #   eventExpr = input$poly_type_sel,
+    #   handlerExpr = {
+    #     poly_type <- input$poly_type_sel
+    #     if (poly_type == 'file') {
+    #       shinyjs::show('file_sel_div')
+    #     } else {
+    #       shinyjs::hide('file_sel_div')
+    #     }
+    #   }
+    # )
 
     ## drawed poly observer ####
 

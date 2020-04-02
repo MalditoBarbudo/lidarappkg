@@ -16,7 +16,7 @@ navbarPageWithInputs <- function(..., inputs) {
 #' requested_polys
 #'
 #' return the requested precalculated polys
-requested_poly <- function(lidardb, poly_table, variable) {
+requested_poly <- function(lidardb, poly_table, variable = 'all') {
   lidardb$get_data(poly_table, variable)
 }
 
@@ -24,10 +24,10 @@ requested_poly <- function(lidardb, poly_table, variable) {
 #'
 #' return the data calculated on-the-fly for the file loaded
 #'
-file_poly <- function(lidardb, file, lang) {
+file_poly <- function(lidardb, file) {
 
   shiny::validate(
-    shiny::need(file, translate_app('file_need', lang))
+    shiny::need(file, 'no file yet')
   )
 
   # check for input file format (csv (wkt) not working as it does not store the
@@ -60,11 +60,11 @@ file_poly <- function(lidardb, file, lang) {
 #' drawed_poly
 #'
 #' return the data calculated on-the-fly for the drawed poly from leaflet
-drawed_poly <- function(lidardb, custom_polygon, lang) {
+drawed_poly <- function(lidardb, custom_polygon) {
 
   shiny::validate(
     shiny::need(
-      custom_polygon, translate_app('custom_poly_need', lang)
+      custom_polygon, 'no drawn polygon yet'
     ), errorClass = 'drawed_polygon_warn'
   )
 
@@ -77,7 +77,7 @@ drawed_poly <- function(lidardb, custom_polygon, lang) {
     sf::st_polygon() %>%
     sf::st_sfc() %>%
     sf::st_sf(crs = "+proj=longlat +datum=WGS84") %>%
-    dplyr::mutate(poly_id = 'custom_polygon')
+    dplyr::mutate(poly_id = 'drawn polygon')
 
   lidardb$clip_and_stats(user_polygons, 'poly_id', 'all')
 }
@@ -85,9 +85,7 @@ drawed_poly <- function(lidardb, custom_polygon, lang) {
 #' translate app function
 #'
 #' translate the app based on the lang selected
-translate_app <- function(id, lang) {
-
-  app_translations
+translate_app <- function(id, lang, app_translations) {
 
   id %>%
     purrr::map_chr(

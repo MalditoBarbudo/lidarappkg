@@ -4,7 +4,7 @@
 \alias{requested_poly}
 \title{requested_polys}
 \usage{
-requested_poly(lidardb, poly_table, variable)
+requested_poly(lidardb, poly_table, variable = "all")
 }
 \description{
 return the requested precalculated polys
