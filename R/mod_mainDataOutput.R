@@ -10,7 +10,7 @@ mod_mainDataOutput <- function(id) {
   return()
 }
 
-' @title mod_mainData server function
+#' @title mod_mainData server function
 #'
 #' @param input internal
 #' @param output internal
@@ -48,7 +48,21 @@ mod_mainData <- function(
 
     poly_type <- data_reactives$poly_type_sel
     lidar_var <- shiny::isolate(data_reactives$lidar_var_sel)
-    user_file <- shiny::isolate(data_reactives$user_file_sel)
+    user_file <- data_reactives$user_file_sel
+    drawn_poly <- map_reactives$lidar_map_draw_all_features
+
+    if (poly_type == 'file') {
+      shiny::validate(
+        shiny::need(user_file, 'no file yet')
+      )
+    }
+
+    if (poly_type == 'drawn_poly') {
+      shiny::validate(
+        shiny::need(drawn_poly, 'no draw polys yet'),
+        shiny::need(length(drawn_poly[['features']]) != 0, 'removed poly')
+      )
+    }
 
     progress$set(value = 25)
 
@@ -79,7 +93,7 @@ mod_mainData <- function(
         lidardb, 'lidar_xn2000'
       ),
       'drawn_poly' = drawed_poly(
-        lidardb, map_reactives$lidar_map_draw_all_features
+        lidardb, drawn_poly
       ),
       'file' = file_poly(lidardb, user_file)
     )

@@ -72,7 +72,7 @@ lidar_app <- function() {
 
       # navbarPage contents
       shiny::tabPanel(
-        title = 'Explore',
+        title = mod_tabTranslateOutput('main'),
         ########################################################### debug ####
         # shiny::absolutePanel(
         #   id = 'debug', class = 'panel panel-default', fixed = TRUE,
@@ -105,15 +105,13 @@ lidar_app <- function() {
             shiny::tabsetPanel(
               id = 'main_panel_tabset', type = 'pills',
               shiny::tabPanel(
-                # title = mod_tab_translateOutput('map_translation'),
-                title = 'map_translation',
+                title = mod_tabTranslateOutput('map'),
                 # 'map',
                 value = 'map_panel',
                 mod_mapOutput('mod_mapOutput')
               ),
               shiny::tabPanel(
-                # title = mod_tab_translateOutput('table_translation'),
-                title = 'table_translation',
+                title = mod_tabTranslateOutput('table'),
                 # 'table',
                 value = 'table_panel',
                 mod_tableOutput('mod_tableOutput')
@@ -174,6 +172,16 @@ lidar_app <- function() {
     shiny::callModule(
       mod_info, 'mod_infoUI', lang, app_translations,
       map_reactives, main_data_reactives, data_reactives
+    )
+    ## tab title translations
+    shiny::callModule(
+      mod_tabTranslate, 'main', lang, app_translations, 'main_translation'
+    )
+    shiny::callModule(
+      mod_tabTranslate, 'map', lang, app_translations, 'map_translation'
+    )
+    shiny::callModule(
+      mod_tabTranslate, 'table', lang, app_translations, 'table_translation'
     )
 
     ## observers ####

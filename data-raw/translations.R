@@ -2,7 +2,10 @@
 
 tibble::tribble(
   ~text_id, ~translation_cat, ~translation_eng, ~translation_spa,
-
+  # tabs
+  "map_translation", "Mapa", "Map", "Mapa",
+  "table_translation", "Taula", "Table", "Tabla",
+  "main_translation", "Explora", "Explore", "Explora",
   "sidebar_h4_title", "Controls", 'Controls', "Controles",
   "lidar_var_sel_label", "Seleccioneu la variable que voleu visualitzar", "Select the variable to visualize", "Selecciona la variable a visualizar",
   "poly_type_sel_label", "Seleccioneu els polígons a agregar", "Select the polygons to aggregate", "Selecciona los polígonos a agregar",
