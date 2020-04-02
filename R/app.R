@@ -110,14 +110,14 @@ lidar_app <- function() {
                 # 'map',
                 value = 'map_panel',
                 mod_mapOutput('mod_mapOutput')
-              )#,
-              # shiny::tabPanel(
-              #   # title = mod_tab_translateOutput('table_translation'),
-              #   title = 'table_translation',
-              #   # 'table',
-              #   value = 'table_panel',
-              #   mod_dataTableOutput('mod_dataTableOutput')
-              # )
+              ),
+              shiny::tabPanel(
+                # title = mod_tab_translateOutput('table_translation'),
+                title = 'table_translation',
+                # 'table',
+                value = 'table_panel',
+                mod_tableOutput('mod_tableOutput')
+              )
             )
           )
         )
@@ -164,6 +164,11 @@ lidar_app <- function() {
     map_reactives <- shiny::callModule(
       mod_map, 'mod_mapOutput', lang, app_translations,
       main_data_reactives, data_reactives
+    )
+    # table
+    shiny::callModule(
+      mod_table, 'mod_tableOutput', lang, app_translations,
+      main_data_reactives
     )
 
     ## explore UI (to use lang) ####
