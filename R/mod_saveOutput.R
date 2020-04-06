@@ -42,8 +42,14 @@ mod_save <- function(
       ),
       shiny::actionButton(
         ns('download_trigger_btn'),
-        translate_app('sidebar_h4_download', lang(), app_translations),
+        translate_app('download_trigger_btn', lang(), app_translations),
         icon = shiny::icon('download')
+      ),
+      shiny::downloadButton(
+        ns('download_raster_trigger_btn'),
+        translate_app(
+          'download_raster_trigger_btn', lang(), app_translations
+        )
       )
     )
   }) # end of renderUI
@@ -119,6 +125,16 @@ mod_save <- function(
 
   ## save output ####
   # download handlers
+  # raster
+  output$download_raster_trigger_btn <- shiny::downloadHandler(
+    filename = function() {
+      glue::glue("{names(main_data_reactives$data_raster)}_lfc_lidar.tif")
+    },
+    content = function(file) {
+      raster::writeRaster(main_data_reactives$data_raster, file)
+    }
+  )
+  # polygons
   output$download_data_with_options <- shiny::downloadHandler(
     filename = function() {
 

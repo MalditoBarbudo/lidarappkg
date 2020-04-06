@@ -133,6 +133,9 @@ tibble::tribble(
   "raster_progress_mes", "S'està baixant ràster de baixa resolució...", "Downloading low res raster...", "Descargando ráster de baja resolución...",
   "dismiss", "Descartar", "Dismiss", "Cancelar",
   "not_enough_info_plot_warning", "No hi ha dades suficients per construir el gràfic de forma segura", "Not enough data to safely build the plot", "No hay datos suficientes para contruir la gráfica de manera segura",
+  # donwload buttons
+  "download_trigger_btn", "Descarrega les dades dels polígons", "Download polygon data", "Descargar datos de los polígonos",
+  "download_raster_trigger_btn", "Descarrega ràster de baixa resoluciò", "Download low res raster", "Descarga ráster de baja resolución"
 
   ## TODO continue translations thesaurus
 ) -> app_translations
