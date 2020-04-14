@@ -37,18 +37,25 @@ mod_save <- function(
 
     shiny::tagList(
       # download buttons
-      shiny::h4(
-        translate_app('sidebar_h4_download', lang(), app_translations)
-      ),
-      shiny::actionButton(
-        ns('download_trigger_btn'),
-        translate_app('download_trigger_btn', lang(), app_translations),
-        icon = shiny::icon('download')
-      ),
-      shiny::downloadButton(
-        ns('download_raster_trigger_btn'),
-        translate_app(
-          'download_raster_trigger_btn', lang(), app_translations
+      shiny::fluidRow(
+        shiny::column(
+          12,
+          shiny::h4(
+            translate_app('sidebar_h4_download', lang(), app_translations)
+          ),
+          shiny::actionButton(
+            ns('download_trigger_btn'),
+            translate_app('download_trigger_btn', lang(), app_translations),
+            icon = shiny::icon('download')
+          ),
+          shiny::br(),
+          shiny::br(),
+          shiny::downloadButton(
+            ns('download_raster_trigger_btn'),
+            translate_app(
+              'download_raster_trigger_btn', lang(), app_translations
+            )
+          )
         )
       )
     )

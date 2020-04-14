@@ -38,13 +38,13 @@ lidar_app <- function() {
 
     # css
     shiny::tags$head(
-      # custom css
-      shiny::includeCSS(
-        system.file('resources', 'lidarapp.css', package = 'lidarappkg')
-      ),
       # corporative image css
       shiny::includeCSS(
         system.file('resources', 'corp_image.css', package = 'lidarappkg')
+      ),
+      # custom css
+      shiny::includeCSS(
+        system.file('resources', 'lidarapp.css', package = 'lidarappkg')
       )
     ),
 
