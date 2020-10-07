@@ -36,6 +36,10 @@ lidar_app <- function() {
     # shinyWidgets::chooseSliderSkin(skin = "Shiny", color = '#0DB3D4'),
     # shinyWidgets::useSweetAlert(),
 
+    # waiter
+    waiter::use_waiter(1),
+    waiter::use_hostess(),
+
     # css
     shiny::tags$head(
       # corporative image css
