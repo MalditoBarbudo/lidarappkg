@@ -32,6 +32,17 @@ mod_map <- function(
   main_data_reactives, data_reactives
 ) {
 
+  ## waiter/hostess progress ####
+  # set a progress with waiter. We will use infinite TRUE, that way we dont
+  # need to calculate any steps durations
+  # 1. hostess progress
+  hostess_map <- waiter::Hostess$new(infinite = TRUE)
+  # 2. waiter overlay related to map id
+  waiter_map <- waiter::Waiter$new(
+    id = 'mod_mapOutput-lidar_map',
+    color = '#E8EAEB'
+  )
+
   ## renderUI ####
   output$map_container <- shiny::renderUI({
 
@@ -49,10 +60,8 @@ mod_map <- function(
 
   output$lidar_map <- leaflet::renderLeaflet({
 
-    shiny::validate(
-      shiny::need(main_data_reactives$data_raster, 'no raster yet'),
-      shiny::need(main_data_reactives$data_visible, 'no polys yet')
-    )
+    shiny::req(main_data_reactives$data_raster, cancelOutput = TRUE)
+    shiny::req(main_data_reactives$data_visible, cancelOutput = TRUE)
 
     data_raster <- main_data_reactives$data_raster
     data_map <- main_data_reactives$data_visible

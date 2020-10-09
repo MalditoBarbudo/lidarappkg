@@ -40,30 +40,17 @@ mod_mainData <- function(
   # 2. waiter overlay related to map id
   waiter_raster <- waiter::Waiter$new(
     id = 'mod_mapOutput-lidar_map',
-    color = '#E8EAEB',
-    hide_on_silent_error = FALSE,
-    hide_on_render = FALSE,
-    hide_on_error = FALSE
+    color = '#E8EAEB'
   )
   waiter_polys <- waiter::Waiter$new(
     id = 'mod_mapOutput-lidar_map',
-    color = '#E8EAEB',
-    hide_on_silent_error = FALSE,
-    hide_on_render = FALSE,
-    hide_on_error = FALSE
+    color = '#E8EAEB'
   )
 
   # reactives ####
   data_polys <- shiny::reactive({
 
-    progress <- shiny::Progress$new(session, min = 5, max = 100)
-    on.exit(progress$close())
-    progress$set(
-      message = translate_app(
-        'poly_data_progress_mes', lang(), app_translations
-      )
-    )
-
+    # progress
     waiter_polys$show()
     waiter_polys$update(
       html = shiny::tagList(
@@ -76,8 +63,8 @@ mod_mainData <- function(
       )
     )
     hostess_polys$start()
-    # on.exit(hostess_polys$close(), add = TRUE)
-    # on.exit(waiter_polys$hide(), add = TRUE)
+    on.exit(hostess_polys$close(), add = TRUE)
+    on.exit(waiter_polys$hide(), add = TRUE)
 
     shiny::validate(
       shiny::need(data_reactives$poly_type_sel, 'no poly yet')
@@ -95,13 +82,20 @@ mod_mainData <- function(
     }
 
     if (poly_type == 'drawn_poly') {
+
+      if (is.null(drawn_poly) || length(drawn_poly[['features']]) < 1) {
+        shinyWidgets::sendSweetAlert(
+          session = session,
+          title = translate_app('sweet_alert_nopoly_title', lang(), app_translations),
+          text = translate_app('sweet_alert_nopoly_text', lang(), app_translations)
+        )
+      }
+
       shiny::validate(
         shiny::need(drawn_poly, 'no draw polys yet'),
         shiny::need(length(drawn_poly[['features']]) != 0, 'removed poly')
       )
     }
-
-    progress$set(value = 25)
 
     res <- switch(
       poly_type,
@@ -135,24 +129,12 @@ mod_mainData <- function(
       'file' = file_poly(lidardb, user_file)
     )
 
-    progress$set(value = 85)
-    hostess_polys$close()
-    waiter_polys$hide()
-
     return(res)
   })
 
   data_visible <- shiny::reactive({
     shiny::validate(
       shiny::need(data_reactives$lidar_var_sel, 'no var yet')
-    )
-
-    progress <- shiny::Progress$new(session, min = 85, max = 100)
-    on.exit(progress$close())
-    progress$set(
-      message = translate_app(
-        'poly_visible_progress_mes', lang(), app_translations
-      )
     )
 
     lidar_var <- data_reactives$lidar_var_sel
@@ -162,8 +144,6 @@ mod_mainData <- function(
         dplyr::matches(glue::glue("^{lidar_var}_"))
       )
 
-    progress$set(value = 99)
-
     return(res)
   })
 
@@ -172,6 +152,7 @@ mod_mainData <- function(
       shiny::need(data_reactives$lidar_var_sel, 'no var yet')
     )
 
+    Sys.sleep(0.2) # we need this for the init progress
     waiter_raster$show()
     waiter_raster$update(
       html = shiny::tagList(
@@ -184,24 +165,11 @@ mod_mainData <- function(
       )
     )
     hostess_raster$start()
-    # on.exit(hostess_raster$close())
-    # on.exit(waiter_raster$hide(), add = TRUE)
+    on.exit(hostess_raster$close())
+    on.exit(waiter_raster$hide(), add = TRUE)
 
-    progress <- shiny::Progress$new(session, min = 5, max = 100)
-    on.exit(progress$close(), add = TRUE)
-    progress$set(
-      message = translate_app(
-        'raster_progress_mes', lang(), app_translations
-      )
-    )
-
-    progress$set(value = 15)
     lidar_var <- data_reactives$lidar_var_sel
     lidar_raster <- lidardb$get_lowres_raster(lidar_var, 'raster')
-    progress$set(value = 99)
-
-    hostess_raster$close()
-    waiter_raster$hide()
 
     return(lidar_raster)
   })

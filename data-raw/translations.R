@@ -133,10 +133,13 @@ tibble::tribble(
   "raster_progress_mes", "S'està baixant ràster de baixa resolució...", "Downloading low res raster...", "Descargando ráster de baja resolución...",
   "dismiss", "Descartar", "Dismiss", "Cancelar",
   "not_enough_info_plot_warning", "No hi ha dades suficients per construir el gràfic de forma segura", "Not enough data to safely build the plot", "No hay datos suficientes para contruir la gráfica de manera segura",
+  "map_progress_mes", "Dibuixant el mapa...", "Drawing the map...", "Dibujando el mapa...",
   # donwload buttons
   "download_trigger_btn", "Descarrega les dades dels polígons", "Download polygon data", "Descargar datos de los polígonos",
-  "download_raster_trigger_btn", "Descarrega ràster de baixa resoluciò", "Download low res raster", "Descarga ráster de baja resolución"
-
+  "download_raster_trigger_btn", "Descarrega ràster de baixa resoluciò", "Download low res raster", "Descarga ráster de baja resolución",
+  # sweet alert
+  'sweet_alert_nopoly_title', "No s'ha dibuixat cap polígon", "No polygon has been drawn", "No se ha dibujado ningún polígono",
+  'sweet_alert_nopoly_text', "Dibuixa un polígon amb l'eina de l'map i prova de nou", "Draw a polygon with the map tool and try again", "Dibuja un polígono con la herramienta del map y prueba de nuevo"
   ## TODO continue translations thesaurus
 ) -> app_translations
 
