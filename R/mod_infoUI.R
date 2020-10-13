@@ -35,7 +35,17 @@ mod_info <- function(
   main_data_reactives, data_reactives, id_click
 ) {
 
+  ns <- session$ns
+
+  waiter_plot <- waiter::Waiter$new(
+    id = ns('info_plot'),
+    html = waiter::spin_timer(),
+    color = "#1C1C20"
+  )
+
   plot_generation <- shiny::reactive({
+
+    waiter_plot$show()
 
     data_plot <- main_data_reactives$data_polys %>%
       dplyr::as_tibble() %>%
@@ -103,6 +113,8 @@ mod_info <- function(
       plotlist = plot_list,
       nrow = 2, ncol = 4
     )
+
+    waiter_plot$hide()
     return(res)
   })
 

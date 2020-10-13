@@ -37,7 +37,7 @@ lidar_app <- function() {
     # shinyWidgets::useSweetAlert(),
 
     # waiter
-    waiter::use_waiter(1),
+    waiter::use_waiter(spinners = 4),
     waiter::use_hostess(),
 
     # css
