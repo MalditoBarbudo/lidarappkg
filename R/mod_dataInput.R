@@ -77,7 +77,7 @@ mod_data <- function(
           id = ns('file_sel_div'),
           shiny::fluidRow(
             shiny::column(
-              12,
+              7,
               shiny::fileInput(
                 ns('user_file_sel'),
                 translate_app('user_file_sel_label', lang(), app_translations),
@@ -89,6 +89,10 @@ mod_data <- function(
                   'user_file_sel_placeholder', lang(), app_translations
                 )
               )
+            ),
+            shiny::column(
+              5, align = 'center',
+              shiny::p(translate_app('file_text', lang(), app_translations))
             )
           )
         )

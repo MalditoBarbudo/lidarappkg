@@ -12,6 +12,7 @@ tibble::tribble(
   "user_file_sel_label", "Pengeu un fitxer", "Upload a file", "Cargar un archivo",
   "user_file_sel_button_label", "Navegueu", "Browse", "Explora",
   "user_file_sel_placeholder", "No s’ha seleccionat cap fitxer", "No file selected", "No se seleccionado ningún archivo",
+  "file_text", 'El fitxer pot ser un shapefile (comprimit en un fitxer zip) o un fitxer GeoPackage (.gpkg). Han de tenir un camp anomenat "poly_id" amb els identificadors dels polígons continguts.', 'File can be a shapefile (compressed in a zip file) or GeoPackage file (.gpkg). They must have a field called "poly_id" with the identifiers of the contained polygons.', 'El archivo puede ser un shapefile (comprimido en un archivo zip) o un archivo GeoPackage (.gpkg). Deben tener un campo llamado "poly_id" con los identificadores de los polígonos contenidos.',
   "sidebar_h4_results", "Resultats", "Results", "Resultados",
   "sidebar_h4_download", "Descarrega", "Download", "Descarga",
   "main_panel_raster_siz_1", "Ràster per a la visualització té una mida de cel·la de 400x400 metres.", "Raster for visualization has a cell size of 400x400 meters.", "El ráster para la visualización tiene un tamaño de celda de 400x400 metros.",
