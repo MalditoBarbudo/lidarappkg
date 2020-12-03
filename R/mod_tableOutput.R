@@ -40,7 +40,10 @@ mod_table <- function(
 
     main_data_reactives$data_visible %>%
       dplyr::as_tibble() %>%
-      dplyr::select(!dplyr::contains('_pixels'), -geometry) %>%
+      # dplyr::select(!dplyr::contains('_pixels'), -geometry) %>%
+      dplyr::select(
+        !dplyr::contains('_pixels'), !dplyr::one_of(c('geom', 'geometry'))
+      ) %>%
       dplyr::mutate_if(is.numeric, round, 2) %>%
       DT::datatable(
         rownames = FALSE,

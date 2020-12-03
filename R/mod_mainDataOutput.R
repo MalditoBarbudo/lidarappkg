@@ -138,6 +138,7 @@ mod_mainData <- function(
     )
 
     lidar_var <- data_reactives$lidar_var_sel
+
     res <- data_polys() %>%
       dplyr::select(
         poly_id, poly_km2,

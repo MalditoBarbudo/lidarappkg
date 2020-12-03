@@ -49,7 +49,10 @@ mod_info <- function(
 
     data_plot <- main_data_reactives$data_polys %>%
       dplyr::as_tibble() %>%
-      dplyr::select(poly_id, dplyr::contains('_average'), -geometry)
+      dplyr::select(
+        poly_id, dplyr::contains('_average'),
+        !dplyr::one_of(c('geom', 'geometry'))
+      )
 
     # one row validation
     shiny::validate(

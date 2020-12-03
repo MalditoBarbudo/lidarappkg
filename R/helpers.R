@@ -31,8 +31,6 @@ file_poly <- function(lidardb, file) {
     shiny::need(file, 'no file yet')
   )
 
-  browser()
-
   # check for input file format (csv (wkt) not working as it does not store the
   # crs)
   if (stringr::str_detect(file$type, 'zip')) {

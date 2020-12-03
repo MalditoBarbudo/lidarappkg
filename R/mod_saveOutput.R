@@ -200,13 +200,13 @@ mod_save <- function(
             if (input$data_format == 'csv') {
               result_data %>%
                 dplyr::as_tibble() %>%
-                dplyr::select(-geometry) %>%
+                dplyr::select(!dplyr::one_of(c('geom', 'geometry'))) %>%
                 readr::write_csv(file)
             } else {
               # xlsx (no geometry)
               result_data %>%
                 dplyr::as_tibble() %>%
-                dplyr::select(-geometry) %>%
+                dplyr::select(!dplyr::one_of(c('geom', 'geometry'))) %>%
                 writexl::write_xlsx(file)
             }
           }
