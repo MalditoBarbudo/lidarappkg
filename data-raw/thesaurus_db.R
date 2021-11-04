@@ -1,7 +1,7 @@
 library(tidyverse)
 
 conn <- RPostgreSQL::dbConnect(
-  'PostgreSQL', host = 'laboratoriforestal.creaf.uab.cat', dbname = 'lidargis', user = 'ifn',
+  'PostgreSQL', host = 'laboratoriforestal.creaf.cat', dbname = 'lidargis', user = 'ifn',
   password = rstudioapi::askForPassword()
 )
 

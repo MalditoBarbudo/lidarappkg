@@ -9,28 +9,41 @@ library(tictoc)
 
 lidardb <- lidar()
 
+# env var (change when in use)
+Sys.setenv(ifn_db = '')
+
 
 ## tables creation ####
+# db conn
+conn <- RPostgres::dbConnect(
+  RPostgres::Postgres(),
+  host = 'laboratoriforestal.creaf.cat', dbname = 'lidargis',
+  user = 'ifn',
+  password = Sys.getenv('ifn_db')
+)
+
 # Read the rasters, write the tables and get the raster list for tests
-# list.files('data-raw', '.tif$', full.names = TRUE) %>%
-#   purrr::map(raster::raster) %>%
-#   magrittr::set_names(value = list.files('data-raw', '.tif$')) %>%
-#   purrr::iwalk(
-#     ~ rpostgis::pgWriteRast(
-#       conn,
-#       name = c('public', tolower(stringr::str_remove(.y, '\\.tif'))),
-#       raster = .x,
-#       blocks = 50, overwrite = TRUE
-#     )
-#   ) -> lidar_rasters
+list.files('data-raw', '.tif$', full.names = TRUE) %>%
+  purrr::map(raster::raster) %>%
+  magrittr::set_names(value = list.files('data-raw', '.tif$')) %>%
+  purrr::iwalk(
+    ~ rpostgis::pgWriteRast(
+      conn,
+      name = c('public', tolower(stringr::str_remove(.y, '\\.tif'))),
+      raster = .x,
+      blocks = 50, overwrite = TRUE
+    )
+  ) -> lidar_rasters
 # Indexes
-# c('ab', 'bat', 'bf', 'cat', 'dbh', 'hm', 'rec', 'vae') %>%
-#   purrr::walk(
-#     ~dbExecute(
-#       conn,
-#       glue::glue("CREATE INDEX {.x}_rast_st_convexhull_idx ON {.x} USING gist( ST_ConvexHull(rast) );")
-#     )
-#   )
+c('ab', 'bat', 'bf', 'cat', 'dbh', 'hm', 'rec', 'vae') %>%
+  purrr::walk(
+    ~dbExecute(
+      conn,
+      glue::glue("CREATE INDEX {.x}_rast_st_convexhull_idx ON {.x} USING gist( ST_ConvexHull(rast) );")
+    )
+  )
+
+RPostgres::dbDisconnect(conn)
 
 ## pre-calculated data for known polygons ####
 # catalunya
@@ -49,16 +62,16 @@ catalunya_sf <- lidardb %>%
 # conn
 conn <- RPostgres::dbConnect(
   RPostgres::Postgres(),
-  host = 'laboratoriforestal.creaf.uab.cat', dbname = 'lidargis',
-  user = 'guest',
-  password = 'guest'
+  host = 'laboratoriforestal.creaf.cat', dbname = 'lidargis',
+  user = 'ifn',
+  password = Sys.getenv('ifn_db')
 )
 catalunya_sf %>%
   rmapshaper::ms_simplify(0.01, keep_shapes = TRUE) %>%
   sf::st_write(
     conn,
     layer = 'lidar_catalonia',
-    overwrite = TRUE
+    delete_layer = TRUE
   )
 # disconnect the db
 RPostgres::dbDisconnect(conn)
@@ -81,9 +94,9 @@ provincias_sf <- lidardb %>%
 # conn
 conn <- RPostgres::dbConnect(
   RPostgres::Postgres(),
-  host = 'laboratoriforestal.creaf.uab.cat', dbname = 'lidargis',
-  user = 'guest',
-  password = 'guest'
+  host = 'laboratoriforestal.creaf.cat', dbname = 'lidargis',
+  user = 'ifn',
+  password = Sys.getenv('ifn_db')
 )
 
 provincias_sf %>%
@@ -91,7 +104,7 @@ provincias_sf %>%
   sf::st_write(
     conn,
     layer = 'lidar_provinces',
-    overwrite = TRUE
+    delete_layer = TRUE
   )
 # disconnect the db
 RPostgres::dbDisconnect(conn)
@@ -114,16 +127,16 @@ comarcas_sf <- lidardb %>%
 # conn
 conn <- RPostgres::dbConnect(
   RPostgres::Postgres(),
-  host = 'laboratoriforestal.creaf.uab.cat', dbname = 'lidargis',
-  user = 'guest',
-  password = 'guest'
+  host = 'laboratoriforestal.creaf.cat', dbname = 'lidargis',
+  user = 'ifn',
+  password = Sys.getenv('ifn_db')
 )
 
 sf::st_write(
   comarcas_sf %>% rmapshaper::ms_simplify(0.01, keep_shapes = TRUE),
   conn,
   layer = 'lidar_counties',
-  overwrite = TRUE
+  delete_layer = TRUE
 )
 # disconnect the db
 RPostgres::dbDisconnect(conn)
@@ -146,9 +159,9 @@ municipios_sf <- lidardb %>%
 # conn
 conn <- RPostgres::dbConnect(
   RPostgres::Postgres(),
-  host = 'laboratoriforestal.creaf.uab.cat', dbname = 'lidargis',
-  user = 'guest',
-  password = 'guest'
+  host = 'laboratoriforestal.creaf.cat', dbname = 'lidargis',
+  user = 'ifn',
+  password = Sys.getenv('ifn_db')
 )
 
 municipios_sf %>%
@@ -156,7 +169,7 @@ municipios_sf %>%
   sf::st_write(
     conn,
     layer = 'lidar_municipalities',
-    overwrite = TRUE
+    delete_layer = TRUE
   )
 # disconnect the db
 RPostgres::dbDisconnect(conn)
@@ -179,9 +192,9 @@ veguerias_sf <- lidardb %>%
 # conn
 conn <- RPostgres::dbConnect(
   RPostgres::Postgres(),
-  host = 'laboratoriforestal.creaf.uab.cat', dbname = 'lidargis',
-  user = 'guest',
-  password = 'guest'
+  host = 'laboratoriforestal.creaf.cat', dbname = 'lidargis',
+  user = 'ifn',
+  password = Sys.getenv('ifn_db')
 )
 
 veguerias_sf %>%
@@ -189,7 +202,7 @@ veguerias_sf %>%
   sf::st_write(
     conn,
     layer = 'lidar_vegueries',
-    overwrite = TRUE
+    delete_layer = TRUE
   )
 # disconnect the db
 RPostgres::dbDisconnect(conn)
@@ -217,9 +230,9 @@ enpes_sf <- lidardb %>%
 # conn
 conn <- RPostgres::dbConnect(
   RPostgres::Postgres(),
-  host = 'laboratoriforestal.creaf.uab.cat', dbname = 'lidargis',
-  user = 'guest',
-  password = 'guest'
+  host = 'laboratoriforestal.creaf.cat', dbname = 'lidargis',
+  user = 'ifn',
+  password = Sys.getenv('ifn_db')
 )
 
 enpes_sf %>%
@@ -227,7 +240,7 @@ enpes_sf %>%
   sf::st_write(
     conn,
     layer = 'lidar_enpes',
-    overwrite = TRUE
+    delete_layer = TRUE
   )
 # disconnect the db
 RPostgres::dbDisconnect(conn)
@@ -254,9 +267,9 @@ pein_sf <- lidardb %>%
 
 conn <- RPostgres::dbConnect(
   RPostgres::Postgres(),
-  host = 'laboratoriforestal.creaf.uab.cat', dbname = 'lidargis',
-  user = 'guest',
-  password = 'guest'
+  host = 'laboratoriforestal.creaf.cat', dbname = 'lidargis',
+  user = 'ifn',
+  password = Sys.getenv('ifn_db')
 )
 
 pein_sf %>%
@@ -264,7 +277,7 @@ pein_sf %>%
   sf::st_write(
     conn,
     layer = 'lidar_pein',
-    overwrite = TRUE
+    delete_layer = TRUE
   )
 # disconnect the db
 RPostgres::dbDisconnect(conn)
@@ -291,9 +304,9 @@ xn2000_sf <- lidardb %>%
 
 conn <- RPostgres::dbConnect(
   RPostgres::Postgres(),
-  host = 'laboratoriforestal.creaf.uab.cat', dbname = 'lidargis',
-  user = 'guest',
-  password = 'guest'
+  host = 'laboratoriforestal.creaf.cat', dbname = 'lidargis',
+  user = 'ifn',
+  password = Sys.getenv('ifn_db')
 )
 
 xn2000_sf %>%
@@ -301,7 +314,7 @@ xn2000_sf %>%
   sf::st_write(
     conn,
     layer = 'lidar_xn2000',
-    overwrite = TRUE
+    delete_layer = TRUE
   )
 
 # disconnect the db
