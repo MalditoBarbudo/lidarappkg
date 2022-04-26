@@ -8,4 +8,7 @@ data-raw/*.gri
 data-raw/*.ovr
 data-raw/*.gpkg
 data-raw/*.zip
+data-raw/data-raw_backup/
 .Rhistory
+.Renviron
+

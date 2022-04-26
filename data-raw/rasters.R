@@ -47,6 +47,14 @@ dbh_raster <- raster::raster(
 #   raster::writeRaster('data-raw/DBH_aggregated20.grd')
 # dbh_raster <- raster::raster('data-raw/DBH_aggregated20.grd')
 
+den_raster <- raster::raster(
+  'data-raw/DEN.tif'
+) %>%
+  raster::aggregate(fact = 20) #%>%
+#   projectRasterForLeaflet('bilinear') %>%
+#   raster::writeRaster('data-raw/DBH_aggregated20.grd')
+# dbh_raster <- raster::raster('data-raw/DBH_aggregated20.grd')
+
 hm_raster <- raster::raster(
   'data-raw/HM.tif'
 ) %>%
@@ -54,6 +62,14 @@ hm_raster <- raster::raster(
 #   projectRasterForLeaflet('bilinear') %>%
 #   raster::writeRaster('data-raw/HM_aggregated20.grd')
 # hm_raster <- raster::raster('data-raw/HM_aggregated20.grd')
+
+lai_raster <- raster::raster(
+  'data-raw/LAI.tif'
+) %>%
+  raster::aggregate(fact = 20) #%>%
+#   projectRasterForLeaflet('bilinear') %>%
+#   raster::writeRaster('data-raw/DBH_aggregated20.grd')
+# dbh_raster <- raster::raster('data-raw/DBH_aggregated20.grd')
 
 rec_raster <- raster::raster(
   'data-raw/REC.tif'
@@ -72,8 +88,9 @@ vae_raster <- raster::raster(
 # vae_raster <- raster::raster('data-raw/VAE_aggregated20.grd')
 
 lidar_stack <- raster::stack(
-  basal_area_raster, dbh_raster, hm_raster, leaf_biomass_raster, rec_raster,
-  total_aerial_biomass_raster, total_aerial_carbon_raster, vae_raster
+  basal_area_raster, dbh_raster, den_raster, hm_raster, lai_raster,
+  leaf_biomass_raster, rec_raster, total_aerial_biomass_raster,
+  total_aerial_carbon_raster, vae_raster
 )
 
 # leaflet tests ####
@@ -100,7 +117,7 @@ lidar_stack <- raster::stack(
 # conn
 conn <- RPostgreSQL::dbConnect(
   'PostgreSQL', host = 'laboratoriforestal.creaf.cat', dbname = 'lidargis', user = 'ifn',
-  password = rstudioapi::askForPassword()
+  password = Sys.getenv('ifn_db')
 )
 # pgPostGIS(conn)
 

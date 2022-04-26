@@ -10,40 +10,43 @@ library(tictoc)
 lidardb <- lidar()
 
 # env var (change when in use)
-Sys.setenv(ifn_db = '')
+# Sys.setenv(ifn_db = '')
+
+variable_names <-
+  c('ab', 'bat', 'bf', 'cat', 'dbh', 'den', 'hm', 'lai', 'rec', 'vae')
 
 
 ## tables creation ####
 # db conn
-conn <- RPostgres::dbConnect(
-  RPostgres::Postgres(),
-  host = 'laboratoriforestal.creaf.cat', dbname = 'lidargis',
-  user = 'ifn',
-  password = Sys.getenv('ifn_db')
-)
-
-# Read the rasters, write the tables and get the raster list for tests
-list.files('data-raw', '.tif$', full.names = TRUE) %>%
-  purrr::map(raster::raster) %>%
-  magrittr::set_names(value = list.files('data-raw', '.tif$')) %>%
-  purrr::iwalk(
-    ~ rpostgis::pgWriteRast(
-      conn,
-      name = c('public', tolower(stringr::str_remove(.y, '\\.tif'))),
-      raster = .x,
-      blocks = 50, overwrite = TRUE
-    )
-  ) -> lidar_rasters
-# Indexes
-c('ab', 'bat', 'bf', 'cat', 'dbh', 'hm', 'rec', 'vae') %>%
-  purrr::walk(
-    ~dbExecute(
-      conn,
-      glue::glue("CREATE INDEX {.x}_rast_st_convexhull_idx ON {.x} USING gist( ST_ConvexHull(rast) );")
-    )
-  )
-
-RPostgres::dbDisconnect(conn)
+# conn <- RPostgres::dbConnect(
+#   RPostgres::Postgres(),
+#   host = 'laboratoriforestal.creaf.cat', dbname = 'lidargis',
+#   user = 'ifn',
+#   password = Sys.getenv('ifn_db')
+# )
+#
+# # Read the rasters, write the tables and get the raster list for tests
+# list.files('data-raw', '.tif$', full.names = TRUE) %>%
+#   purrr::map(raster::raster) %>%
+#   magrittr::set_names(value = list.files('data-raw', '.tif$')) %>%
+#   purrr::iwalk(
+#     ~ rpostgis::pgWriteRast(
+#       conn,
+#       name = c('public', tolower(stringr::str_remove(.y, '\\.tif'))),
+#       raster = .x,
+#       blocks = 50, overwrite = TRUE
+#     )
+#   ) -> lidar_rasters
+# # Indexes
+# variable_names %>%
+#   purrr::walk(
+#     ~dbExecute(
+#       conn,
+#       glue::glue("CREATE INDEX {.x}_rast_st_convexhull_idx ON {.x} USING gist( ST_ConvexHull(rast) );")
+#     )
+#   )
+#
+# RPostgres::dbDisconnect(conn)
 
 ## pre-calculated data for known polygons ####
 # catalunya
@@ -57,7 +60,7 @@ catalunya_polys <- sf::read_sf(
 catalunya_sf <- lidardb %>%
   lidar_clip_and_stats(
     catalunya_polys, 'poly_id',
-    variables = c('AB', 'BAT', 'BF', 'CAT', 'DBH', 'HM', 'REC', 'VAE')
+    variables = toupper(variable_names)
   )
 # conn
 conn <- RPostgres::dbConnect(
@@ -88,7 +91,7 @@ provincias_polys <- sf::read_sf(
 provincias_sf <- lidardb %>%
   lidar_clip_and_stats(
     provincias_polys, 'poly_id',
-    variables = c('AB', 'BAT', 'BF', 'CAT', 'DBH', 'HM', 'REC', 'VAE')
+    variables = toupper(variable_names)
   )
 
 # conn
@@ -121,7 +124,7 @@ comarcas_polys <- sf::read_sf(
 comarcas_sf <- lidardb %>%
   lidar_clip_and_stats(
     comarcas_polys, 'poly_id',
-    variables = c('AB', 'BAT', 'BF', 'CAT', 'DBH', 'HM', 'REC', 'VAE')
+    variables = toupper(variable_names)
   )
 
 # conn
@@ -153,7 +156,7 @@ municipios_polys <- sf::read_sf(
 municipios_sf <- lidardb %>%
   lidar_clip_and_stats(
     municipios_polys, 'poly_id',
-    variables = c('AB', 'BAT', 'BF', 'CAT', 'DBH', 'HM', 'REC', 'VAE')
+    variables = toupper(variable_names)
   )
 
 # conn
@@ -186,7 +189,7 @@ veguerias_polys <- sf::read_sf(
 veguerias_sf <- lidardb %>%
   lidar_clip_and_stats(
     veguerias_polys, 'poly_id',
-    variables = c('AB', 'BAT', 'BF', 'CAT', 'DBH', 'HM', 'REC', 'VAE')
+    variables = toupper(variable_names)
   )
 
 # conn
@@ -224,7 +227,7 @@ enpes_polys <- sf::read_sf(
 enpes_sf <- lidardb %>%
   lidar_clip_and_stats(
     enpes_polys, 'poly_id',
-    variables = c('AB', 'BAT', 'BF', 'CAT', 'DBH', 'HM', 'REC', 'VAE')
+    variables = toupper(variable_names)
   )
 
 # conn
@@ -262,7 +265,7 @@ pein_polys <- sf::read_sf(
 pein_sf <- lidardb %>%
   lidar_clip_and_stats(
     pein_polys, 'poly_id',
-    variables = c('AB', 'BAT', 'BF', 'CAT', 'DBH', 'HM', 'REC', 'VAE')
+    variables = toupper(variable_names)
   )
 
 conn <- RPostgres::dbConnect(
@@ -299,7 +302,7 @@ xn2000_polys <- sf::read_sf(
 xn2000_sf <- lidardb %>%
   lidar_clip_and_stats(
     xn2000_polys, 'poly_id',
-    variables = c('AB', 'BAT', 'BF', 'CAT', 'DBH', 'HM', 'REC', 'VAE')
+    variables = toupper(variable_names)
   )
 
 conn <- RPostgres::dbConnect(
