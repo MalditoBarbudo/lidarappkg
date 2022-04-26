@@ -40,7 +40,7 @@ mod_data <- function(
 
     # precalculated choices
     lidar_var_sel_choices <-  c(
-      'AB', 'BAT', 'BF', 'CAT', 'DBH', 'HM', 'REC', 'VAE'
+      'AB', 'BAT', 'BF', 'CAT', 'DBH', 'DEN', 'HM', 'LAI', 'REC', 'VAE'
     ) %>%
       magrittr::set_names(translate_app(., lang(), app_translations))
 
