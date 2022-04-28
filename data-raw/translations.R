@@ -154,7 +154,10 @@ tibble::tribble(
   "download_raster_trigger_btn", "Descarrega ràster de baixa resoluciò", "Download low res raster", "Descarga ráster de baja resolución",
   # sweet alert
   'sweet_alert_nopoly_title', "No s'ha dibuixat cap polígon", "No polygon has been drawn", "No se ha dibujado ningún polígono",
-  'sweet_alert_nopoly_text', "Dibuixa un polígon amb l'eina de l'map i prova de nou", "Draw a polygon with the map tool and try again", "Dibuja un polígono con la herramienta del map y prueba de nuevo"
+  'sweet_alert_nopoly_text', "Dibuixa un polígon amb l'eina de l'map i prova de nou", "Draw a polygon with the map tool and try again", "Dibuja un polígono con la herramienta del map y prueba de nuevo",
+  # data info
+  "h3_data_version_info", "Versió de les dades:", "Data version:", "Versión de los datos:",
+  'p_data_version_info', "Les variables LiDAR han estat calculades amb les dades dels vols LiDAR més recents (2016) i les dades de la 4ª versió de l'Inventari Forestal Nacional (~2015)", "LiDAR variables had been calculated with the latest LiDAR flights for Catalonia (2016) and the 4th version of the National Forest Inventory data (~2015)", "Las variables LiDAR han sido calculadas con los datos de los vuelos LiDAR más recientes (2016) y los datos de la 4ª version del Inventario Forestal Nacional (~2015)"
   ## TODO continue translations thesaurus
 ) -> app_translations
 
