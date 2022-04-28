@@ -55,7 +55,7 @@ $(document).on('shiny:disconnected', function(event) {
     # shinyWidgets::useSweetAlert(),
 
     # waiter
-    waiter::use_waiter(spinners = 4),
+    waiter::use_waiter(),
     waiter::use_hostess(),
 
     # css

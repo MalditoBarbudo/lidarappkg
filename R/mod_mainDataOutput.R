@@ -36,32 +36,32 @@ mod_mainData <- function(
   # need to calculate any steps durations
   # 1. hostess progress
   hostess_raster <- waiter::Hostess$new(infinite = TRUE)
+  hostess_raster$set_loader(waiter::hostess_loader(
+    svg = 'images/hostess_image.svg',
+    progress_type = 'fill',
+    fill_direction = 'btt'
+  ))
   hostess_polys <- waiter::Hostess$new(infinite = TRUE)
-  # 2. waiter overlay related to map id
-  waiter_raster <- waiter::Waiter$new(
-    id = 'mod_mapOutput-lidar_map',
-    color = '#E8EAEB'
-  )
-  waiter_polys <- waiter::Waiter$new(
-    id = 'mod_mapOutput-lidar_map',
-    color = '#E8EAEB'
-  )
+  hostess_polys$set_loader(waiter::hostess_loader(
+    svg = 'images/hostess_image.svg',
+    progress_type = 'fill',
+    fill_direction = 'btt'
+  ))
 
   # reactives ####
   data_polys <- shiny::reactive({
 
     # progress
-    waiter_polys$show()
-    waiter_polys$update(
+    waiter_polys <- waiter::Waiter$new(
+      id = 'mod_mapOutput-lidar_map',
       html = shiny::tagList(
-        hostess_polys$get_loader(
-          svg = 'images/hostess_image.svg',
-          progress_type = 'fill',
-          fill_direction = 'btt'
-        ),
+        hostess_polys$get_loader(),
         shiny::h3(translate_app('poly_data_progress_mes', lang(), app_translations))
-      )
+      ),
+      color = '#E8EAEB'
     )
+
+    waiter_polys$show()
     hostess_polys$start()
     on.exit(hostess_polys$close(), add = TRUE)
     on.exit(waiter_polys$hide(), add = TRUE)
@@ -153,18 +153,17 @@ mod_mainData <- function(
       shiny::need(data_reactives$lidar_var_sel, 'no var yet')
     )
 
-    Sys.sleep(0.2) # we need this for the init progress
-    waiter_raster$show()
-    waiter_raster$update(
+    # Sys.sleep(0.2) # we need this for the init progress
+    waiter_raster <- waiter::Waiter$new(
+      id = 'mod_mapOutput-lidar_map',
       html = shiny::tagList(
-        hostess_raster$get_loader(
-          svg = 'images/hostess_image.svg',
-          progress_type = 'fill',
-          fill_direction = 'btt'
-        ),
+        hostess_raster$get_loader(),
         shiny::h3(translate_app('raster_progress_mes', lang(), app_translations))
-      )
+      ),
+      color = '#E8EAEB'
     )
+
+    waiter_raster$show()
     hostess_raster$start()
     on.exit(hostess_raster$close())
     on.exit(waiter_raster$hide(), add = TRUE)

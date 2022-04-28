@@ -36,12 +36,12 @@ mod_map <- function(
   # set a progress with waiter. We will use infinite TRUE, that way we dont
   # need to calculate any steps durations
   # 1. hostess progress
-  hostess_map <- waiter::Hostess$new(infinite = TRUE)
-  # 2. waiter overlay related to map id
-  waiter_map <- waiter::Waiter$new(
-    id = 'mod_mapOutput-lidar_map',
-    color = '#E8EAEB'
-  )
+  # hostess_map <- waiter::Hostess$new(infinite = TRUE)
+  # # 2. waiter overlay related to map id
+  # waiter_map <- waiter::Waiter$new(
+  #   id = 'mod_mapOutput-lidar_map',
+  #   color = '#E8EAEB'
+  # )
 
   ## renderUI ####
   output$map_container <- shiny::renderUI({

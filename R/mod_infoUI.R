@@ -46,6 +46,7 @@ mod_info <- function(
   plot_generation <- shiny::reactive({
 
     waiter_plot$show()
+    on.exit(waiter_plot$hide())
 
     data_plot <- main_data_reactives$data_polys %>%
       dplyr::as_tibble() %>%
@@ -117,7 +118,6 @@ mod_info <- function(
       nrow = 2, ncol = 4
     )
 
-    waiter_plot$hide()
     return(res)
   })
 
