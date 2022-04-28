@@ -105,9 +105,15 @@ mod_map <- function(
           collapsed = FALSE, autoZIndex = FALSE
         )
       ) %>%
-      leaflet::hideGroup(
-        'lidar' %>% translate_app(lang(), app_translations)
-      ) %>%
+
+      # This hide the raster until the user click the checkbox. Now, both
+      # layers (polygons and raster) are shown by default, so this is not
+      # needed. Ledt it here just in case the default changes in the future.
+
+      # leaflet::hideGroup(
+      #   'lidar' %>% translate_app(lang(), app_translations)
+      # ) %>%
+
       leaflet::removeImage('raster') %>%
       leaflet::clearGroup(
         'poly' %>%
