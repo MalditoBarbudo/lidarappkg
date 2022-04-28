@@ -96,6 +96,16 @@ mod_data <- function(
             )
           )
         )
+      ),
+
+      # Data info banner
+      shiny::wellPanel(
+        shiny::h3(translate_app('h3_data_version_info', lang(), app_translantions)),
+        shiny::p(translate_app('p_data_version_info', lang(), app_translantions)),
+        shiny::a(
+          href = "https://www.icgc.cat/Administracio-i-empresa/Descarregues/Capes-de-geoinformacio/Mapes-de-variables-biofisiques-de-l-arbrat-de-Catalunya",
+          "ICGC link"
+        )
       )
     ) # end of tagList
   }) # end of UI
