@@ -126,7 +126,7 @@ mod_mainData <- function(
       'drawn_poly' = drawed_poly(
         lidardb, drawn_poly
       ),
-      'file' = file_poly(lidardb, user_file)
+      'file' = file_poly(lidardb, user_file, lang())
     )
 
     return(res)

@@ -23,7 +23,7 @@ requested_poly <- function(lidardb, poly_table, variable = 'all') {
 #'
 #' return the data calculated on-the-fly for the file loaded
 #'
-file_poly <- function(lidardb, file) {
+file_poly <- function(lidardb, file, lang) {
 
   shiny::validate(
     shiny::need(file, 'no file yet')
@@ -40,20 +40,48 @@ file_poly <- function(lidardb, file) {
       as_tibble = TRUE
     ) %>%
       sf::st_transform(crs = "+proj=longlat +datum=WGS84")
-    poly_id <- names(user_polygons)[1]
-    # ensure polygon id is character (factors fuck it all)
-    user_polygons[[poly_id]] <- as.character(user_polygons[[poly_id]])
 
-    lidardb$clip_and_stats(user_polygons, poly_id, 'all')
   } else {
     # gpkg
     user_polygons <- sf::st_read(file$datapath, as_tibble = TRUE) %>%
       sf::st_transform(crs = "+proj=longlat +datum=WGS84")
-    poly_id <- names(user_polygons)[1]
-    # ensure polygon id is character (factors fuck it all)
-    user_polygons[[poly_id]] <- as.character(user_polygons[[poly_id]])
-    lidardb$clip_and_stats(user_polygons, poly_id, 'all')
+    # poly_id <- names(user_polygons)[1]
+    # # ensure polygon id is character (factors fuck it all)
+    # user_polygons[[poly_id]] <- as.character(user_polygons[[poly_id]])
+    # lidardb$clip_and_stats(user_polygons, poly_id, 'all')
   }
+
+  # check for poly_id
+  if (!"poly_id" %in% names(user_polygons)) {
+    warning('No poly_id variable found in spatial file, using first variable found as id')
+    user_polygons$poly_id <- as.character(user_polygons[[1]])
+
+    # shiny::showModal(shiny::modalDialog(
+    #   shiny::h4(translate_app("poly_id_missing_title", lang, app_translations)),
+    #   translate_app("poly_id_missing_message", lang, app_translations),
+    #   footer = shiny::modalButton(
+    #     translate_app('dismiss', lang, app_translations)
+    #   ),
+    #   size = 'l', easyClose = TRUE
+    # ))
+    shiny::showNotification(
+      ui = shiny::tagList(
+        shiny::h4(translate_app("poly_id_missing_title", lang, app_translations))
+      ),
+      action = shiny::tagList(
+        translate_app("poly_id_missing_message", lang, app_translations)
+      ),
+      duration = 15,
+      type = "warning"
+    )
+
+  } else {
+    # ensure polygon id is character (factors fuck it all)
+    user_polygons$poly_id <- as.character(user_polygons$poly_id)
+  }
+
+
+  return(lidardb$clip_and_stats(user_polygons, "poly_id", 'all'))
 }
 
 #' drawed_poly
