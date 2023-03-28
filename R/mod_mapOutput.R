@@ -67,13 +67,13 @@ mod_map <- function(
     data_map <- main_data_reactives$data_visible
 
     palette <- leaflet::colorNumeric(
-      viridis::plasma(100),
+      viridis::rocket(100),
       raster::values(data_raster),
       na.color = 'transparent'
     )
 
     palette_legend <- leaflet::colorNumeric(
-      viridis::plasma(100),
+      viridis::rocket(100),
       raster::values(data_raster),
       na.color = 'transparent',
       reverse = TRUE
@@ -88,13 +88,13 @@ mod_map <- function(
       leaflet::addProviderTiles(
         leaflet::providers$Esri.WorldShadedRelief,
         group = 'Relief' %>% translate_app(lang(), app_translations),
-        # to avoid the raster dissapear when changing base tiles
+        # to avoid the raster disappear when changing base tiles
         options = leaflet::providerTileOptions(zIndex = -10)
       ) %>%
       leaflet::addProviderTiles(
         leaflet::providers$Esri.WorldImagery,
         group = 'Imaginery' %>% translate_app(lang(), app_translations),
-        # to avoid the raster dissapear when changing base tiles
+        # to avoid the raster disappear when changing base tiles
         options = leaflet::providerTileOptions(zIndex = -10)
       ) %>%
       leaflet::addMapPane('polys', zIndex = 410) %>%
@@ -126,7 +126,9 @@ mod_map <- function(
       ) %>%
       leaflet::addRasterImage(
         data_raster, project = TRUE, colors = palette, opacity = 1,
-        group = 'lidar' %>% translate_app(lang(), app_translations),
+      group = 'lidar' %>%
+        translate_app(lang(), app_translations) %>%
+        purrr::map_chr(~ glue::glue(.x)),
         layerId = 'raster'
       ) %>%
       leaflet::addPolygons(
@@ -140,7 +142,7 @@ mod_map <- function(
         opacity = 1.0, fill = TRUE,
         color = '#6C7A89FF',
         fillColor = palette(data_map[[var_column]]),
-        fillOpacity = 0.7,
+        fillOpacity = 0.85,
         highlightOptions = leaflet::highlightOptions(
           color = "#CF000F", weight = 2,
           bringToFront = FALSE
@@ -148,6 +150,12 @@ mod_map <- function(
         options = leaflet::pathOptions(
           pane = 'polys'
         )
+      ) %>%
+      # hide polys
+      leaflet::hideGroup(
+        'poly' %>%
+          translate_app(lang(), app_translations) %>%
+          purrr::map_chr(~ glue::glue(.x))
       ) %>%
       leaflet::addLegend(
         pal = palette_legend, values = raster::values(data_raster),

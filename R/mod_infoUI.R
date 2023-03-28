@@ -73,7 +73,7 @@ mod_info <- function(
             ggplot2::ggplot(ggplot2::aes(x = 0, y = !!rlang::sym(var_name))) +
             ggplot2::geom_point(
               data = ~ dplyr::filter(.x, poly_id != id_click),
-              colour = '#647a8d', size = 4, alpha = 0.5,
+              colour = '#221331', size = 4, alpha = 0.5,
               position = ggplot2::position_jitter(
                 width = .2, height = 0, seed = 25
               )
@@ -81,7 +81,7 @@ mod_info <- function(
             ggplot2::geom_violin(fill = 'transparent') +
             ggplot2::geom_point(
               data = ~ dplyr::filter(.x, poly_id == id_click),
-              colour = '#448714', size = 6
+              colour = '#E73D3F', size = 6
             ) +
             ggplot2::scale_x_continuous(breaks = NULL) +
             ggplot2::labs(
