@@ -87,11 +87,15 @@ mod_map <- function(
       leaflet::setView(1.744, 41.726, zoom = 8) %>%
       leaflet::addProviderTiles(
         leaflet::providers$Esri.WorldShadedRelief,
-        group = 'Relief' %>% translate_app(lang(), app_translations)
+        group = 'Relief' %>% translate_app(lang(), app_translations),
+        # to avoid the raster dissapear when changing base tiles
+        options = leaflet::providerTileOptions(zIndex = -10)
       ) %>%
       leaflet::addProviderTiles(
         leaflet::providers$Esri.WorldImagery,
-        group = 'Imaginery' %>% translate_app(lang(), app_translations)
+        group = 'Imaginery' %>% translate_app(lang(), app_translations),
+        # to avoid the raster dissapear when changing base tiles
+        options = leaflet::providerTileOptions(zIndex = -10)
       ) %>%
       leaflet::addMapPane('polys', zIndex = 410) %>%
       leaflet::addMapPane('rasters', zIndex = 420) %>%
