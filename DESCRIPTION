@@ -26,7 +26,8 @@ Imports:
     writexl,
     DT,
     lfcdata (>= 0.0.4.9000),
-    cowplot
+    cowplot,
+    terra
 RoxygenNote: 7.2.3
 Remotes: 
     MalditoBarbudo/lfcdata

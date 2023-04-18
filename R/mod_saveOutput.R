@@ -138,7 +138,7 @@ mod_save <- function(
       glue::glue("{names(main_data_reactives$data_raster)}_lfc_lidar.tif")
     },
     content = function(file) {
-      raster::writeRaster(main_data_reactives$data_raster, file)
+      terra::writeRaster(terra::rast(main_data_reactives$data_raster), file)
     }
   )
   # polygons

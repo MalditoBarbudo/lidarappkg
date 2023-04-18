@@ -169,7 +169,7 @@ mod_mainData <- function(
     on.exit(waiter_raster$hide(), add = TRUE)
 
     lidar_var <- data_reactives$lidar_var_sel
-    lidar_raster <- lidardb$get_lowres_raster(lidar_var, 'raster')
+    lidar_raster <- lidardb$get_lowres_raster(lidar_var, 'stars')
 
     return(lidar_raster)
   })

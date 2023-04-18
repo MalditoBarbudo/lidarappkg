@@ -68,13 +68,13 @@ mod_map <- function(
 
     palette <- leaflet::colorNumeric(
       viridis::rocket(100),
-      raster::values(data_raster),
+      data_raster[[1]] |> as.numeric(),
       na.color = 'transparent'
     )
 
     palette_legend <- leaflet::colorNumeric(
       viridis::rocket(100),
-      raster::values(data_raster),
+      data_raster[[1]] |> as.numeric(),
       na.color = 'transparent',
       reverse = TRUE
     )
@@ -125,7 +125,7 @@ mod_map <- function(
           purrr::map_chr(~ glue::glue(.x))
       ) |>
       leaflet::addRasterImage(
-        data_raster, project = TRUE, colors = palette, opacity = 1,
+        terra::rast(data_raster), project = TRUE, colors = palette, opacity = 1,
       group = 'lidar' |>
         translate_app(lang(), app_translations) |>
         purrr::map_chr(~ glue::glue(.x)),
@@ -158,7 +158,7 @@ mod_map <- function(
           purrr::map_chr(~ glue::glue(.x))
       ) |>
       leaflet::addLegend(
-        pal = palette_legend, values = raster::values(data_raster),
+        pal = palette_legend, values = data_raster[[1]] |> as.numeric(),
         title = var_column |>
           stringr::str_remove('_average') |>
           translate_app(lang(), app_translations),
