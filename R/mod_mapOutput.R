@@ -97,10 +97,28 @@ mod_map <- function(
         # to avoid the raster disappear when changing base tiles
         options = leaflet::providerTileOptions(zIndex = -10)
       ) |>
+      leaflet::addProviderTiles(
+        leaflet::providers$OpenStreetMap,
+        group = translate_app('OSM', lang(), app_translations),
+        # to avoid the raster disappear when changing base tiles
+        options = leaflet::providerTileOptions(zIndex = -10)
+      ) |>
+      leaflet::addProviderTiles(
+        leaflet::providers$Esri.WorldGrayCanvas,
+        group = translate_app('WorldGrayCanvas', lang(), app_translations),
+        # to avoid the raster disappear when changing base tiles
+        options = leaflet::providerTileOptions(zIndex = -10)
+      ) |>
+      leaflet::addProviderTiles(
+        leaflet::providers$CartoDB.PositronNoLabels,
+        group = translate_app('PositronNoLabels', lang(), app_translations),
+        # to avoid the raster disappear when changing base tiles
+        options = leaflet::providerTileOptions(zIndex = -10)
+      ) |>
       leaflet::addMapPane('polys', zIndex = 410) |>
       leaflet::addMapPane('rasters', zIndex = 420) |>
       leaflet::addLayersControl(
-        baseGroups = c('Relief', 'Imaginery') |>
+        baseGroups = c('Relief', 'Imaginery', 'OSM', 'WorldGrayCanvas', 'PositronNoLabels') |>
           translate_app(lang(), app_translations),
         overlayGroups = c('lidar', 'poly') |>
           translate_app(lang(), app_translations) |>
