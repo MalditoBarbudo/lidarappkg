@@ -26,9 +26,9 @@ variable_names <-
 # )
 #
 # # Read the rasters, write the tables and get the raster list for tests
-# list.files('data-raw', '.tif$', full.names = TRUE) %>%
-#   purrr::map(raster::raster) %>%
-#   magrittr::set_names(value = list.files('data-raw', '.tif$')) %>%
+# list.files('data-raw', '.tif$', full.names = TRUE) |>
+#   purrr::map(raster::raster) |>
+#   purrr::set_names(value = list.files('data-raw', '.tif$')) |>
 #   purrr::iwalk(
 #     ~ rpostgis::pgWriteRast(
 #       conn,
@@ -38,7 +38,7 @@ variable_names <-
 #     )
 #   ) -> lidar_rasters
 # # Indexes
-# variable_names %>%
+# variable_names |>
 #   purrr::walk(
 #     ~dbExecute(
 #       conn,
@@ -53,11 +53,11 @@ variable_names <-
 tic()
 catalunya_polys <- sf::read_sf(
   '../../01_nfi_app/NFIappkg/data-raw/shapefiles/catalunya.shp'
-) %>%
-  dplyr::select(poly_id = NOM_CA, geometry) %>%
+) |>
+  dplyr::select(poly_id = NOM_CA, geometry) |>
   sf::st_set_crs(value = 3043)
 
-catalunya_sf <- lidardb %>%
+catalunya_sf <- lidardb |>
   lidar_clip_and_stats(
     catalunya_polys, 'poly_id',
     variables = toupper(variable_names)
@@ -69,8 +69,8 @@ conn <- RPostgres::dbConnect(
   user = 'ifn',
   password = Sys.getenv('ifn_db')
 )
-catalunya_sf %>%
-  rmapshaper::ms_simplify(0.01, keep_shapes = TRUE) %>%
+catalunya_sf |>
+  rmapshaper::ms_simplify(0.01, keep_shapes = TRUE) |>
   sf::st_write(
     conn,
     layer = 'lidar_catalonia',
@@ -84,11 +84,11 @@ toc()
 tic()
 provincias_polys <- sf::read_sf(
   '../../01_nfi_app/NFIappkg/data-raw/shapefiles/bm5mv20sh0tpp1_20180101_0.shp'
-) %>%
-  dplyr::select(poly_id = NOMPROV, geometry) %>%
+) |>
+  dplyr::select(poly_id = NOMPROV, geometry) |>
   sf::st_set_crs(value = 3043)
 
-provincias_sf <- lidardb %>%
+provincias_sf <- lidardb |>
   lidar_clip_and_stats(
     provincias_polys, 'poly_id',
     variables = toupper(variable_names)
@@ -102,8 +102,8 @@ conn <- RPostgres::dbConnect(
   password = Sys.getenv('ifn_db')
 )
 
-provincias_sf %>%
-  rmapshaper::ms_simplify(0.01, keep_shapes = TRUE) %>%
+provincias_sf |>
+  rmapshaper::ms_simplify(0.01, keep_shapes = TRUE) |>
   sf::st_write(
     conn,
     layer = 'lidar_provinces',
@@ -117,11 +117,11 @@ toc()
 tic()
 comarcas_polys <- sf::read_sf(
   '../../01_nfi_app/NFIappkg/data-raw/shapefiles/bm5mv20sh0tpc1_20180101_0.shp'
-) %>%
-  dplyr::select(poly_id = NOMCOMAR, geometry) %>%
+) |>
+  dplyr::select(poly_id = NOMCOMAR, geometry) |>
   sf::st_set_crs(value = 3043)
 
-comarcas_sf <- lidardb %>%
+comarcas_sf <- lidardb |>
   lidar_clip_and_stats(
     comarcas_polys, 'poly_id',
     variables = toupper(variable_names)
@@ -136,7 +136,7 @@ conn <- RPostgres::dbConnect(
 )
 
 sf::st_write(
-  comarcas_sf %>% rmapshaper::ms_simplify(0.01, keep_shapes = TRUE),
+  comarcas_sf |> rmapshaper::ms_simplify(0.01, keep_shapes = TRUE),
   conn,
   layer = 'lidar_counties',
   delete_layer = TRUE
@@ -149,11 +149,11 @@ toc()
 tic()
 municipios_polys <- sf::read_sf(
   '../../01_nfi_app/NFIappkg/data-raw/shapefiles/bm5mv20sh0tpm1_20180101_0.shp'
-) %>%
-  dplyr::select(poly_id = NOMMUNI, geometry) %>%
+) |>
+  dplyr::select(poly_id = NOMMUNI, geometry) |>
   sf::st_set_crs(value = 3043)
 
-municipios_sf <- lidardb %>%
+municipios_sf <- lidardb |>
   lidar_clip_and_stats(
     municipios_polys, 'poly_id',
     variables = toupper(variable_names)
@@ -167,8 +167,8 @@ conn <- RPostgres::dbConnect(
   password = Sys.getenv('ifn_db')
 )
 
-municipios_sf %>%
-  rmapshaper::ms_simplify(0.01, keep_shapes = TRUE) %>%
+municipios_sf |>
+  rmapshaper::ms_simplify(0.01, keep_shapes = TRUE) |>
   sf::st_write(
     conn,
     layer = 'lidar_municipalities',
@@ -182,11 +182,11 @@ toc()
 tic()
 veguerias_polys <- sf::read_sf(
   '../../01_nfi_app/NFIappkg/data-raw/shapefiles/bm5mv20sh0tpv1_20180101_0.shp'
-) %>%
-  dplyr::select(poly_id = NOMVEGUE, geometry) %>%
+) |>
+  dplyr::select(poly_id = NOMVEGUE, geometry) |>
   sf::st_set_crs(value = 3043)
 
-veguerias_sf <- lidardb %>%
+veguerias_sf <- lidardb |>
   lidar_clip_and_stats(
     veguerias_polys, 'poly_id',
     variables = toupper(variable_names)
@@ -200,8 +200,8 @@ conn <- RPostgres::dbConnect(
   password = Sys.getenv('ifn_db')
 )
 
-veguerias_sf %>%
-  rmapshaper::ms_simplify(0.01, keep_shapes = TRUE) %>%
+veguerias_sf |>
+  rmapshaper::ms_simplify(0.01, keep_shapes = TRUE) |>
   sf::st_write(
     conn,
     layer = 'lidar_vegueries',
@@ -215,16 +215,16 @@ toc()
 tic()
 enpes_polys <- sf::read_sf(
   '../../01_nfi_app/NFIappkg/data-raw/shapefiles/enpe_2017.shp'
-) %>%
-  dplyr::select(poly_id = nom, geometry) %>%
-  sf::st_set_crs(value = 3043) %>%
-  dplyr::mutate(dummy = poly_id) %>%
-  dplyr::group_by(poly_id) %>%
-  dplyr::summarise(dummy = dplyr::first(dummy)) %>%
-  dplyr::select(-dummy) %>%
+) |>
+  dplyr::select(poly_id = nom, geometry) |>
+  sf::st_set_crs(value = 3043) |>
+  dplyr::mutate(dummy = poly_id) |>
+  dplyr::group_by(poly_id) |>
+  dplyr::summarise(dummy = dplyr::first(dummy)) |>
+  dplyr::select(-dummy) |>
   sf::st_cast('MULTIPOLYGON')
 
-enpes_sf <- lidardb %>%
+enpes_sf <- lidardb |>
   lidar_clip_and_stats(
     enpes_polys, 'poly_id',
     variables = toupper(variable_names)
@@ -238,8 +238,8 @@ conn <- RPostgres::dbConnect(
   password = Sys.getenv('ifn_db')
 )
 
-enpes_sf %>%
-  rmapshaper::ms_simplify(0.01, keep_shapes = TRUE) %>%
+enpes_sf |>
+  rmapshaper::ms_simplify(0.01, keep_shapes = TRUE) |>
   sf::st_write(
     conn,
     layer = 'lidar_enpes',
@@ -253,16 +253,16 @@ toc()
 tic()
 pein_polys <- sf::read_sf(
   '../../01_nfi_app/NFIappkg/data-raw/shapefiles/pein_2017.shp'
-) %>%
-  dplyr::select(poly_id = nom, geometry) %>%
-  sf::st_set_crs(value = 3043) %>%
-  dplyr::mutate(dummy = poly_id) %>%
-  dplyr::group_by(poly_id) %>%
-  dplyr::summarise(dummy = dplyr::first(dummy)) %>%
-  dplyr::select(-dummy) %>%
+) |>
+  dplyr::select(poly_id = nom, geometry) |>
+  sf::st_set_crs(value = 3043) |>
+  dplyr::mutate(dummy = poly_id) |>
+  dplyr::group_by(poly_id) |>
+  dplyr::summarise(dummy = dplyr::first(dummy)) |>
+  dplyr::select(-dummy) |>
   sf::st_cast('MULTIPOLYGON')
 
-pein_sf <- lidardb %>%
+pein_sf <- lidardb |>
   lidar_clip_and_stats(
     pein_polys, 'poly_id',
     variables = toupper(variable_names)
@@ -275,8 +275,8 @@ conn <- RPostgres::dbConnect(
   password = Sys.getenv('ifn_db')
 )
 
-pein_sf %>%
-  rmapshaper::ms_simplify(0.01, keep_shapes = TRUE) %>%
+pein_sf |>
+  rmapshaper::ms_simplify(0.01, keep_shapes = TRUE) |>
   sf::st_write(
     conn,
     layer = 'lidar_pein',
@@ -290,16 +290,16 @@ toc()
 tic()
 xn2000_polys <- sf::read_sf(
   '../../01_nfi_app/NFIappkg/data-raw/shapefiles/xn2000_2017.shp'
-) %>%
-  dplyr::select(poly_id = nom_n2, geometry) %>%
-  sf::st_set_crs(value = 3043) %>%
-  dplyr::mutate(dummy = poly_id) %>%
-  dplyr::group_by(poly_id) %>%
-  dplyr::summarise(dummy = dplyr::first(dummy)) %>%
-  dplyr::select(-dummy) %>%
+) |>
+  dplyr::select(poly_id = nom_n2, geometry) |>
+  sf::st_set_crs(value = 3043) |>
+  dplyr::mutate(dummy = poly_id) |>
+  dplyr::group_by(poly_id) |>
+  dplyr::summarise(dummy = dplyr::first(dummy)) |>
+  dplyr::select(-dummy) |>
   sf::st_cast('MULTIPOLYGON')
 
-xn2000_sf <- lidardb %>%
+xn2000_sf <- lidardb |>
   lidar_clip_and_stats(
     xn2000_polys, 'poly_id',
     variables = toupper(variable_names)
@@ -312,8 +312,8 @@ conn <- RPostgres::dbConnect(
   password = Sys.getenv('ifn_db')
 )
 
-xn2000_sf %>%
-  rmapshaper::ms_simplify(0.01, keep_shapes = TRUE) %>%
+xn2000_sf |>
+  rmapshaper::ms_simplify(0.01, keep_shapes = TRUE) |>
   sf::st_write(
     conn,
     layer = 'lidar_xn2000',

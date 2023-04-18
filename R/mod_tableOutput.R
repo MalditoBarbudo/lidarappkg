@@ -38,16 +38,18 @@ mod_table <- function(
       shiny::need(main_data_reactives$data_visible, 'no data yet')
     )
 
-    main_data_reactives$data_visible %>%
-      dplyr::as_tibble() %>%
-      # dplyr::select(!dplyr::contains('_pixels'), -geometry) %>%
+    pre_table <- main_data_reactives$data_visible |>
+      dplyr::as_tibble() |>
+      # dplyr::select(!dplyr::contains('_pixels'), -geometry) |>
       dplyr::select(
-        !dplyr::contains('_pixels'), !dplyr::one_of(c('geom', 'geometry'))
-      ) %>%
-      dplyr::mutate_if(is.numeric, round, 2) %>%
+        !dplyr::contains('_pixels'), !dplyr::any_of(c('geom', 'geometry'))
+      ) |>
+      dplyr::mutate_if(is.numeric, round, 2)
+
+    pre_table |>
       DT::datatable(
         rownames = FALSE,
-        colnames = translate_app(names(.), lang(), app_translations),
+        colnames = translate_app(names(pre_table), lang(), app_translations),
         class = 'hover order-column stripe nowrap',
         filter = list(position = 'top', clear = FALSE, plain = FALSE),
         selection = 'single',

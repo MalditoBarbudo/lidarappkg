@@ -19,7 +19,7 @@ tibble::tribble(
   'VAE', "Volum amb Escorça", "Over Bark Volume", "Volúmen con Corteza", "m³/ha", "Calculation based on LiDAR flights and National Forest Inventory data",
   'DEN', "Densitat", "Density", "Densidad", "trees/ha", "Calculation based on LiDAR flights and National Forest Inventory data",
   'LAI', "Índex d'àrea foliar", "Leaf area index", "Índice de área foliar", "m²/m²", "Calculation based on LiDAR flights and National Forest Inventory data"
-) %>%
+) |>
   dplyr::copy_to(
     conn, df = ., name = 'variables_thesaurus', overwrite = TRUE, temporary = FALSE,
     indexes = list(

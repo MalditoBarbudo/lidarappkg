@@ -48,11 +48,11 @@ mod_info <- function(
     waiter_plot$show()
     on.exit(waiter_plot$hide())
 
-    data_plot <- main_data_reactives$data_polys %>%
-      dplyr::as_tibble() %>%
+    data_plot <- main_data_reactives$data_polys |>
+      dplyr::as_tibble() |>
       dplyr::select(
         poly_id, dplyr::contains('_average'),
-        !dplyr::one_of(c('geom', 'geometry'))
+        !dplyr::any_of(c('geom', 'geometry'))
       )
 
     # one row validation
@@ -64,12 +64,12 @@ mod_info <- function(
     )
 
     # plot list
-    plot_list <- c('AB', 'BAT', 'BF', 'CAT', 'DBH', 'HM', 'REC', 'VAE') %>%
-      magrittr::set_names(.,.) %>%
+    plot_list <- c('AB', 'BAT', 'BF', 'CAT', 'DBH', 'HM', 'REC', 'VAE') |>
+      purrr::set_names() |>
       purrr::map(
         function(x) {
           var_name <- glue::glue("{x}_average")
-          data_plot %>%
+          data_plot |>
             ggplot2::ggplot(ggplot2::aes(x = 0, y = !!rlang::sym(var_name))) +
             ggplot2::geom_point(
               data = ~ dplyr::filter(.x, poly_id != id_click),

@@ -1,7 +1,5 @@
 #' function to launch the lidar app
 #'
-#' @importFrom magrittr %>%
-#'
 #' @export
 lidar_app <- function() {
 

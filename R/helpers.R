@@ -15,7 +15,7 @@ navbarPageWithInputs <- function(..., inputs) {
 #'
 #' return the requested precalculated polys
 requested_poly <- function(lidardb, poly_table, variable = 'all') {
-  lidardb$get_data(poly_table, variable) %>%
+  lidardb$get_data(poly_table, variable) |>
     sf::st_transform(crs = '+proj=longlat +datum=WGS84')
 }
 
@@ -38,12 +38,12 @@ file_poly <- function(lidardb, file, lang) {
     user_polygons <- sf::st_read(
       list.files(tmp_folder, '.shp', recursive = TRUE, full.names = TRUE),
       as_tibble = TRUE
-    ) %>%
+    ) |>
       sf::st_transform(crs = "+proj=longlat +datum=WGS84")
 
   } else {
     # gpkg
-    user_polygons <- sf::st_read(file$datapath, as_tibble = TRUE) %>%
+    user_polygons <- sf::st_read(file$datapath, as_tibble = TRUE) |>
       sf::st_transform(crs = "+proj=longlat +datum=WGS84")
     # poly_id <- names(user_polygons)[1]
     # # ensure polygon id is character (factors fuck it all)
@@ -95,15 +95,19 @@ drawed_poly <- function(lidardb, custom_polygon) {
     ), errorClass = 'drawed_polygon_warn'
   )
 
+  to_matrix_list <- function(data) {
+    list(as.matrix(data))
+  }
+
   user_polygons <-
-    custom_polygon[['features']][[1]][['geometry']][['coordinates']] %>%
-    purrr::flatten() %>%
-    purrr::modify_depth(1, purrr::set_names, nm = c('long', 'lat')) %>%
-    dplyr::bind_rows() %>%
-    {list(as.matrix(.))} %>%
-    sf::st_polygon() %>%
-    sf::st_sfc() %>%
-    sf::st_sf(crs = "+proj=longlat +datum=WGS84") %>%
+    custom_polygon[['features']][[1]][['geometry']][['coordinates']] |>
+    purrr::flatten() |>
+    purrr::modify_depth(1, purrr::set_names, nm = c('long', 'lat')) |>
+    dplyr::bind_rows() |>
+    to_matrix_list() |>
+    sf::st_polygon() |>
+    sf::st_sfc() |>
+    sf::st_sf(crs = "+proj=longlat +datum=WGS84") |>
     dplyr::mutate(poly_id = 'drawn polygon')
 
   lidardb$clip_and_stats(user_polygons, 'poly_id', 'all')
@@ -114,19 +118,27 @@ drawed_poly <- function(lidardb, custom_polygon) {
 #' translate the app based on the lang selected
 translate_app <- function(id, lang, app_translations) {
 
-  id %>%
-    purrr::map_chr(
-      ~ app_translations %>%
-        dplyr::filter(text_id == .x) %>% {
-          data_filtered <- .
-          if (nrow(data_filtered) < 1) {
-            warning(glue::glue("{.x} not found in thesaurus"))
-            .x
-          } else {
-            dplyr::pull(
-              data_filtered, !! rlang::sym(glue::glue("translation_{lang}"))
-            )
-          }
-        }
+  # recursive call for vectors
+  if (length(id) > 1) {
+    res <- purrr::map_chr(
+      id,
+      .f = \(.id) {
+        translate_app(.id, lang, app_translations)
+      }
     )
+    return(res)
+  }
+
+  # get id translations
+  id_row <- app_translations |>
+    dplyr::filter(text_id == id)
+
+  # return raw id if no matching id found
+  if (nrow(id_row) < 1) {
+    warning(glue::glue("{id} not found in thesaurus"))
+    return(id)
+  }
+
+  # get the lang translation
+  return(dplyr::pull(id_row, glue::glue("translation_{lang}")))
 }

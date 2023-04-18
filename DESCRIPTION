@@ -27,6 +27,6 @@ Imports:
     DT,
     lfcdata (>= 0.0.4.9000),
     cowplot
-RoxygenNote: 7.1.0
+RoxygenNote: 7.2.3
 Remotes: 
     MalditoBarbudo/lfcdata

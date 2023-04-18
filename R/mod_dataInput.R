@@ -41,15 +41,22 @@ mod_data <- function(
     # precalculated choices
     lidar_var_sel_choices <-  c(
       'AB', 'BAT', 'BF', 'CAT', 'DBH', 'DEN', 'HM', 'LAI', 'REC', 'VAE'
-    ) %>%
-      magrittr::set_names(translate_app(., lang(), app_translations))
+    ) |>
+      purrr::set_names(translate_app(c(
+        'AB', 'BAT', 'BF', 'CAT', 'DBH', 'DEN', 'HM', 'LAI', 'REC', 'VAE'
+      ), lang(), app_translations))
 
     poly_type_sel_choices <- c(
       "aut_community", "province", "vegueria", "region",
       "municipality", "natural_interest_area",
       "special_protection_natural_area", "natura_network_2000",
       "file", "drawn_poly"
-    ) %>% magrittr::set_names(translate_app(., lang(), app_translations))
+    ) |> purrr::set_names(translate_app(c(
+      "aut_community", "province", "vegueria", "region",
+      "municipality", "natural_interest_area",
+      "special_protection_natural_area", "natura_network_2000",
+      "file", "drawn_poly"
+    ), lang(), app_translations))
 
     # taglist to return
     shiny::tagList(

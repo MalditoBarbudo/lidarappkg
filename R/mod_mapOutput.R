@@ -83,58 +83,58 @@ mod_map <- function(
     var_column <- glue::glue("{data_reactives$lidar_var_sel}_average")
 
     # proper map
-    leaflet::leaflet() %>%
-      leaflet::setView(1.744, 41.726, zoom = 8) %>%
+    leaflet::leaflet() |>
+      leaflet::setView(1.744, 41.726, zoom = 8) |>
       leaflet::addProviderTiles(
         leaflet::providers$Esri.WorldShadedRelief,
-        group = 'Relief' %>% translate_app(lang(), app_translations),
+        group = 'Relief' |> translate_app(lang(), app_translations),
         # to avoid the raster disappear when changing base tiles
         options = leaflet::providerTileOptions(zIndex = -10)
-      ) %>%
+      ) |>
       leaflet::addProviderTiles(
         leaflet::providers$Esri.WorldImagery,
-        group = 'Imaginery' %>% translate_app(lang(), app_translations),
+        group = 'Imaginery' |> translate_app(lang(), app_translations),
         # to avoid the raster disappear when changing base tiles
         options = leaflet::providerTileOptions(zIndex = -10)
-      ) %>%
-      leaflet::addMapPane('polys', zIndex = 410) %>%
-      leaflet::addMapPane('rasters', zIndex = 420) %>%
+      ) |>
+      leaflet::addMapPane('polys', zIndex = 410) |>
+      leaflet::addMapPane('rasters', zIndex = 420) |>
       leaflet::addLayersControl(
-        baseGroups = c('Relief', 'Imaginery') %>%
+        baseGroups = c('Relief', 'Imaginery') |>
           translate_app(lang(), app_translations),
-        overlayGroups = c('lidar', 'poly') %>%
-          translate_app(lang(), app_translations) %>%
+        overlayGroups = c('lidar', 'poly') |>
+          translate_app(lang(), app_translations) |>
           purrr::map_chr(~ glue::glue(.x)),
         options = leaflet::layersControlOptions(
           collapsed = FALSE, autoZIndex = FALSE
         )
-      ) %>%
+      ) |>
 
       # This hide the raster until the user click the checkbox. Now, both
       # layers (polygons and raster) are shown by default, so this is not
       # needed. Ledt it here just in case the default changes in the future.
 
       # leaflet::hideGroup(
-      #   'lidar' %>% translate_app(lang(), app_translations)
-      # ) %>%
+      #   'lidar' |> translate_app(lang(), app_translations)
+      # ) |>
 
-      leaflet::removeImage('raster') %>%
+      leaflet::removeImage('raster') |>
       leaflet::clearGroup(
-        'poly' %>%
-          translate_app(lang(), app_translations) %>%
+        'poly' |>
+          translate_app(lang(), app_translations) |>
           purrr::map_chr(~ glue::glue(.x))
-      ) %>%
+      ) |>
       leaflet::addRasterImage(
         data_raster, project = TRUE, colors = palette, opacity = 1,
-      group = 'lidar' %>%
-        translate_app(lang(), app_translations) %>%
+      group = 'lidar' |>
+        translate_app(lang(), app_translations) |>
         purrr::map_chr(~ glue::glue(.x)),
         layerId = 'raster'
-      ) %>%
+      ) |>
       leaflet::addPolygons(
         data = data_map,
-        group = 'poly' %>%
-          translate_app(lang(), app_translations) %>%
+        group = 'poly' |>
+          translate_app(lang(), app_translations) |>
           purrr::map_chr(~ glue::glue(.x)),
         label = ~poly_id,
         layerId = ~poly_id,
@@ -150,27 +150,27 @@ mod_map <- function(
         options = leaflet::pathOptions(
           pane = 'polys'
         )
-      ) %>%
+      ) |>
       # hide polys
       leaflet::hideGroup(
-        'poly' %>%
-          translate_app(lang(), app_translations) %>%
+        'poly' |>
+          translate_app(lang(), app_translations) |>
           purrr::map_chr(~ glue::glue(.x))
-      ) %>%
+      ) |>
       leaflet::addLegend(
         pal = palette_legend, values = raster::values(data_raster),
-        title = var_column %>%
-          stringr::str_remove('_average') %>%
+        title = var_column |>
+          stringr::str_remove('_average') |>
           translate_app(lang(), app_translations),
         position = 'bottomright', opacity = 1,
         labFormat = leaflet::labelFormat(
           transform = function(x) {sort(x, decreasing = TRUE)}
         )
-      ) %>%
+      ) |>
       # leaflet.extras plugins
       leaflet.extras::addDrawToolbar(
-        targetGroup = 'poly' %>%
-          translate_app(lang(), app_translations) %>%
+        targetGroup = 'poly' |>
+          translate_app(lang(), app_translations) |>
           purrr::map_chr(~ glue::glue(.x)),
         position = 'topleft',
         polylineOptions = FALSE, circleOptions = FALSE, rectangleOptions = FALSE,

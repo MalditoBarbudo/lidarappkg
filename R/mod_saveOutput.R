@@ -70,20 +70,20 @@ mod_save <- function(
       ns <- session$ns
       lang_declared = lang()
       data_format_choices <- list(
-        'GIS' = c('shp', 'wkt', 'gpkg') %>%
-          magrittr::set_names(
-            translate_app(., lang_declared, app_translations)
+        'GIS' = c('shp', 'wkt', 'gpkg') |>
+          purrr::set_names(
+            translate_app(c('shp', 'wkt', 'gpkg'), lang_declared, app_translations)
           ),
-        'TABLE' = c('csv', 'xlsx') %>%
-          magrittr::set_names(
-            translate_app(., lang_declared, app_translations)
+        'TABLE' = c('csv', 'xlsx') |>
+          purrr::set_names(
+            translate_app(c('csv', 'xlsx'), lang_declared, app_translations)
           )
-      ) %>%
-        magrittr::set_names(
-          translate_app(names(.), lang_declared, app_translations)
+      ) |>
+        purrr::set_names(
+          translate_app(c('GIS', 'TABLE'), lang_declared, app_translations)
         )
-      data_length_choices <- c('visible', 'all_columns') %>%
-        magrittr::set_names(translate_app(., lang_declared, app_translations))
+      data_length_choices <- c('visible', 'all_columns') |>
+        purrr::set_names(translate_app(c('visible', 'all_columns'), lang_declared, app_translations))
 
       shiny::showModal(
         ui = shiny::modalDialog(
@@ -159,10 +159,10 @@ mod_save <- function(
     content = function(file) {
       # data length
       if (input$data_length == 'visible') {
-        result_data <- main_data_reactives$data_visible %>%
+        result_data <- main_data_reactives$data_visible |>
           sf::st_transform('+proj=longlat +datum=WGS84')
       } else {
-        result_data <- main_data_reactives$data_polys %>%
+        result_data <- main_data_reactives$data_polys |>
           sf::st_transform('+proj=longlat +datum=WGS84')
       }
       # data format
@@ -198,15 +198,15 @@ mod_save <- function(
           } else {
             # csv text (no geometry)
             if (input$data_format == 'csv') {
-              result_data %>%
-                dplyr::as_tibble() %>%
-                dplyr::select(!dplyr::one_of(c('geom', 'geometry'))) %>%
+              result_data |>
+                dplyr::as_tibble() |>
+                dplyr::select(!dplyr::any_of(c('geom', 'geometry'))) |>
                 readr::write_csv(file)
             } else {
               # xlsx (no geometry)
-              result_data %>%
-                dplyr::as_tibble() %>%
-                dplyr::select(!dplyr::one_of(c('geom', 'geometry'))) %>%
+              result_data |>
+                dplyr::as_tibble() |>
+                dplyr::select(!dplyr::any_of(c('geom', 'geometry'))) |>
                 writexl::write_xlsx(file)
             }
           }
