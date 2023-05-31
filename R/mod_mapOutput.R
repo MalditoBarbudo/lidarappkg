@@ -42,6 +42,7 @@ mod_map <- function(
   #   id = 'mod_mapOutput-lidar_map',
   #   color = '#E8EAEB'
   # )
+  attachNamespace("terra")
 
   ## renderUI ####
   output$map_container <- shiny::renderUI({
