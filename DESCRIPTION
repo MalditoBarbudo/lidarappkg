@@ -29,7 +29,8 @@ Imports:
     cowplot,
     terra,
     stars,
-    waiter
+    waiter,
+    lubridate
 RoxygenNote: 7.2.3
 Remotes: 
     MalditoBarbudo/lfcdata
