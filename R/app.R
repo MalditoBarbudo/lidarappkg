@@ -60,11 +60,11 @@ $(document).on('shiny:disconnected', function(event) {
     shiny::tags$head(
       # corporative image css
       shiny::includeCSS(
-        system.file('resources', 'corp_image.css', package = 'lidarappkg')
+        system.file('apps_css', 'corp_image.css', package = 'lfcdata')
       ),
       # custom css
       shiny::includeCSS(
-        system.file('resources', 'lidarapp.css', package = 'lidarappkg')
+        system.file('apps_css', 'lidarapp.css', package = 'lfcdata')
       )
     ),
 
