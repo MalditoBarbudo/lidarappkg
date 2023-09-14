@@ -51,6 +51,10 @@ mod_mainData <- function(
   # reactives ####
   data_polys <- shiny::reactive({
 
+    shiny::validate(
+      shiny::need(data_reactives$poly_type_sel, 'no poly yet')
+    )
+
     # progress
     waiter_polys <- waiter::Waiter$new(
       id = 'mod_mapOutput-lidar_map',
@@ -60,15 +64,10 @@ mod_mainData <- function(
       ),
       color = '#E8EAEB'
     )
-
     waiter_polys$show()
     hostess_polys$start()
     on.exit(hostess_polys$close(), add = TRUE)
     on.exit(waiter_polys$hide(), add = TRUE)
-
-    shiny::validate(
-      shiny::need(data_reactives$poly_type_sel, 'no poly yet')
-    )
 
     poly_type <- data_reactives$poly_type_sel
     lidar_var <- shiny::isolate(data_reactives$lidar_var_sel)

@@ -162,13 +162,13 @@ $(document).on('shiny:disconnected', function(event) {
   server <- function(input, output, session) {
     ## debug #####
     # output$debug1 <- shiny::renderPrint({
-    #   input$raster_map_shape_click
+    #   data_reactives$lidar_var_sel
     # })
     # output$debug2 <- shiny::renderPrint({
-    #   input$raster_map_click
+    #   data_reactives$poly_type_sel
     # })
     # output$debug3 <- shiny::renderPrint({
-    #   map_reactives$map_shape_click
+    #   data_reactives$user_file_sel
     # })
 
     ## lang reactive ####
