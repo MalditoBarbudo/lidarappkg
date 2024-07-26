@@ -24,11 +24,13 @@ variable_names <-
 #   user = 'ifn',
 #   password = Sys.getenv('ifn_db')
 # )
-#
+
+# rpostgis::pgPostGIS(conn, topology = TRUE, raster = TRUE)
+
 # # Read the rasters, write the tables and get the raster list for tests
 # list.files('data-raw', '.tif$', full.names = TRUE) |>
 #   purrr::map(raster::raster) |>
-#   purrr::set_names(value = list.files('data-raw', '.tif$')) |>
+#   purrr::set_names(nm = list.files('data-raw', '.tif$')) |>
 #   purrr::iwalk(
 #     ~ rpostgis::pgWriteRast(
 #       conn,
@@ -45,7 +47,7 @@ variable_names <-
 #       glue::glue("CREATE INDEX {.x}_rast_st_convexhull_idx ON {.x} USING gist( ST_ConvexHull(rast) );")
 #     )
 #   )
-#
+
 # RPostgres::dbDisconnect(conn)
 
 ## pre-calculated data for known polygons ####

@@ -1,11 +1,11 @@
 library(tidyverse)
 
-conn <- RPostgreSQL::dbConnect(
+conn <- RPostgres::dbConnect(
   'PostgreSQL', host = 'laboratoriforestal.creaf.cat', dbname = 'lidargis', user = 'ifn',
   password = Sys.getenv('ifn_db')
 )
 
-tibble::tribble(
+thes_df <- tibble::tribble(
   ~var_id, ~translation_cat, ~translation_eng, ~translation_spa, ~var_units, ~var_description_eng,
 
   # lidar_val_sel choices
@@ -19,14 +19,15 @@ tibble::tribble(
   'VAE', "Volum amb Escorça", "Over Bark Volume", "Volúmen con Corteza", "m³/ha", "Calculation based on LiDAR flights and National Forest Inventory data",
   'DEN', "Densitat", "Density", "Densidad", "trees/ha", "Calculation based on LiDAR flights and National Forest Inventory data",
   'LAI', "Índex d'àrea foliar", "Leaf area index", "Índice de área foliar", "m²/m²", "Calculation based on LiDAR flights and National Forest Inventory data"
-) |>
-  dplyr::copy_to(
-    conn, df = ., name = 'variables_thesaurus', overwrite = TRUE, temporary = FALSE,
-    indexes = list(
-      'var_id'
-    )
+)
+
+dplyr::copy_to(
+  conn, df = thes_df, name = 'variables_thesaurus', overwrite = TRUE, temporary = FALSE,
+  indexes = list(
+    'var_id'
   )
+)
 
 # disconnect the db ####
-RPostgreSQL::dbDisconnect(conn)
+RPostgres::dbDisconnect(conn)
 
