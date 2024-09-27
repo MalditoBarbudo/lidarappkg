@@ -65,6 +65,7 @@ mod_map <- function(
   output$lidar_map <- mapdeck::renderMapdeck({
     mapdeck::mapdeck(
       # style = mapdeck::mapdeck_style('dark'),
+      # style = "mapbox://styles/mapbox/dark-v10",
       style = "https://raw.githubusercontent.com/CartoDB/basemap-styles/refs/heads/master/mapboxgl/dark-matter-nolabels.json",
       location = c(1.744, 41.726), zoom = 7, pitch = 0
     )
@@ -115,9 +116,20 @@ mod_map <- function(
         mapdeck::mapdeck_legend()
 
       # show the polys
-      if (show_polys) {        
-        # elevation_scale <- paste0("1e", 3 - (max(var) |> log10() |> round())) |>
-        #   as.numeric()
+      if (show_polys) {
+        stroke_colour_def <- "hex"
+        elevation_def <- NULL
+        elevation_scale_def <- 1
+
+        # if (poly_3d) {
+        #   stroke_colour_def <- NULL
+        #   elevation_def <- var_column
+        #   elevation_scale_def <- paste0(
+        #     "1e",
+        #     3 - (max(data_map[[var_column]], na.rm = TRUE) |> log10() |> round())
+        #   ) |>
+        #     as.numeric()
+        # }
         # map update
         mapdeck::mapdeck_update(map_id = session$ns("lidar_map")) |>
           mapdeck::clear_bitmap(layer_id = "lidar_raster") |>
@@ -126,15 +138,16 @@ mod_map <- function(
             data = data_map, layer_id = "lidar_polys",
             tooltip = "tooltip",
             id = "poly_id",
-            stroke_colour = "hex",
+            stroke_colour = stroke_colour_def,
             fill_colour = "hex",
             fill_opacity = 0.8,
             auto_highlight = TRUE, highlight_colour = "#FDF5EB80",
-            # elevation = var_column, elevation_scale = elevation_scale,
+            elevation = elevation_def, elevation_scale = elevation_scale_def,
             update_view = FALSE, focus_layer = FALSE,
             legend = legend_js
           )
-      } else {        
+
+      } else {
         # map update
         mapdeck::mapdeck_update(map_id = session$ns("lidar_map")) |>
           mapdeck::clear_bitmap(layer_id = "lidar_raster") |>
