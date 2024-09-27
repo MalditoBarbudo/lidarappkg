@@ -66,7 +66,7 @@ mod_map <- function(
     mapdeck::mapdeck(
       # style = mapdeck::mapdeck_style('dark'),
       style = "https://raw.githubusercontent.com/CartoDB/basemap-styles/refs/heads/master/mapboxgl/dark-matter-nolabels.json",
-      location = c(1.744, 41.726), zoom = 6, pitch = 0
+      location = c(1.744, 41.726), zoom = 8, pitch = 0
     )
   })
 
