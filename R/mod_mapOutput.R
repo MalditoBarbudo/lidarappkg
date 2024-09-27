@@ -66,7 +66,7 @@ mod_map <- function(
     mapdeck::mapdeck(
       # style = mapdeck::mapdeck_style('dark'),
       style = "https://raw.githubusercontent.com/CartoDB/basemap-styles/refs/heads/master/mapboxgl/dark-matter-nolabels.json",
-      location = c(1.744, 41.726), zoom = 8, pitch = 0
+      location = c(1.744, 41.726), zoom = 7, pitch = 0
     )
   })
 
@@ -98,7 +98,7 @@ mod_map <- function(
         variables = rev(round(seq(
           data_raster[["min_value"]],
           data_raster[["max_value"]],
-          length.out = 10
+          length.out = 5
         ), 0)),
         colours = scales::col_numeric(
           hcl.colors(10, "rocket", alpha = 0.8),
@@ -107,7 +107,7 @@ mod_map <- function(
         )(seq(
           data_raster[["min_value"]],
           data_raster[["max_value"]],
-          length.out = 10
+          length.out = 5
         )),
         colour_type = "fill", variable_type = "gradient",
         title = translate_app(lidar_var_sel, lang(), app_translations)
