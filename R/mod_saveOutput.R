@@ -27,7 +27,8 @@ mod_saveOutput <- function(id) {
 mod_save <- function(
   input, output, session,
   lang, app_translations,
-  main_data_reactives
+  main_data_reactives, data_reactives,
+  lidardb
 ) {
 
   ## renderUI ####
@@ -138,7 +139,12 @@ mod_save <- function(
       glue::glue("{names(main_data_reactives$data_raster)}_lfc_lidar.tif")
     },
     content = function(file) {
-      terra::writeRaster(terra::rast(main_data_reactives$data_raster), file)
+      shiny::validate(
+        shiny::need(data_reactives$lidar_var_sel, 'no var yet')
+      )
+      lidar_var <- data_reactives$lidar_var_sel
+      proper_raster <- lidardb$get_lowres_raster(lidar_var, 'raster')
+      terra::writeRaster(proper_raster, file)
     }
   )
   # polygons

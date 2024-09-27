@@ -75,7 +75,13 @@ mod_data <- function(
         ns('poly_type_sel'),
         translate_app('poly_type_sel_label', lang(), app_translations),
         choices = poly_type_sel_choices,
-        selected = poly_type_sel_choices[2]
+        selected = poly_type_sel_choices[5]
+      ),
+
+      shiny::checkboxInput(
+        ns("show_polys"),
+        translate_app("show_polys", lang(), app_translations),
+        value = FALSE
       ),
 
       # hidden file selector div
@@ -138,6 +144,7 @@ mod_data <- function(
     data_reactives$lidar_var_sel <- input$lidar_var_sel
     data_reactives$poly_type_sel <- input$poly_type_sel
     data_reactives$user_file_sel <- input$user_file_sel
+    data_reactives$show_polys <- input$show_polys
   })
   return(data_reactives)
 }

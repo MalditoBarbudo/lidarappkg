@@ -30,7 +30,9 @@ Imports:
     terra,
     stars,
     waiter,
-    lubridate
+    lubridate,
+    mapdeck,
+    colourvalues
 RoxygenNote: 7.2.3
 Remotes: 
     MalditoBarbudo/lfcdata
