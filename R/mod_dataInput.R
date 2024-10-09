@@ -50,12 +50,12 @@ mod_data <- function(
       "aut_community", "province", "vegueria", "region",
       "municipality", "natural_interest_area",
       "special_protection_natural_area", "natura_network_2000",
-      "file", "drawn_poly"
+      "file"#, "drawn_poly"
     ) |> purrr::set_names(translate_app(c(
       "aut_community", "province", "vegueria", "region",
       "municipality", "natural_interest_area",
       "special_protection_natural_area", "natura_network_2000",
-      "file", "drawn_poly"
+      "file"#, "drawn_poly"
     ), lang(), app_translations))
 
     # taglist to return
