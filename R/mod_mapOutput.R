@@ -8,10 +8,6 @@
 mod_mapOutput <- function(id) {
   # ns
   ns <- shiny::NS(id)
-  # shiny::tagList(
-  #   leaflet::leafletOutput(ns("lidar_map"), height = 600),
-  #   shiny::uiOutput(ns('map_container'))
-  # )
   shiny::tagList(
     mapdeck::mapdeckOutput(ns("lidar_map"), height = 600),
     shiny::uiOutput(ns('map_container'))
@@ -82,7 +78,7 @@ mod_map <- function(
       show_polys <- data_reactives$show_polys
       data_raster <- main_data_reactives$data_raster
       palette_fun <- scales::col_numeric(
-        hcl.colors(10, "rocket", alpha = 0.8),
+        hcl.colors(10, "ag_GrnYl", alpha = 0.8),
         c(data_raster[["min_value"]], data_raster[["max_value"]]),
         na.color = "#FFFFFF00", reverse = FALSE, alpha = TRUE
       )
@@ -102,7 +98,7 @@ mod_map <- function(
           length.out = 5
         ), 0)),
         colours = scales::col_numeric(
-          hcl.colors(10, "rocket", alpha = 0.8),
+          hcl.colors(10, "ag_GrnYl", alpha = 0.8),
           c(data_raster[["min_value"]], data_raster[["max_value"]]),
           na.color = "#FFFFFF00", reverse = TRUE, alpha = TRUE
         )(seq(
@@ -170,151 +166,6 @@ mod_map <- function(
       }
     }
   )
-
-  # output$lidar_map <- leaflet::renderLeaflet({
-
-  #   shiny::req(main_data_reactives$data_raster, cancelOutput = TRUE)
-  #   shiny::req(main_data_reactives$data_visible, cancelOutput = TRUE)
-
-  #   data_raster <- main_data_reactives$data_raster
-  #   data_map <- main_data_reactives$data_visible
-
-  #   palette <- leaflet::colorNumeric(
-  #     viridis::rocket(100),
-  #     data_raster[[1]] |> as.numeric(),
-  #     na.color = 'transparent'
-  #   )
-
-  #   palette_legend <- leaflet::colorNumeric(
-  #     viridis::rocket(100),
-  #     data_raster[[1]] |> as.numeric(),
-  #     na.color = 'transparent',
-  #     reverse = TRUE
-  #   )
-
-  #   # poly intermediates
-  #   var_column <- glue::glue("{data_reactives$lidar_var_sel}_average")
-
-  #   # proper map
-  #   leaflet::leaflet() |>
-  #     leaflet::setView(1.744, 41.726, zoom = 8) |>
-  #     leaflet::addProviderTiles(
-  #       leaflet::providers$Esri.WorldShadedRelief,
-  #       group = 'Relief' |> translate_app(lang(), app_translations),
-  #       # to avoid the raster disappear when changing base tiles
-  #       options = leaflet::providerTileOptions(zIndex = -10)
-  #     ) |>
-  #     leaflet::addProviderTiles(
-  #       leaflet::providers$Esri.WorldImagery,
-  #       group = 'Imaginery' |> translate_app(lang(), app_translations),
-  #       # to avoid the raster disappear when changing base tiles
-  #       options = leaflet::providerTileOptions(zIndex = -10)
-  #     ) |>
-  #     leaflet::addProviderTiles(
-  #       leaflet::providers$OpenStreetMap,
-  #       group = translate_app('OSM', lang(), app_translations),
-  #       # to avoid the raster disappear when changing base tiles
-  #       options = leaflet::providerTileOptions(zIndex = -10)
-  #     ) |>
-  #     leaflet::addProviderTiles(
-  #       leaflet::providers$Esri.WorldGrayCanvas,
-  #       group = translate_app('WorldGrayCanvas', lang(), app_translations),
-  #       # to avoid the raster disappear when changing base tiles
-  #       options = leaflet::providerTileOptions(zIndex = -10)
-  #     ) |>
-  #     leaflet::addProviderTiles(
-  #       leaflet::providers$CartoDB.PositronNoLabels,
-  #       group = translate_app('PositronNoLabels', lang(), app_translations),
-  #       # to avoid the raster disappear when changing base tiles
-  #       options = leaflet::providerTileOptions(zIndex = -10)
-  #     ) |>
-  #     leaflet::addMapPane('polys', zIndex = 410) |>
-  #     leaflet::addMapPane('rasters', zIndex = 420) |>
-  #     leaflet::addLayersControl(
-  #       baseGroups = c('Relief', 'Imaginery', 'OSM', 'WorldGrayCanvas', 'PositronNoLabels') |>
-  #         translate_app(lang(), app_translations),
-  #       overlayGroups = c('lidar', 'poly') |>
-  #         translate_app(lang(), app_translations) |>
-  #         purrr::map_chr(~ glue::glue(.x)),
-  #       options = leaflet::layersControlOptions(
-  #         collapsed = FALSE, autoZIndex = FALSE
-  #       )
-  #     ) |>
-
-  #     # This hide the raster until the user click the checkbox. Now, both
-  #     # layers (polygons and raster) are shown by default, so this is not
-  #     # needed. Ledt it here just in case the default changes in the future.
-
-  #     # leaflet::hideGroup(
-  #     #   'lidar' |> translate_app(lang(), app_translations)
-  #     # ) |>
-
-  #     leaflet::removeImage('raster') |>
-  #     leaflet::clearGroup(
-  #       'poly' |>
-  #         translate_app(lang(), app_translations) |>
-  #         purrr::map_chr(~ glue::glue(.x))
-  #     ) |>
-  #     leaflet::addRasterImage(
-  #       terra::rast(data_raster), project = TRUE, colors = palette, opacity = 1,
-  #     group = 'lidar' |>
-  #       translate_app(lang(), app_translations) |>
-  #       purrr::map_chr(~ glue::glue(.x)),
-  #       layerId = 'raster'
-  #     ) |>
-  #     leaflet::addPolygons(
-  #       data = data_map,
-  #       group = 'poly' |>
-  #         translate_app(lang(), app_translations) |>
-  #         purrr::map_chr(~ glue::glue(.x)),
-  #       label = ~poly_id,
-  #       layerId = ~poly_id,
-  #       weight = 1, smoothFactor = 1,
-  #       opacity = 1.0, fill = TRUE,
-  #       color = '#6C7A89FF',
-  #       fillColor = palette(data_map[[var_column]]),
-  #       fillOpacity = 0.85,
-  #       highlightOptions = leaflet::highlightOptions(
-  #         color = "#CF000F", weight = 2,
-  #         bringToFront = FALSE
-  #       ),
-  #       options = leaflet::pathOptions(
-  #         pane = 'polys'
-  #       )
-  #     ) |>
-  #     # hide polys
-  #     leaflet::hideGroup(
-  #       'poly' |>
-  #         translate_app(lang(), app_translations) |>
-  #         purrr::map_chr(~ glue::glue(.x))
-  #     ) |>
-  #     leaflet::addLegend(
-  #       pal = palette_legend, values = data_raster[[1]] |> as.numeric(),
-  #       title = var_column |>
-  #         stringr::str_remove('_average') |>
-  #         translate_app(lang(), app_translations),
-  #       position = 'bottomright', opacity = 1,
-  #       labFormat = leaflet::labelFormat(
-  #         transform = function(x) {sort(x, decreasing = TRUE)}
-  #       )
-  #     ) |>
-  #     # leaflet.extras plugins
-  #     leaflet.extras::addDrawToolbar(
-  #       targetGroup = 'poly' |>
-  #         translate_app(lang(), app_translations) |>
-  #         purrr::map_chr(~ glue::glue(.x)),
-  #       position = 'topleft',
-  #       polylineOptions = FALSE, circleOptions = FALSE, rectangleOptions = FALSE,
-  #       markerOptions = FALSE, circleMarkerOptions = FALSE,
-  #       polygonOptions = leaflet.extras::drawPolygonOptions(
-  #         shapeOptions = leaflet.extras::drawShapeOptions()
-  #       ),
-  #       editOptions = leaflet.extras::editToolbarOptions(
-  #         edit = TRUE, remove = TRUE
-  #       ),
-  #       singleFeature = TRUE
-  #     )
-  # }) # end of leaflet output
 
   # reactives to return ####
   map_reactives <- shiny::reactiveValues()

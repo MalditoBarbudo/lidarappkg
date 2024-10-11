@@ -14,7 +14,7 @@ png_table <-
   toupper() |>
   purrr::map(
     .f = \(variable) {
-      palette_selected <- "Rocket"
+      palette_selected <- "ag_GrnYl"
       pngs_folder <- "data-raw/pngs/"
       png_file <- paste0(pngs_folder, variable, "_rgb.png")
 

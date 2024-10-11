@@ -4,7 +4,6 @@
 library(raster)
 library(stars)
 library(tidyverse)
-library(leaflet)
 
 # aggregated raster creation ####
 basal_area_raster <- raster::raster(
