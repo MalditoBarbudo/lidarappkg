@@ -222,10 +222,12 @@ $(document).on('shiny:disconnected', function(event) {
     shiny::observeEvent(
       eventExpr = map_reactives$lidar_map_shape_click,
       handlerExpr = {
-
         # id
         id_click <-
-          jsonlite::fromJSON(map_reactives$lidar_map_shape_click)$object$properties$id
+          jsonlite::fromJSON(map_reactives$lidar_map_shape_click)$object$properties$id        
+        # ensure we have id
+        shiny::req(id_click)
+
         # module call
         shiny::callModule(
           mod_info, 'mod_infoUI', lang, app_translations,

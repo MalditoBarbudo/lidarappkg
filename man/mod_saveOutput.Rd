@@ -7,7 +7,16 @@
 \usage{
 mod_saveOutput(id)
 
-mod_save(input, output, session, lang, app_translations, main_data_reactives)
+mod_save(
+  input,
+  output,
+  session,
+  lang,
+  app_translations,
+  main_data_reactives,
+  data_reactives,
+  lidardb
+)
 }
 \arguments{
 \item{id}{shiny id}

@@ -160,6 +160,7 @@ mod_map <- function(
           mapdeck::add_polygon(
             data = main_data_reactives$data_visible, layer_id = "lidar_polys",
             fill_opacity = 0,
+            # id = "poly_id",
             legend = legend_js,
             update_view = FALSE, focus_layer = FALSE
           )
