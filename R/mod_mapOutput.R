@@ -129,6 +129,7 @@ mod_map <- function(
         # map update
         mapdeck::mapdeck_update(map_id = session$ns("lidar_map")) |>
           mapdeck::clear_bitmap(layer_id = "lidar_raster") |>
+          mapdeck::clear_legend(layer_id = "custom_legend") |>
           mapdeck::clear_polygon(layer_id = "lidar_polys") |>
           mapdeck::add_polygon(
             data = data_map, layer_id = "lidar_polys",
@@ -147,6 +148,7 @@ mod_map <- function(
         # map update
         mapdeck::mapdeck_update(map_id = session$ns("lidar_map")) |>
           mapdeck::clear_bitmap(layer_id = "lidar_raster") |>
+          mapdeck::clear_legend(layer_id = "custom_legend") |>
           mapdeck::clear_polygon(layer_id = "lidar_polys") |>
           mapdeck::add_bitmap(
             image = data_raster$base64_string, layer_id = "lidar_raster",
@@ -157,13 +159,14 @@ mod_map <- function(
             update_view = FALSE, focus_layer = FALSE,
             transparent_colour = "#00000000"
           ) |>
-          mapdeck::add_polygon(
-            data = main_data_reactives$data_visible, layer_id = "lidar_polys",
-            fill_opacity = 0,
-            # id = "poly_id",
-            legend = legend_js,
-            update_view = FALSE, focus_layer = FALSE
-          )
+          # mapdeck::add_polygon(
+          #   data = main_data_reactives$data_visible, layer_id = "lidar_polys",
+          #   fill_opacity = 0,
+          #   # id = "poly_id",
+          #   legend = legend_js,
+          #   update_view = FALSE, focus_layer = FALSE
+          # )
+          mapdeck::add_legend(legend = legend_js, layer_id = "custom_legend")
       }
     }
   )
