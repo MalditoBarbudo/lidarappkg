@@ -8,14 +8,7 @@ data-raw/*.gri
 data-raw/*.ovr
 data-raw/*.gpkg
 data-raw/data-raw_backup
-<<<<<<< HEAD
-data-raw/pngs
-.Rhistory
-.Renviron
-.vscode
-=======
 data-raw/pngs/
 .Rhistory
 .Renviron
 .vscode
->>>>>>> mapbox
