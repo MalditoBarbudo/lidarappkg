@@ -84,6 +84,19 @@ mod_data <- function(
         value = FALSE
       ),
 
+      # hidden 3d option for polys. Activate when polys are active
+      shinyjs::hidden(
+        shiny::div(
+          id = ns("menu_3d"),
+          shiny::checkboxInput(
+            ns("poly_3d"),
+            translate_app("poly_3d", lang(), app_translations),
+            value = FALSE
+          ),
+          shiny::p(translate_app('using_3d', lang(), app_translantions))
+        )
+      ),
+
       # hidden file selector div
       shinyjs::hidden(
         shiny::div(
@@ -137,6 +150,29 @@ mod_data <- function(
       shinyjs::hide('file_sel_div')
     }
   })
+  # observer to show the 3d poly checkbox
+  shiny::observeEvent(
+    eventExpr = input$show_polys,
+    handlerExpr = {
+      # shiny::validate(shiny::need(input$show_polys, 'no polys'))
+      if (input$show_polys) {
+        shinyjs::show('menu_3d')
+      } else {
+        shinyjs::hide('menu_3d')
+      }
+    }
+  )
+  # shiny::observe({
+  #   shiny::validate(
+  #     shiny::need(input$show_polys, 'no polys')
+  #   )
+  #   show_polys <- input$show_polys
+  #   if (show_polys) {
+  #     shinyjs::show('poly_3d')
+  #   } else {
+  #     shinyjs::hide('poly_3d')
+  #   }
+  # })
 
   ## reactives to return ####
   data_reactives <- shiny::reactiveValues()
@@ -145,6 +181,7 @@ mod_data <- function(
     data_reactives$poly_type_sel <- input$poly_type_sel
     data_reactives$user_file_sel <- input$user_file_sel
     data_reactives$show_polys <- input$show_polys
+    data_reactives$poly_3d <- input$poly_3d
   })
   return(data_reactives)
 }

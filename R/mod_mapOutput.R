@@ -60,10 +60,12 @@ mod_map <- function(
   # mapdeck output and observers
   output$lidar_map <- mapdeck::renderMapdeck({
     mapdeck::mapdeck(
+      ## debug
+      # show_view_state = TRUE,
       # style = mapdeck::mapdeck_style('dark'),
       # style = "mapbox://styles/mapbox/dark-v10",
       style = "https://raw.githubusercontent.com/CartoDB/basemap-styles/refs/heads/master/mapboxgl/dark-matter-nolabels.json",
-      location = c(1.744, 41.726), zoom = 7, pitch = 0
+      location = c(1.744, 41.726), zoom = 7, pitch = 0, max_pitch = 60
     )
   })
 
@@ -75,10 +77,11 @@ mod_map <- function(
       # data
       lidar_var_sel <- data_reactives$lidar_var_sel
       var_column <- glue::glue("{lidar_var_sel}_average")
+      poly_3d <- data_reactives$poly_3d
       show_polys <- data_reactives$show_polys
       data_raster <- main_data_reactives$data_raster
       palette_fun <- scales::col_numeric(
-        hcl.colors(10, "ag_GrnYl", alpha = 0.8),
+        hcl.colors(10, "ag_GrnYl", alpha = ifelse(poly_3d, 1, 0.8)),
         c(data_raster[["min_value"]], data_raster[["max_value"]]),
         na.color = "#FFFFFF00", reverse = FALSE, alpha = TRUE
       )
@@ -87,7 +90,8 @@ mod_map <- function(
           hex = palette_fun(.data[[var_column]]),
           tooltip = paste0(
             "<p>", poly_id, ": ", round(.data[[var_column]], 2), "</p>"
-          )
+          ),
+          fake_elevation = 20000 * .data[[var_column]] / max(.data[[var_column]], na.rm = TRUE)
         )
 
       # custom legend (to be able to show in natural order, high values up)
@@ -98,7 +102,7 @@ mod_map <- function(
           length.out = 5
         ), 0)),
         colours = scales::col_numeric(
-          hcl.colors(10, "ag_GrnYl", alpha = 0.8),
+          hcl.colors(10, "ag_GrnYl", alpha = ifelse(poly_3d, 1, 0.8)),
           c(data_raster[["min_value"]], data_raster[["max_value"]]),
           na.color = "#FFFFFF00", reverse = TRUE, alpha = TRUE
         )(seq(
@@ -113,31 +117,29 @@ mod_map <- function(
 
       # show the polys
       if (show_polys) {
+
+        # browser()
         stroke_colour_def <- "hex"
         elevation_def <- NULL
         elevation_scale_def <- 1
+        opacity_custom <- ifelse(poly_3d, 1, 0.8)
 
-        # if (poly_3d) {
-        #   stroke_colour_def <- NULL
-        #   elevation_def <- var_column
-        #   elevation_scale_def <- paste0(
-        #     "1e",
-        #     3 - (max(data_map[[var_column]], na.rm = TRUE) |> log10() |> round())
-        #   ) |>
-        #     as.numeric()
-        # }
+        if (poly_3d) {
+          stroke_colour_def <- NULL
+          elevation_def <- "fake_elevation"
+        }
         # map update
         mapdeck::mapdeck_update(map_id = session$ns("lidar_map")) |>
           mapdeck::clear_bitmap(layer_id = "lidar_raster") |>
           mapdeck::clear_legend(layer_id = "custom_legend") |>
-          mapdeck::clear_polygon(layer_id = "lidar_polys") |>
+          # mapdeck::clear_polygon(layer_id = "lidar_polys") |>
           mapdeck::add_polygon(
             data = data_map, layer_id = "lidar_polys",
             tooltip = "tooltip",
             id = "poly_id",
             stroke_colour = stroke_colour_def,
             fill_colour = "hex",
-            fill_opacity = 0.8,
+            fill_opacity = opacity_custom,
             auto_highlight = TRUE, highlight_colour = "#FDF5EB80",
             elevation = elevation_def, elevation_scale = elevation_scale_def,
             update_view = FALSE, focus_layer = FALSE,
@@ -147,8 +149,8 @@ mod_map <- function(
       } else {
         # map update
         mapdeck::mapdeck_update(map_id = session$ns("lidar_map")) |>
-          mapdeck::clear_bitmap(layer_id = "lidar_raster") |>
-          mapdeck::clear_legend(layer_id = "custom_legend") |>
+          # mapdeck::clear_bitmap(layer_id = "lidar_raster") |>
+          # mapdeck::clear_legend(layer_id = "custom_legend") |>
           mapdeck::clear_polygon(layer_id = "lidar_polys") |>
           mapdeck::add_bitmap(
             image = data_raster$base64_string, layer_id = "lidar_raster",

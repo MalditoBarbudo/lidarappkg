@@ -70,6 +70,9 @@ tibble::tribble(
   'lidar', 'LiDAR (capa)', 'LiDAR (layer)', 'LiDAR (capa)',
   # show poly
   'show_polys', 'Veure polígons', 'Show polygons', 'Ver polígonos',
+  # show 3d
+  'poly_3d', 'Vista en 3D', '3D view', 'Vista en 3D',
+  'using_3d', "Per modificar l'angle de visió mantenir apretat Ctrl mentre s'arrossega amb el ratolí", 'To modify the viewing angle, hold down Ctrl while dragging with the mouse', 'Para modificar el ángulo de visión mantener apretado Ctrl mientras se arrastra con el ratón',
   # table names
   'poly_id', 'Polígon', 'Polygon', 'Polígono',
   'poly_km2', 'Àrea del polígon [km2]', 'Polygon area [km2]', 'Área del polígono [km2]',
