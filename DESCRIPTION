@@ -18,9 +18,7 @@ Imports:
     shinyWidgets,
     dplyr,
     viridis,
-    leaflet,
     rpostgis,
-    leaflet.extras,
     pool,
     readr,
     writexl,
@@ -30,7 +28,14 @@ Imports:
     terra,
     stars,
     waiter,
+<<<<<<< HEAD
     lubridate
+=======
+    lubridate,
+    mapdeck,
+    colourvalues,
+    jsonlite
+>>>>>>> mapbox
 RoxygenNote: 7.3.1
 Remotes: 
     MalditoBarbudo/lfcdata

@@ -9,7 +9,7 @@ mod_mapOutput <- function(id) {
   # ns
   ns <- shiny::NS(id)
   shiny::tagList(
-    leaflet::leafletOutput(ns("lidar_map"), height = 600),
+    mapdeck::mapdeckOutput(ns("lidar_map"), height = 600),
     shiny::uiOutput(ns('map_container'))
   )
 }
@@ -42,15 +42,13 @@ mod_map <- function(
   #   id = 'mod_mapOutput-lidar_map',
   #   color = '#E8EAEB'
   # )
-  attachNamespace("terra")
+  # attachNamespace("terra")
 
   ## renderUI ####
   output$map_container <- shiny::renderUI({
 
     # ns
     ns <- session$ns
-    # shiny::tagList(
-    #   leaflet::leafletOutput(ns('nfi_map'), height = 600),
     shiny::tags$div(
       id = 'cite',
       translate_app('main_panel_raster_siz_1', lang(), app_translations),
@@ -59,158 +57,129 @@ mod_map <- function(
     #   )
   }) # end of renderUI
 
-  output$lidar_map <- leaflet::renderLeaflet({
-
-    shiny::req(main_data_reactives$data_raster, cancelOutput = TRUE)
-    shiny::req(main_data_reactives$data_visible, cancelOutput = TRUE)
-
-    data_raster <- main_data_reactives$data_raster
-    data_map <- main_data_reactives$data_visible
-
-    palette <- leaflet::colorNumeric(
-      viridis::rocket(100),
-      data_raster[[1]] |> as.numeric(),
-      na.color = 'transparent'
+  # mapdeck output and observers
+  output$lidar_map <- mapdeck::renderMapdeck({
+    mapdeck::mapdeck(
+      ## debug
+      # show_view_state = TRUE,
+      # style = mapdeck::mapdeck_style('dark'),
+      # style = "mapbox://styles/mapbox/dark-v10",
+      style = "https://raw.githubusercontent.com/CartoDB/basemap-styles/refs/heads/master/mapboxgl/dark-matter-nolabels.json",
+      location = c(1.744, 41.726), zoom = 7, pitch = 0, max_pitch = 60
     )
+  })
 
-    palette_legend <- leaflet::colorNumeric(
-      viridis::rocket(100),
-      data_raster[[1]] |> as.numeric(),
-      na.color = 'transparent',
-      reverse = TRUE
-    )
+  shiny::observe(
+    x = {
+      shiny::req(main_data_reactives$data_raster, cancelOutput = TRUE)
+      shiny::req(main_data_reactives$data_visible, cancelOutput = TRUE)
 
-    # poly intermediates
-    var_column <- glue::glue("{data_reactives$lidar_var_sel}_average")
-
-    # proper map
-    leaflet::leaflet() |>
-      leaflet::setView(1.744, 41.726, zoom = 8) |>
-      leaflet::addProviderTiles(
-        leaflet::providers$Esri.WorldShadedRelief,
-        group = 'Relief' |> translate_app(lang(), app_translations),
-        # to avoid the raster disappear when changing base tiles
-        options = leaflet::providerTileOptions(zIndex = -10)
-      ) |>
-      leaflet::addProviderTiles(
-        leaflet::providers$Esri.WorldImagery,
-        group = 'Imaginery' |> translate_app(lang(), app_translations),
-        # to avoid the raster disappear when changing base tiles
-        options = leaflet::providerTileOptions(zIndex = -10)
-      ) |>
-      leaflet::addProviderTiles(
-        leaflet::providers$OpenStreetMap,
-        group = translate_app('OSM', lang(), app_translations),
-        # to avoid the raster disappear when changing base tiles
-        options = leaflet::providerTileOptions(zIndex = -10)
-      ) |>
-      leaflet::addProviderTiles(
-        leaflet::providers$Esri.WorldGrayCanvas,
-        group = translate_app('WorldGrayCanvas', lang(), app_translations),
-        # to avoid the raster disappear when changing base tiles
-        options = leaflet::providerTileOptions(zIndex = -10)
-      ) |>
-      leaflet::addProviderTiles(
-        leaflet::providers$CartoDB.PositronNoLabels,
-        group = translate_app('PositronNoLabels', lang(), app_translations),
-        # to avoid the raster disappear when changing base tiles
-        options = leaflet::providerTileOptions(zIndex = -10)
-      ) |>
-      leaflet::addMapPane('polys', zIndex = 410) |>
-      leaflet::addMapPane('rasters', zIndex = 420) |>
-      leaflet::addLayersControl(
-        baseGroups = c('Relief', 'Imaginery', 'OSM', 'WorldGrayCanvas', 'PositronNoLabels') |>
-          translate_app(lang(), app_translations),
-        overlayGroups = c('lidar', 'poly') |>
-          translate_app(lang(), app_translations) |>
-          purrr::map_chr(~ glue::glue(.x)),
-        options = leaflet::layersControlOptions(
-          collapsed = FALSE, autoZIndex = FALSE
-        )
-      ) |>
-
-      # This hide the raster until the user click the checkbox. Now, both
-      # layers (polygons and raster) are shown by default, so this is not
-      # needed. Ledt it here just in case the default changes in the future.
-
-      # leaflet::hideGroup(
-      #   'lidar' |> translate_app(lang(), app_translations)
-      # ) |>
-
-      leaflet::removeImage('raster') |>
-      leaflet::clearGroup(
-        'poly' |>
-          translate_app(lang(), app_translations) |>
-          purrr::map_chr(~ glue::glue(.x))
-      ) |>
-      leaflet::addRasterImage(
-        terra::rast(data_raster), project = TRUE, colors = palette, opacity = 1,
-      group = 'lidar' |>
-        translate_app(lang(), app_translations) |>
-        purrr::map_chr(~ glue::glue(.x)),
-        layerId = 'raster'
-      ) |>
-      leaflet::addPolygons(
-        data = data_map,
-        group = 'poly' |>
-          translate_app(lang(), app_translations) |>
-          purrr::map_chr(~ glue::glue(.x)),
-        label = ~poly_id,
-        layerId = ~poly_id,
-        weight = 1, smoothFactor = 1,
-        opacity = 1.0, fill = TRUE,
-        color = '#6C7A89FF',
-        fillColor = palette(data_map[[var_column]]),
-        fillOpacity = 0.85,
-        highlightOptions = leaflet::highlightOptions(
-          color = "#CF000F", weight = 2,
-          bringToFront = FALSE
-        ),
-        options = leaflet::pathOptions(
-          pane = 'polys'
-        )
-      ) |>
-      # hide polys
-      leaflet::hideGroup(
-        'poly' |>
-          translate_app(lang(), app_translations) |>
-          purrr::map_chr(~ glue::glue(.x))
-      ) |>
-      leaflet::addLegend(
-        pal = palette_legend, values = data_raster[[1]] |> as.numeric(),
-        title = var_column |>
-          stringr::str_remove('_average') |>
-          translate_app(lang(), app_translations),
-        position = 'bottomright', opacity = 1,
-        labFormat = leaflet::labelFormat(
-          transform = function(x) {sort(x, decreasing = TRUE)}
-        )
-      ) |>
-      # leaflet.extras plugins
-      leaflet.extras::addDrawToolbar(
-        targetGroup = 'poly' |>
-          translate_app(lang(), app_translations) |>
-          purrr::map_chr(~ glue::glue(.x)),
-        position = 'topleft',
-        polylineOptions = FALSE, circleOptions = FALSE, rectangleOptions = FALSE,
-        markerOptions = FALSE, circleMarkerOptions = FALSE,
-        polygonOptions = leaflet.extras::drawPolygonOptions(
-          shapeOptions = leaflet.extras::drawShapeOptions()
-        ),
-        editOptions = leaflet.extras::editToolbarOptions(
-          edit = TRUE, remove = TRUE
-        ),
-        singleFeature = TRUE
+      # data
+      lidar_var_sel <- data_reactives$lidar_var_sel
+      var_column <- glue::glue("{lidar_var_sel}_average")
+      poly_3d <- data_reactives$poly_3d
+      show_polys <- data_reactives$show_polys
+      data_raster <- main_data_reactives$data_raster
+      palette_fun <- scales::col_numeric(
+        hcl.colors(10, "ag_GrnYl", alpha = ifelse(poly_3d, 1, 0.8)),
+        c(data_raster[["min_value"]], data_raster[["max_value"]]),
+        na.color = "#FFFFFF00", reverse = FALSE, alpha = TRUE
       )
-  }) # end of leaflet output
+      data_map <- main_data_reactives$data_visible |>
+        dplyr::mutate(
+          hex = palette_fun(.data[[var_column]]),
+          tooltip = paste0(
+            "<p>", poly_id, ": ", round(.data[[var_column]], 2), "</p>"
+          ),
+          fake_elevation = 20000 * .data[[var_column]] / max(.data[[var_column]], na.rm = TRUE)
+        )
+
+      # custom legend (to be able to show in natural order, high values up)
+      legend_js <- mapdeck::legend_element(
+        variables = rev(round(seq(
+          data_raster[["min_value"]],
+          data_raster[["max_value"]],
+          length.out = 5
+        ), 0)),
+        colours = scales::col_numeric(
+          hcl.colors(10, "ag_GrnYl", alpha = ifelse(poly_3d, 1, 0.8)),
+          c(data_raster[["min_value"]], data_raster[["max_value"]]),
+          na.color = "#FFFFFF00", reverse = TRUE, alpha = TRUE
+        )(seq(
+          data_raster[["min_value"]],
+          data_raster[["max_value"]],
+          length.out = 5
+        )),
+        colour_type = "fill", variable_type = "gradient",
+        title = translate_app(lidar_var_sel, lang(), app_translations)
+      ) |>
+        mapdeck::mapdeck_legend()
+
+      # show the polys
+      if (show_polys) {
+
+        # browser()
+        stroke_colour_def <- "hex"
+        elevation_def <- NULL
+        elevation_scale_def <- 1
+        opacity_custom <- ifelse(poly_3d, 1, 0.8)
+
+        if (poly_3d) {
+          stroke_colour_def <- NULL
+          elevation_def <- "fake_elevation"
+        }
+        # map update
+        mapdeck::mapdeck_update(map_id = session$ns("lidar_map")) |>
+          mapdeck::clear_bitmap(layer_id = "lidar_raster") |>
+          mapdeck::clear_legend(layer_id = "custom_legend") |>
+          # mapdeck::clear_polygon(layer_id = "lidar_polys") |>
+          mapdeck::add_polygon(
+            data = data_map, layer_id = "lidar_polys",
+            tooltip = "tooltip",
+            id = "poly_id",
+            stroke_colour = stroke_colour_def,
+            fill_colour = "hex",
+            fill_opacity = opacity_custom,
+            auto_highlight = TRUE, highlight_colour = "#FDF5EB80",
+            elevation = elevation_def, elevation_scale = elevation_scale_def,
+            update_view = FALSE, focus_layer = FALSE,
+            legend = legend_js
+          )
+
+      } else {
+        # map update
+        mapdeck::mapdeck_update(map_id = session$ns("lidar_map")) |>
+          # mapdeck::clear_bitmap(layer_id = "lidar_raster") |>
+          # mapdeck::clear_legend(layer_id = "custom_legend") |>
+          mapdeck::clear_polygon(layer_id = "lidar_polys") |>
+          mapdeck::add_bitmap(
+            image = data_raster$base64_string, layer_id = "lidar_raster",
+            bounds = c(
+              data_raster$left_ext, data_raster$down_ext,
+              data_raster$right_ext, data_raster$up_ext
+            ),
+            update_view = FALSE, focus_layer = FALSE,
+            transparent_colour = "#00000000"
+          ) |>
+          # mapdeck::add_polygon(
+          #   data = main_data_reactives$data_visible, layer_id = "lidar_polys",
+          #   fill_opacity = 0,
+          #   # id = "poly_id",
+          #   legend = legend_js,
+          #   update_view = FALSE, focus_layer = FALSE
+          # )
+          mapdeck::add_legend(legend = legend_js, layer_id = "custom_legend")
+      }
+    }
+  )
 
   # reactives to return ####
   map_reactives <- shiny::reactiveValues()
   shiny::observe({
     map_reactives$lidar_map_draw_all_features <-
       input$lidar_map_draw_all_features
-    map_reactives$lidar_map_shape_click <- input$lidar_map_shape_click
-    map_reactives$lidar_map_click <- input$lidar_map_click
+    map_reactives$lidar_map_shape_click <- input$lidar_map_polygon_click
+    map_reactives$lidar_map_click <- input$lidar_map_bitmap_click
   })
   return(map_reactives)
 }

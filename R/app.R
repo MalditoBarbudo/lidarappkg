@@ -176,6 +176,9 @@ $(document).on('shiny:disconnected', function(event) {
       input$lang
     })
 
+    ## mapbox token
+    mapdeck::set_token(Sys.getenv("MAPBOX_TOKEN"))
+
     ## modules calling ####
     # data inputs
     data_reactives <- shiny::callModule(
@@ -190,7 +193,8 @@ $(document).on('shiny:disconnected', function(event) {
     # save output
     shiny::callModule(
       mod_save, 'mod_saveOutput', lang, app_translations,
-      main_data_reactives
+      main_data_reactives, data_reactives,
+      lidardb
     )
     # map
     map_reactives <- shiny::callModule(
@@ -218,9 +222,12 @@ $(document).on('shiny:disconnected', function(event) {
     shiny::observeEvent(
       eventExpr = map_reactives$lidar_map_shape_click,
       handlerExpr = {
-
         # id
-        id_click <- map_reactives$lidar_map_shape_click$id
+        id_click <-
+          jsonlite::fromJSON(map_reactives$lidar_map_shape_click)$object$properties$id        
+        # ensure we have id
+        shiny::req(id_click)
+
         # module call
         shiny::callModule(
           mod_info, 'mod_infoUI', lang, app_translations,

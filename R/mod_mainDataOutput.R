@@ -152,24 +152,25 @@ mod_mainData <- function(
       shiny::need(data_reactives$lidar_var_sel, 'no var yet')
     )
 
-    # Sys.sleep(0.2) # we need this for the init progress
-    waiter_raster <- waiter::Waiter$new(
-      id = 'mod_mapOutput-lidar_map',
-      html = shiny::tagList(
-        hostess_raster$get_loader(),
-        shiny::h3(translate_app('raster_progress_mes', lang(), app_translations))
-      ),
-      color = '#E8EAEB'
-    )
+    # # Sys.sleep(0.2) # we need this for the init progress
+    # waiter_raster <- waiter::Waiter$new(
+    #   id = 'mod_mapOutput-lidar_map',
+    #   html = shiny::tagList(
+    #     hostess_raster$get_loader(),
+    #     shiny::h3(translate_app('raster_progress_mes', lang(), app_translations))
+    #   ),
+    #   color = '#E8EAEB'
+    # )
 
-    waiter_raster$show()
-    hostess_raster$start()
-    on.exit(hostess_raster$close())
-    on.exit(waiter_raster$hide(), add = TRUE)
+    # waiter_raster$show()
+    # hostess_raster$start()
+    # on.exit(hostess_raster$close())
+    # on.exit(waiter_raster$hide(), add = TRUE)
 
-    lidar_var <- data_reactives$lidar_var_sel
-    lidar_raster <- lidardb$get_lowres_raster(lidar_var, 'stars')
-
+    # lidar_var <- data_reactives$lidar_var_sel
+    # lidar_raster <- lidardb$get_lowres_raster(lidar_var, 'stars')
+    lidar_raster <- lidardb$get_lowres_png() |>
+      dplyr::filter(var == data_reactives$lidar_var_sel)
     return(lidar_raster)
   })
 
