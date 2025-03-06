@@ -59,12 +59,12 @@ $(document).on('shiny:inputchanged', function(event) {
   if (/^mod_data*/.test(event.name)) {
     console.log(event.name)
     console.log(event.value)
-    _paq.push(['trackEvent', 'dataInputs', 'updates', event.name, 1, {dimension2: event.value}]);
+    _paq.push(['trackEvent', 'dataInputs', event.name, event.value, 1, {dimension2: event.value}]);
   }
   if (/^mod_save*/.test(event.name)) {
     console.log(event.name)
     console.log(event.value)
-    _paq.push(['trackEvent', 'saveInputs', 'updates', event.name, 2, {dimension2: event.value}]);
+    _paq.push(['trackEvent', 'saveInputs', event.name, event.value, 2, {dimension2: event.value}]);
   }
 });"
   )
