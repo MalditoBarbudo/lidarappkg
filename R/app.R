@@ -42,10 +42,38 @@ $(document).on('shiny:disconnected', function(event) {
 });"
   )
 
+  matomo_script <- shiny::HTML(
+    "var _paq = window._paq = window._paq || [];
+_paq.push(['trackPageView']);
+_paq.push(['enableLinkTracking']);
+(function() {
+  var u='https://stats-emf.creaf.cat/';
+  _paq.push(['setTrackerUrl', u+'matomo.php']);
+  _paq.push(['setSiteId', '3']);
+  var d=document, g=d.createElement('script'), s=d.getElementsByTagName('script')[0];
+  g.async=true; g.src=u+'matomo.js'; s.parentNode.insertBefore(g,s);
+})();
+
+// Event Tracking Code
+$(document).on('shiny:inputchanged', function(event) {
+  if (/^mod_data*/.test(event.name)) {
+    console.log(event.name)
+    console.log(event.value)
+    _paq.push(['trackEvent', 'dataInputs', 'updates', event.name, 1, {dimension2: event.value}]);
+  }
+  if (/^mod_save*/.test(event.name)) {
+    console.log(event.name)
+    console.log(event.value)
+    _paq.push(['trackEvent', 'saveInputs', 'updates', event.name, 2, {dimension2: event.value}]);
+  }
+});"
+  )
+
   ## UI ####
   ui <- shiny::tagList(
     # js script,
     shiny::tags$script(keep_alive_script),
+    shiny::tags$script(matomo_script),
 
     # shinyjs
     shinyjs::useShinyjs(),
